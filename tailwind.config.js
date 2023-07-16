@@ -8,10 +8,10 @@ module.exports = {
         foreground: 'hsl(var(--foreground))',
         btn: {
           background: 'hsl(var(--btn-background))',
-          'background-hover': 'hsl(var(--btn-background-hover))',
-        },
-      },
-    },
+          'background-hover': 'hsl(var(--btn-background-hover))'
+        }
+      }
+    }
   },
-  plugins: [],
-}
+  plugins: []
+};
