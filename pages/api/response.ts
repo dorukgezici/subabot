@@ -6,7 +6,7 @@ import {
   countKeywords,
 } from "@/lib/upstash";
 import { verifyRequest, log, respondToSlack } from "@/lib/slack";
-import { commonWords } from "manifest";
+import { commonWords } from '@/manifest'
 
 export default async function handler(
   req: NextApiRequest,

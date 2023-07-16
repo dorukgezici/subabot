@@ -7,6 +7,7 @@ import { useVideoModal } from "@/components/video-modal";
 import va from "@vercel/analytics";
 import { useEffect } from "react";
 
+
 export default function SuccessTeam(props: { teamId: string }) {
   const { setShowVideoModal, VideoModal } = useVideoModal();
   useEffect(() => {
