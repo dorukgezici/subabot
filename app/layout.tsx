@@ -17,8 +17,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang='en'>
     <body className={font.className}>
     {children}
-    </body>
     <Footer />
+    </body>
     </html>
   );
 }
