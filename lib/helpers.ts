@@ -1,12 +1,12 @@
-import { decode } from "html-entities";
+import { decode } from 'html-entities';
 // @ts-ignore - no type info for this module
-import mrkdwn from "html-to-mrkdwn";
-import regexEscape from "escape-string-regexp";
-import { TeamAndKeywords } from "@/lib/upstash";
+import mrkdwn from 'html-to-mrkdwn';
+import regexEscape from 'escape-string-regexp';
+import { TeamAndKeywords } from '@/lib/upstash';
 
 export function combineText(post: any) {
   /* combine text from post's title, text, and url */
-  let text = "";
+  let text = '';
   if (post.url) {
     text += `${post.url}\n`;
   }
@@ -41,7 +41,7 @@ export function postScanner(teamsAndKeywords: TeamAndKeywords) {
     (keyword) => `\\b${regexEscape(keyword)}\\b`
   );
 
-  const scanner = new RegExp(`(${boundaries.join(")|(")})`, "gi"); // create a regex that matches all keywords
+  const scanner = new RegExp(`(${boundaries.join(')|(')})`, 'gi'); // create a regex that matches all keywords
 
   return (post: any): Set<string> => {
     const text = combineText(post); // combine text from post's title, text, and url
@@ -61,7 +61,7 @@ export function postScanner(teamsAndKeywords: TeamAndKeywords) {
           break;
         }
       }
-      return ""; // replace all instances of keywords with empty string (just for the replace function, we're not actually interested in the text here)
+      return ''; // replace all instances of keywords with empty string (just for the replace function, we're not actually interested in the text here)
     });
 
     return teamsInterestedInThisPost; // return set of team IDs that are interested in this post
@@ -69,9 +69,9 @@ export function postScanner(teamsAndKeywords: TeamAndKeywords) {
 }
 
 export function truncateString(str: string, num: number) {
-  if (!str) return "";
+  if (!str) return '';
   if (str.length > num) {
-    return str.slice(0, num) + "...";
+    return str.slice(0, num) + '...';
   } else {
     return str;
   }
@@ -89,11 +89,11 @@ export function regexOperations(post: any, keywords: string[]) {
 
   // This regex will be of the form:
   //   const termsRegex = /(\bVercel\b)|(\bNextJS\b))\b/gi
-  const termsRegex = new RegExp(`(${keywordWordBoundary.join(")|(")})`, "gi");
+  const termsRegex = new RegExp(`(${keywordWordBoundary.join(')|(')})`, 'gi');
 
-  const marked: string = mrkdwn(decode(post?.text || ""))
-    ? mrkdwn(decode(post?.text || "")).text
-    : "";
+  const marked: string = mrkdwn(decode(post?.text || ''))
+    ? mrkdwn(decode(post?.text || '')).text
+    : '';
 
   // We use String.replace here so that we can know which capture group is
   // actually matched, so that we can extract the appropriate keyword.
@@ -109,8 +109,8 @@ export function regexOperations(post: any, keywords: string[]) {
     }
 
     // We don't actually care about the replaced text, we're just using this
-    // for the side-effects.
-    return "";
+    // for the side effects.
+    return '';
   });
 
   // This regex searches for our keywords, while also matching a few extra
@@ -126,31 +126,31 @@ export function regexOperations(post: any, keywords: string[]) {
   //   const decorateRegex = /```(?:(?!```)[^])*|<http[^|]*|\|http[^>]*|(\bVercel\b|\bNextJS\b)/gi
   const decorateRegex = new RegExp(
     [
-      "```(?:(?!```)[^])*", // code blocks, using a negative lookahead and an an "anything" `[^]` negative char class.
+      '```(?:(?!```)[^])*', // code blocks, using a negative lookahead and an an "anything" `[^]` negative char class.
       `<http[^|]*`, // The href of a link
       `\\|http[^>]*`, // An auto-generated link without explicit text
-      `(${keywordWordBoundary.join("|")})`, // Our keywords to decorate
-    ].join("|"),
-    "gi"
+      `(${keywordWordBoundary.join('|')})` // Our keywords to decorate
+    ].join('|'),
+    'gi'
   );
 
   const processedPost = marked.replace(decorateRegex, (match, term) => {
     // If we have a term, then it's something like "Vercel" and we can decorate it.
     if (term) {
-      return "*`" + term + "`*";
+      return '*`' + term + '`*';
     }
 
-    // Else, we matched a link's href and we do not want to decorate.
+    // Else, we matched a link's href, and we do not want to decorate.
     return match;
   });
 
   return {
     processedPost,
-    mentionedTerms,
+    mentionedTerms
   };
 }
 
 export const equalsIgnoreOrder = (a: string[], b: string[]) => {
   if (a.length !== b.length) return false;
-  return a.sort().join(",") === b.sort().join(",");
+  return a.sort().join(',') === b.sort().join(',');
 };

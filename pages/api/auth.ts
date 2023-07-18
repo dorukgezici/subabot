@@ -1,6 +1,7 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import { setAccessToken } from "@/lib/upstash";
-import { log } from "@/lib/slack";
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { setAccessToken } from '@/lib/upstash';
+import { log } from '@/lib/slack';
+
 
 export default async function handler(
   req: NextApiRequest,
@@ -15,13 +16,13 @@ export default async function handler(
     const { access_token, team } = json;
     if (access_token && team.id) {
       const upstashRepsonse = await setAccessToken(access_token, team.id);
-      if (upstashRepsonse[0] === "OK") {
+      if (upstashRepsonse[0] === 'OK') {
         await log(
-          "Team *`" +
-            team.name +
-            "`* (*`" +
-            team.id +
-            "`*) just installed the bot :tada:"
+          'Team *`' +
+          team.name +
+          '`* (*`' +
+          team.id +
+          '`*) just installed the bot :tada:'
         );
         res.redirect(`/success/${team.id}`);
       } else {
@@ -31,14 +32,13 @@ export default async function handler(
     } else {
       // no access token or team id in json response from slack oauth API
       res.status(500).json({
-        message:
-          "No access token or team id found in response from Slack's /oauth.v2.access API.",
+        message: 'No access token or team id found in response from Slack\'s /oauth.v2.access API.'
       });
     }
   } catch (err) {
     // failed to fetch from slack oauth API
     res
       .status(500)
-      .json({ statusCode: 500, message: "An unknown error occured." });
+      .json({ statusCode: 500, message: 'An unknown error occurred.' });
   }
 }
