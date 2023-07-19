@@ -2,6 +2,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
 
+# noinspection PyUnresolvedReferences
+from . import models
+
 engine = create_async_engine("sqlite+aiosqlite:///db.sqlite3", echo=True)
 
 

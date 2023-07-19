@@ -1,10 +1,11 @@
 from fastapi import Depends, FastAPI
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 
 from .db import get_session, init_db
 from .models import Task, TaskCreate
 
-app = FastAPI()
+app = FastAPI(title="subabot", version="0.1.0")
 
 
 @app.on_event("startup")
@@ -15,6 +16,12 @@ async def on_startup():
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
+
+@app.get("/tasks", response_model=list[Task])
+async def read_tasks(session: AsyncSession = Depends(get_session)):
+    tasks = await session.execute(select(Task))
+    return tasks.scalars().all()
 
 
 @app.post("/task/", response_model=Task)
