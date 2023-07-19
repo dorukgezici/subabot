@@ -32,7 +32,7 @@ export default async function Home() {
       </section>
 
       <section className='flex items-center justify-center p-8 sm:p-16'>
-        <div className='w-2/3 max-w-4xl'>
+        <div className='w-3/5 max-w-4xl'>
           <h1 className='text-5xl sm:text-6xl md:text-7xl font-extrabold my-10 mr-4'>Never Miss an Update!</h1>
           <p className='text-xl'>
             Subabot is the ultimate AI-powered Slack bot designed to monitor the web and alert you whenever there’s an
@@ -40,8 +40,11 @@ export default async function Home() {
             through the noise with AI classification and filtering.
           </p>
         </div>
-        <div className='w-1/3 hidden md:flex max-w-sm'>
-          <FontAwesomeIcon icon={faMagnifyingGlass} className='w-full md:h-[324px] lg:h-[384px]' />
+        <div className='w-2/5 hidden md:flex max-w-sm'>
+          <FontAwesomeIcon
+            icon={faMagnifyingGlass}
+            style={{ width: '%100', height: 'auto' }}
+          />
         </div>
       </section>
 
