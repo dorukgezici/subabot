@@ -41,7 +41,7 @@ export default async function Home() {
           </p>
         </div>
         <div className='w-1/3 hidden md:flex max-w-sm'>
-          <FontAwesomeIcon icon={faMagnifyingGlass} className='w-full h-full' />
+          <FontAwesomeIcon icon={faMagnifyingGlass} className='w-full h-auto min-h-16' />
         </div>
       </section>
 
