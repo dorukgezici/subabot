@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import Footer from '@/components/Footer';
-import './globals.css';
+import './globals.scss';
 
 export const metadata = {
   title: 'Subabot',

@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #203A43FF;
+  --dark: #0F2027FF;
+  --light: #2C5364FF;
+  --lighter: #B0C4DEFF;
+}
+
+body {
+  @apply bg-slate-300;
+  @apply text-primary;
+}

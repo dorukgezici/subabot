@@ -1,29 +1,26 @@
-import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass, faRobot } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import RobotTile from '@/components/RobotTile';
 import SlackButton from '@/components/SlackButton';
-import styles from './styles.module.scss';
 
 
-export default async function Index() {
-  const emojis = Array.from({ length: 100 }).map((_, index) => (
-    <FontAwesomeIcon key={index} icon={faRobot} className={styles.icon} />
-  ));
-
+export default async function Home() {
   return (
     <main>
-      <section className={classNames(styles.bg,
-        'h-screen flex flex-wrap items-center justify-center overflow-hidden space-y-12'
-      )}>
-        {emojis}
+      <section
+        className='h-screen flex flex-wrap items-center justify-center overflow-hidden space-y-12 bg-gradient-to-tl from-dark via-primary to-light'
+      >
+        <RobotTile count={80} />
 
-        <div className={classNames(styles.card,
-          'absolute p-20 shadow-2xl rounded-xl'
-        )}>
-          <div className='w-full my-10 md:w-1/2'>
-            <h1 className='text-8xl font-extrabold text-slate-300 md:text-9xl'>Subabot</h1>
-            <p className='text-lg text-slate-400 md:text-xl my-4'>
-              An AI-powered Slack alert bot to subscribe, classify and notify for keywords on the web.
+        <div
+          className='bg-primary opacity-95 absolute p-8 sm:p-16 md:p-24 shadow-2xl rounded-3xl w-full lg:w-2/3 max-w-[900px] border-solid border-2 border-primary'
+        >
+          <div className='my-10'>
+            <h1 className='text-7xl font-extrabold text-slate-300 sm:text-8xl md:text-9xl'>Subabot</h1>
+            <p className='text-xl text-slate-400 sm:text-2xl md:text-3xl my-4 md:my-6'>
+              An AI-powered Slack alert bot to <span className='underline'>subscribe</span>, <span
+              className='underline'>classify</span> and <span className='underline'>notify</span> for keywords on the
+              web.
             </p>
           </div>
 
@@ -34,18 +31,22 @@ export default async function Index() {
         </div>
       </section>
 
-      <section className='flex justify-center align-middle items-center p-20'>
-        <div className='flex-row w-2/3'>
+      <section className='flex items-center justify-center p-20'>
+        <div className='w-2/3 max-w-4xl'>
           <h1 className='text-7xl font-extrabold my-10 mr-4'>Never Miss an Update!</h1>
-          <p>
+          <p className='text-xl'>
             Subabot is the ultimate AI-powered Slack bot designed to monitor the web and alert you whenever there’s an
             update about your favorite keywords. Stay ahead of the competition and never miss a beat, while cutting
             through the noise with AI classification and filtering.
           </p>
         </div>
-        <div className='flex w-1/3'>
-          <FontAwesomeIcon icon={faMagnifyingGlass} className='hidden md:block w-12 md:w-1/2 lg:1/3 xl:1/4 h-auto' />
+        <div className='w-1/3 hidden md:flex max-w-sm'>
+          <FontAwesomeIcon icon={faMagnifyingGlass} className='w-full h-auto' />
         </div>
+      </section>
+
+      <section className=''>
+        {/* pricing */}
       </section>
     </main>
   );
