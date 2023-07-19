@@ -1,4 +1,5 @@
 {
+  "outputDirectory": "frontend",
   "crons": [
     {
       "path": "/api/cron",
