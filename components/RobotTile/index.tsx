@@ -1,15 +1,32 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRobot } from '@fortawesome/free-solid-svg-icons';
 
 
-export default function RobotTile({ count }: { count: number }) {
+export default function RobotTile() {
+  const [botCount, setBotCount] = useState(0);
   const [botIndex, setBotIndex] = useState(0);
-  // 242.66 bot width
+  const bonusBotCount = 4;
 
-  const icons = Array.from({ length: count }).map((_, index) => (
+  const handleResize = () => {
+    // bot width 242.66, height 218.76
+    const x = window.innerHeight / 242.66;
+    const y = window.innerWidth / 218.76;
+    // estimation missing 5 bots for the worst case
+    const estimate = Math.floor(x * y);
+    setBotCount(estimate + bonusBotCount);
+  };
+
+  useEffect(() => {
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const icons = Array.from({ length: botCount }).map((_, index) => (
     <FontAwesomeIcon
       key={index} icon={faRobot}
       className={classNames(
@@ -19,7 +36,7 @@ export default function RobotTile({ count }: { count: number }) {
       )}
       onClick={() => {
         if (index !== botIndex) return;
-        setBotIndex(Math.floor(Math.random() * count));
+        setBotIndex(Math.floor(Math.max(Math.min(Math.random() * botCount - bonusBotCount, botCount * 2 / 3), 0)));
       }}
     />
   ));

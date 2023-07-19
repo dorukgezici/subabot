@@ -10,7 +10,7 @@ export default async function Home() {
       <section
         className='h-screen flex flex-wrap items-center justify-center overflow-hidden space-y-12 bg-gradient-to-tl from-dark via-primary to-light'
       >
-        <RobotTile count={80} />
+        <RobotTile />
 
         <div
           className='bg-primary opacity-95 absolute p-8 sm:p-16 md:p-24 shadow-2xl rounded-3xl w-full lg:w-2/3 max-w-[900px] border-solid border-2 border-primary'
