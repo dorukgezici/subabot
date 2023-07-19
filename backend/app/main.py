@@ -5,7 +5,7 @@ from sqlmodel import select
 from .db import get_session, init_db
 from .models import Task, TaskCreate
 
-app = FastAPI(title="subabot", version="0.1.0")
+app = FastAPI(title="Subabot", version="0.1.0")
 
 
 @app.on_event("startup")
