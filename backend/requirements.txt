@@ -1,5 +1,5 @@
 fastapi==0.100.0
 uvicorn[standard]==0.23.1
-sqlmodel==0.0.8
 asyncer==0.0.2
 deta==1.2.0
+feedparser==6.0.10

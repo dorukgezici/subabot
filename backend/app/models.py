@@ -1,10 +1,10 @@
-from sqlmodel import Field, SQLModel
+from pydantic import BaseModel
 
 
-class Event(SQLModel):
-    id: str = Field(default=None, primary_key=True)
+class Event(BaseModel):
+    id: str
     trigger: str
 
 
-class Action(SQLModel):
+class Action(BaseModel):
     event: Event

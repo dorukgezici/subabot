@@ -5,10 +5,18 @@ micros:
     src: ./frontend
     engine: next
     primary: true
+    public: true
     dev: npm run dev
+
   - name: backend
     src: ./backend
     engine: python3.9
     path: api
     run: uvicorn app.main:app
     dev: uvicorn app.main:app --reload
+    actions:
+      - id: "test"
+        name: "Test"
+        description: "A scheduled action test"
+        trigger: "schedule"
+        default_interval: "1 minute"
