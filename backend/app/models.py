@@ -1,13 +1,10 @@
 from sqlmodel import Field, SQLModel
 
 
-class TaskBase(SQLModel):
-    task_name: str
+class Event(SQLModel):
+    id: str = Field(default=None, primary_key=True)
+    trigger: str
 
 
-class Task(TaskBase, table=True):
-    id: int = Field(default=None, primary_key=True)
-
-
-class TaskCreate(TaskBase):
-    pass
+class Action(SQLModel):
+    event: Event

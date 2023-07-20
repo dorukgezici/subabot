@@ -1,4 +1,8 @@
+# OS & IDE
 .DS_Store
 .idea
-.vercel
 
+# misc
+.venv
+.space
+.vercel

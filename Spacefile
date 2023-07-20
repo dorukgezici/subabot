@@ -1,0 +1,14 @@
+# Spacefile Docs: https://go.deta.dev/docs/spacefile/v0
+v: 0
+micros:
+  - name: frontend
+    src: ./frontend
+    engine: next
+    primary: true
+    dev: npm run dev
+  - name: backend
+    src: ./backend
+    engine: python3.9
+    path: api
+    run: uvicorn app.main:app
+    dev: uvicorn app.main:app --reload
