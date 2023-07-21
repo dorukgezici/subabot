@@ -7,6 +7,11 @@ micros:
     primary: true
     public: true
     dev: npm run dev
+    presets:
+      env:
+        - name: NEXT_PUBLIC_SLACK_CLIENT_ID
+          description: Slack Client ID
+          default: "5582876164549.5586544881811"
 
   - name: backend
     src: ./backend
