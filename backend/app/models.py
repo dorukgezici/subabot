@@ -9,7 +9,7 @@ class Feed(BaseModel):
     url: str
 
     refreshed_at: Optional[int] = Field(default=None)
-    rss: Optional[dict] = Field(default=None)
+    data: Optional[dict] = Field(default=None)
 
 
 class Keyword(BaseModel):
@@ -17,6 +17,7 @@ class Keyword(BaseModel):
     value: str
 
     checked_at: Optional[int] = Field(default=None)
+    matches: dict = Field(default={})
 
 
 # Deta Space: Scheduled Actions

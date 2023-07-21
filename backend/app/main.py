@@ -5,7 +5,7 @@ from fastapi.logger import logger
 
 from .db import db_events, db_feeds, db_keywords
 from .helpers import now_timestamp
-from .models import Action, Feed
+from .models import Action, Feed, Keyword
 from .rss import feeds, keywords, run_crawler
 
 uvicorn_logger = logging.getLogger('uvicorn')
@@ -16,7 +16,7 @@ app = FastAPI(title='Subabot', version='0.1.0')
 
 
 @app.on_event('startup')
-async def on_startup():
+def on_startup():
     logger.info("Loading initial RSS feeds and keywords to the db...")
     db_feeds.put_many([feed.model_dump() for feed in feeds])
     db_keywords.put_many([keyword.model_dump() for keyword in keywords])
@@ -34,6 +34,9 @@ def actions(action: Action) -> None:
     event['created_at'] = now = now_timestamp()
     db_events.put(event)
 
-    # Crawl feeds that were last refreshed more than 4 minutes ago
-    for feed in db_feeds.fetch([{'refreshed_at?lt': now - 240}, {'refreshed_at': None}]).items:
-        run_crawler(Feed(**feed))
+    # Query feeds that were refreshed more than 4 minutes ago or never at all
+    feeds = [Feed(**feed) for feed in db_feeds.fetch([{'refreshed_at?lt': now - 240}, {'refreshed_at': None}]).items]
+    keywords = [Keyword(**keyword) for keyword in db_keywords.fetch().items]
+
+    for feed in feeds:
+        run_crawler(feed, keywords)

@@ -1,21 +1,50 @@
+from typing import Any, Dict, List, Tuple, Union
+
 from feedparser import FeedParserDict, parse
 
-from ..db import db_feeds
+from ..db import db_feeds, db_keywords
 from ..helpers import now_timestamp
-from ..models import Feed
+from ..models import Feed, Keyword
 
 
-def run_crawler(feed: Feed) -> None:
-    d: FeedParserDict = parse(feed.url)
+def find_matches(
+    data: Union[List[Dict[str, Any]], Dict[str, Any], str],
+    keyword: str,
+    pre_path: Tuple[str, ...] = (),
+) -> Tuple[str, ...]:
+    """Returns a tuple of paths to the keyword found in the data."""
+    if isinstance(data, list):
+        for index, item in enumerate(data):
+            path = pre_path + (str(index),)
+            yield from find_matches(item, keyword, path)
+
+    elif isinstance(data, dict):
+        for key, value in data.items():
+            path = pre_path + (key,)
+            yield from find_matches(value, keyword, path)
+
+    elif isinstance(data, str) and keyword.casefold() in data.casefold():
+        yield pre_path
+
+
+def run_crawler(feed: Feed, keywords: List[Keyword]) -> None:
+    data: FeedParserDict = parse(feed.url)
 
     new_feed = feed.model_dump()
     new_feed.update(
         {
             'refreshed_at': now_timestamp(),
-            'rss': {
-                'feed': d.feed,
-                'entries': d.entries,
+            'data': {
+                'feed': data.feed,
+                'entries': data.entries,
             },
         },
     )
     db_feeds.put(new_feed, feed.key)
+
+    for keyword in keywords:
+        # this reload was needed not to overwrite the matches from other feeds
+        new_keyword = db_keywords.get(keyword.key)
+        new_keyword['checked_at'] = now_timestamp()
+        new_keyword['matches'][feed.key] = [match for match in find_matches(data.entries, keyword.value)]
+        db_keywords.put(new_keyword, keyword.key)
