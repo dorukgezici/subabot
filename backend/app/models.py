@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+from typing import Optional
+
+from pydantic import BaseModel, Field
 
 
 class Feed(BaseModel):
@@ -6,13 +8,18 @@ class Feed(BaseModel):
     title: str
     url: str
 
+    refreshed_at: Optional[int] = Field(default=None)
+    rss: Optional[dict] = Field(default=None)
+
 
 class Keyword(BaseModel):
     key: str
     value: str
 
+    checked_at: Optional[int] = Field(default=None)
 
-# Deta Space
+
+# Deta Space: Scheduled Actions
 class Event(BaseModel):
     id: str
     trigger: str

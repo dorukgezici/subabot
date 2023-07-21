@@ -1,5 +1,6 @@
 # Spacefile Docs: https://go.deta.dev/docs/spacefile/v0
 v: 0
+icon: frontend/public/img/subabot-512.png
 micros:
   - name: frontend
     src: ./frontend
@@ -20,8 +21,8 @@ micros:
     run: uvicorn app.main:app
     dev: uvicorn app.main:app --reload
     actions:
-      - id: "test"
-        name: "Test"
-        description: "A scheduled action test"
+      - id: "run_crawler"
+        name: "Run Crawler"
+        description: "Run crawler for RSS feeds"
         trigger: "schedule"
-        default_interval: "1 minute"
+        default_interval: "5 minutes"

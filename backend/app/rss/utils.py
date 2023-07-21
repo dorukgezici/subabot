@@ -1,4 +1,4 @@
-from feedparser import parse
+from feedparser import FeedParserDict, parse
 
 from ..db import db_feeds
 from ..helpers import now_timestamp
@@ -6,8 +6,16 @@ from ..models import Feed
 
 
 def run_crawler(feed: Feed) -> None:
-    d = parse(feed.url)
-    print(d.feed)
+    d: FeedParserDict = parse(feed.url)
 
-    feed['refreshed_at'] = now_timestamp()
-    db_feeds.put(feed.model_dump(), feed.key)
+    new_feed = feed.model_dump()
+    new_feed.update(
+        {
+            'refreshed_at': now_timestamp(),
+            'rss': {
+                'feed': d.feed,
+                'entries': d.entries,
+            },
+        },
+    )
+    db_feeds.put(new_feed, feed.key)
