@@ -3,16 +3,18 @@ import logging
 from fastapi import FastAPI
 from fastapi.logger import logger
 
-from .db import db_events, db_feeds, db_keywords
-from .helpers import now_timestamp
-from .models import Action, Feed, Keyword
-from .rss import feeds, keywords, run_crawler
+from .db import db_feeds, db_keywords
+from .deta import router as deta_router
+from .rss import feeds, keywords
+from .slack import router as slack_router
 
 uvicorn_logger = logging.getLogger('uvicorn')
 logger.handlers = uvicorn_logger.handlers
 logger.setLevel(uvicorn_logger.level)
 
 app = FastAPI(title='Subabot', version='0.1.0')
+app.include_router(deta_router)
+app.include_router(slack_router)
 
 
 @app.on_event('startup')
@@ -25,18 +27,3 @@ def on_startup():
 @app.get('/')
 async def health():
     return {'status': 'ok'}
-
-
-# Deta Space: Scheduled Actions
-@app.post('/__space/v0/actions')
-def actions(action: Action) -> None:
-    event = action.event.model_dump()
-    event['created_at'] = now = now_timestamp()
-    db_events.put(event)
-
-    # Query feeds that were refreshed more than 4 minutes ago or never at all
-    feeds = [Feed(**feed) for feed in db_feeds.fetch([{'refreshed_at?lt': now - 240}, {'refreshed_at': None}]).items]
-    keywords = [Keyword(**keyword) for keyword in db_keywords.fetch().items]
-
-    for feed in feeds:
-        run_crawler(feed, keywords)

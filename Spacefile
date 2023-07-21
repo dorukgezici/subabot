@@ -20,6 +20,14 @@ micros:
     path: api
     run: uvicorn app.main:app
     dev: uvicorn app.main:app --reload
+    presets:
+      env:
+        - name: SLACK_CLIENT_ID
+          description: Slack Client ID
+          default: "5582876164549.5586544881811"
+        - name: SLACK_CLIENT_SECRET
+          description: Slack Client Secret
+          default: "<secret>"
     actions:
       - id: "run_crawler"
         name: "Run Crawler"

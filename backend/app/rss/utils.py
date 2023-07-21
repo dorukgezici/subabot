@@ -2,9 +2,9 @@ from typing import Any, Dict, List, Tuple, Union
 
 from feedparser import FeedParserDict, parse
 
+from .models import Feed, Keyword
 from ..db import db_feeds, db_keywords
 from ..helpers import now_timestamp
-from ..models import Feed, Keyword
 
 
 def find_matches(

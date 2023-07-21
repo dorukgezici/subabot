@@ -18,13 +18,3 @@ class Keyword(BaseModel):
 
     checked_at: Optional[int] = Field(default=None)
     matches: dict = Field(default={})
-
-
-# Deta Space: Scheduled Actions
-class Event(BaseModel):
-    id: str
-    trigger: str
-
-
-class Action(BaseModel):
-    event: Event
