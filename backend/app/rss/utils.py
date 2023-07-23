@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, Generator, List, Tuple, Union
 
 from feedparser import FeedParserDict, parse
 
@@ -11,7 +11,7 @@ def find_matches(
     data: Union[List[Dict[str, Any]], Dict[str, Any], str],
     keyword: str,
     pre_path: Tuple[str, ...] = (),
-) -> Tuple[str, ...]:
+) -> Generator[Tuple[str], Any, Any]:
     """Returns a tuple of paths to the keyword found in the data."""
     if isinstance(data, list):
         for index, item in enumerate(data):
@@ -44,7 +44,7 @@ def run_crawler(feed: Feed, keywords: List[Keyword]) -> None:
 
     for keyword in keywords:
         # this reload was needed not to overwrite the matches from other feeds
-        new_keyword = db_keywords.get(keyword.key)
+        new_keyword = db_keywords.get(keyword.key).__dict__
         new_keyword['checked_at'] = now_timestamp()
-        new_keyword['matches'][feed.key] = [match for match in find_matches(data.entries, keyword.value)]
+        new_keyword['matches'][feed.key] = [match for match in find_matches(list(data.entries), keyword.value)]
         db_keywords.put(new_keyword, keyword.key)

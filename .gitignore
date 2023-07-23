@@ -1,6 +1,7 @@
 # OS & IDE
 .DS_Store
 .idea
+.vscode
 
 # misc
 .venv
