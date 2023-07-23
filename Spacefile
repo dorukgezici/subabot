@@ -10,9 +10,6 @@ micros:
     dev: npm run dev
     presets:
       env:
-        - name: DETA_PROJECT_KEY
-          description: Deta Data Key
-          default: "<secret>"
         - name: NEXT_PUBLIC_SLACK_CLIENT_ID
           description: Slack Client ID
           default: "5582876164549.5586544881811"
@@ -25,9 +22,6 @@ micros:
     dev: uvicorn app.main:app --reload
     presets:
       env:
-        - name: DETA_PROJECT_KEY
-          description: Deta Data Key
-          default: "<secret>"
         - name: SLACK_CLIENT_ID
           description: Slack Client ID
           default: "5582876164549.5586544881811"
