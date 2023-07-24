@@ -44,7 +44,9 @@ def run_crawler(feed: Feed, keywords: List[Keyword]) -> None:
 
     for keyword in keywords:
         # this reload was needed not to overwrite the matches from other feeds
-        new_keyword = db_keywords.get(keyword.key).__dict__
+        if not isinstance(new_keyword := db_keywords.get(keyword.key), dict):
+            new_keyword = keyword.model_dump()
+
         new_keyword['checked_at'] = now_timestamp()
         new_keyword['matches'][feed.key] = [match for match in find_matches(list(data.entries), keyword.value)]
         db_keywords.put(new_keyword, keyword.key)
