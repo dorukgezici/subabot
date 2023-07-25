@@ -2,9 +2,9 @@ from typing import Any, Dict, Generator, List, Tuple, Union
 
 from feedparser import FeedParserDict, parse
 
-from .models import Feed, Keyword
 from ..db import db_feeds, db_keywords
 from ..helpers import now_timestamp
+from .models import Feed, Keyword
 
 
 def find_matches(
@@ -33,10 +33,10 @@ def run_crawler(feed: Feed, keywords: List[Keyword]) -> None:
     new_feed = feed.model_dump()
     new_feed.update(
         {
-            'refreshed_at': now_timestamp(),
-            'data': {
-                'feed': data.feed,
-                'entries': data.entries,
+            "refreshed_at": now_timestamp(),
+            "data": {
+                "feed": data.feed,
+                "entries": data.entries,
             },
         },
     )
@@ -47,6 +47,6 @@ def run_crawler(feed: Feed, keywords: List[Keyword]) -> None:
         if not isinstance(new_keyword := db_keywords.get(keyword.key), dict):
             new_keyword = keyword.model_dump()
 
-        new_keyword['checked_at'] = now_timestamp()
-        new_keyword['matches'][feed.key] = [match for match in find_matches(list(data.entries), keyword.value)]
+        new_keyword["checked_at"] = now_timestamp()
+        new_keyword["matches"][feed.key] = [match for match in find_matches(list(data.entries), keyword.value)]
         db_keywords.put(new_keyword, keyword.key)

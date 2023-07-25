@@ -8,22 +8,22 @@ from .deta import router as deta_router
 from .rss import feeds, keywords
 from .slack import router as slack_router
 
-uvicorn_logger = logging.getLogger('uvicorn')
+uvicorn_logger = logging.getLogger("uvicorn")
 logger.handlers = uvicorn_logger.handlers
 logger.setLevel(uvicorn_logger.level)
 
-app = FastAPI(title='Subabot', version='0.1.0')
+app = FastAPI(title="Subabot", version="0.1.0")
 app.include_router(deta_router)
 app.include_router(slack_router)
 
 
-@app.on_event('startup')
+@app.on_event("startup")
 def on_startup():
     logger.info("Loading initial RSS feeds and keywords to the db...")
     db_feeds.put_many([feed.model_dump() for feed in feeds])
     db_keywords.put_many([keyword.model_dump() for keyword in keywords])
 
 
-@app.get('/')
+@app.get("/")
 async def health():
-    return {'status': 'ok'}
+    return {"status": "ok"}

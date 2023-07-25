@@ -1,26 +1,27 @@
 import html
-import os
 from typing import Optional
 
 from fastapi import APIRouter
 from slack_sdk import WebClient
 from slack_sdk.oauth.installation_store import FileInstallationStore, Installation
 
-router = APIRouter(prefix='/slack')
+from ..settings import BACKEND_URL, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
+
+router = APIRouter(prefix="/slack")
 
 installation_store = FileInstallationStore(base_dir="./data")
 
 
-@router.get('/oauth/callback')
+@router.get("/oauth/callback")
 def oauth_callback(code: str, error: Optional[str] = None):
     # Retrieve the auth code and state from the request params
     if code:
         client = WebClient()  # no prepared token needed for this
         # Complete the installation by calling oauth.v2.access API method
         oauth_response = client.oauth_v2_access(
-            client_id=os.environ.get("SLACK_CLIENT_ID"),
-            client_secret=os.environ.get("SLACK_CLIENT_SECRET"),
-            redirect_uri='https://subabot.gezici.me/api/slack/oauth/callback',
+            client_id=SLACK_CLIENT_ID,
+            client_secret=SLACK_CLIENT_SECRET,
+            redirect_uri=f"{BACKEND_URL}/slack/oauth/callback",
             code=code,
         )
 
@@ -50,10 +51,10 @@ def oauth_callback(code: str, error: Optional[str] = None):
             bot_token=bot_token,
             bot_id=bot_id,
             bot_user_id=oauth_response.get("bot_user_id"),
-            bot_scopes=oauth_response.get("scope"),  # comma-separated string
-            user_id=installer.get("id"),
-            user_token=installer.get("access_token"),
-            user_scopes=installer.get("scope"),  # comma-separated string
+            bot_scopes=oauth_response.get("scope", ""),  # comma-separated string
+            user_id=installer.get("id", ""),
+            user_token=installer.get("access_token", ""),
+            user_scopes=installer.get("scope", ""),  # comma-separated string
             incoming_webhook_url=incoming_webhook.get("url"),
             incoming_webhook_channel=incoming_webhook.get("channel"),
             incoming_webhook_channel_id=incoming_webhook.get("channel_id"),
@@ -67,4 +68,4 @@ def oauth_callback(code: str, error: Optional[str] = None):
 
         return "Thanks for installing this app!"
 
-    return f"Something is wrong with the installation (error: {html.escape(error)})", 400
+    return f"Something is wrong with the installation (error: {html.escape(str(error or ''))})", 400
