@@ -1,9 +1,11 @@
 import logging
+from typing import List
 
 from fastapi import FastAPI
 from fastapi.logger import logger
 
 from .db import db_feeds, db_keywords
+from .deta import fetch_all
 from .deta import router as deta_router
 from .rss import feeds, keywords
 from .slack import router as slack_router
@@ -27,3 +29,8 @@ def on_startup():
 @app.get("/")
 async def health():
     return {"status": "ok"}
+
+
+@app.get("/feeds")
+def read_feeds() -> List[dict]:
+    return fetch_all(db_feeds)

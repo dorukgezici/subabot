@@ -1,8 +1,8 @@
 'use client';
-import { useEffect, useState } from 'react';
-import classNames from 'classnames';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRobot } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import classNames from 'classnames';
+import { useEffect, useState } from 'react';
 
 
 export default function RobotTile() {
@@ -17,6 +17,13 @@ export default function RobotTile() {
     // estimation missing 5 bots for the worst case
     const estimate = Math.floor(x * y);
     setBotCount(estimate + bonusBotCount);
+  };
+
+  const pickRandom = (index: number) => {
+    if (index !== botIndex) return;
+    let newIndex = Math.floor(Math.max(Math.min(Math.random() * botCount - bonusBotCount, botCount * 2 / 3), 0));
+    if (newIndex === botIndex) pickRandom(index);
+    else setBotIndex(newIndex);
   };
 
   useEffect(() => {
@@ -34,10 +41,7 @@ export default function RobotTile() {
         index % 2 === 0 ? 'rotate-[-20deg]' : 'rotate-[20deg]',
         index === botIndex && 'fa-bounce z-10'
       )}
-      onClick={() => {
-        if (index !== botIndex) return;
-        setBotIndex(Math.floor(Math.max(Math.min(Math.random() * botCount - bonusBotCount, botCount * 2 / 3), 0)));
-      }}
+      onClick={() => pickRandom(index)}
     />
   ));
 

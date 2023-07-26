@@ -1,6 +1,6 @@
-import Link from 'next/link';
-import Image from 'next/image';
 import slackGif from '@/public/assets/slackanimation.gif';
+import Image from 'next/image';
+import Link from 'next/link';
 
 
 export default function SlackButton({ text, url, onClick }: {
@@ -10,15 +10,15 @@ export default function SlackButton({ text, url, onClick }: {
 }) {
   return (
     <Link
-      onClick={onClick}
       href={url}
+      onClick={onClick}
       className='group inline-flex items-center justify-center rounded-md w-[236px] h-[48px] bg-slate-300 font-bold transition-all'
     >
-      <div className='group-hover:block hidden relative w-10 h-10 -ml-2.5 mr-0.5'>
+      <div className='group-hover:block hidden relative w-9 h-9 -ml-1'>
         <Image
           src={slackGif}
           alt='Slack logo animated'
-          layout='fill'
+          fill
           priority
         />
       </div>
