@@ -1,16 +1,5 @@
-from deta.base import _Base
-
+from ..db import deta
 from .models import Action, Event
 from .router import router
 
-
-def fetch_all(db: _Base):
-    res = db.fetch()
-    items = res.items
-
-    # Continue fetching until "res.last" is None.
-    while res.last:
-        res = db.fetch(last=res.last)
-        items += res.items
-
-    return items
+drive = deta.Drive("slack")

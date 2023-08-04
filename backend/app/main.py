@@ -4,11 +4,10 @@ from typing import List
 from fastapi import FastAPI
 from fastapi.logger import logger
 
-from .db import db_feeds, db_keywords
-from .deta import fetch_all
+from .db import db_feeds, db_keywords, fetch_all
 from .deta import router as deta_router
 from .rss import feeds, keywords
-from .slack import router as slack_router
+from .slack import app as slack_app
 
 uvicorn_logger = logging.getLogger("uvicorn")
 logger.handlers = uvicorn_logger.handlers
@@ -16,7 +15,7 @@ logger.setLevel(uvicorn_logger.level)
 
 app = FastAPI(title="Subabot", version="0.1.0")
 app.include_router(deta_router)
-app.include_router(slack_router)
+app.mount("/slack", slack_app)
 
 
 @app.on_event("startup")
