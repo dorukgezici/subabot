@@ -6,7 +6,7 @@ from fastapi import Body, Depends, FastAPI, Form, Request
 from slack_sdk.oauth.installation_store import Installation
 from slack_sdk.web.async_client import AsyncWebClient
 
-from ..deta import drive
+from ..db import drive
 from ..settings import BACKEND_URL, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
 from .cmd import configure, keywords
 from .dependencies import CommandForm

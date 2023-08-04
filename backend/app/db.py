@@ -11,6 +11,8 @@ def prefix_name(name: str) -> str:
 
 
 deta = Deta()  # DETA_PROJECT_KEY
+drive = deta.Drive("slack")
+
 db_feeds = deta.Base(prefix_name("feeds"))
 db_keywords = deta.Base(prefix_name("keywords"))
 db_events = deta.Base(prefix_name("events"))

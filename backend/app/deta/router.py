@@ -1,15 +1,19 @@
 from fastapi import APIRouter
 
-from ..db import db_events, db_feeds, db_keywords
+from ..db import db_events, db_feeds, db_keywords, drive
 from ..helpers import now_timestamp
 from ..rss import Feed, Keyword, run_crawler
+from ..slack import get_client
+from ..slack.store import DetaDriveInstallationStore
 from .models import Action
+
+installation_store = DetaDriveInstallationStore(drive=drive)
 
 router = APIRouter(prefix="/__space")
 
 
 @router.post("/v0/actions")
-def actions(action: Action) -> None:
+async def actions(action: Action) -> None:
     event = action.event.model_dump()
     event["created_at"] = now = now_timestamp()
     db_events.put(event)
@@ -18,5 +22,13 @@ def actions(action: Action) -> None:
     feeds = [Feed(**feed) for feed in db_feeds.fetch([{"refreshed_at?lt": now - 240}, {"refreshed_at": None}]).items]
     keywords = [Keyword(**keyword) for keyword in db_keywords.fetch().items]
 
+    # Slack client
+    client = await get_client(installation_store=installation_store, team_id="T05H4RS4UG5")
+
     for feed in feeds:
-        run_crawler(feed, keywords)
+        matches = run_crawler(feed, keywords)
+
+        await client.chat_postMessage(
+            channel="C05HA7AU7EG",
+            text=f"Feed <{feed.url}|{feed.title}> refreshed.",
+        )

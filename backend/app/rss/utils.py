@@ -27,7 +27,7 @@ def find_matches(
         yield pre_path
 
 
-def run_crawler(feed: Feed, keywords: List[Keyword]) -> None:
+def run_crawler(feed: Feed, keywords: List[Keyword]) -> Dict[str, List[Tuple[str, ...]]]:
     data: FeedParserDict = parse(feed.url)
 
     new_feed = feed.model_dump()
@@ -42,11 +42,16 @@ def run_crawler(feed: Feed, keywords: List[Keyword]) -> None:
     )
     db_feeds.put(new_feed, feed.key)
 
+    matches: Dict[str, List[Tuple[str, ...]]] = {}
     for keyword in keywords:
+        matches[feed.key] = [match for match in find_matches(list(data.entries), keyword.value)]
+
         # this reload was needed not to overwrite the matches from other feeds
         if not isinstance(new_keyword := db_keywords.get(keyword.key), dict):
             new_keyword = keyword.model_dump()
 
         new_keyword["checked_at"] = now_timestamp()
-        new_keyword["matches"][feed.key] = [match for match in find_matches(list(data.entries), keyword.value)]
+        new_keyword["matches"][feed.key] = matches[feed.key]
         db_keywords.put(new_keyword, keyword.key)
+
+    return matches
