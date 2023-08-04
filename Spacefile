@@ -22,6 +22,9 @@ micros:
     dev: uvicorn app.main:app --reload
     presets:
       env:
+        - name: SUBABOT_STAGE
+          description: Subabot Stage
+          default: "production"
         - name: SLACK_CLIENT_ID
           description: Slack Client ID
           default: "5582876164549.5586544881811"

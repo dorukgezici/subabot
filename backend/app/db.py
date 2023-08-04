@@ -4,10 +4,10 @@ from .settings import SUBABOT_STAGE
 
 
 def prefix_name(name: str) -> str:
-    if SUBABOT_STAGE == "development":
-        return f"dev_{name}"
+    if SUBABOT_STAGE == "production":
+        return name
 
-    return name
+    return f"{SUBABOT_STAGE[:3]}_{name}"
 
 
 deta = Deta()  # DETA_PROJECT_KEY
