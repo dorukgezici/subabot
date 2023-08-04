@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import HTTPException
 from slack_sdk.web.async_client import AsyncWebClient
 
@@ -6,8 +8,8 @@ from .store import DetaDriveInstallationStore
 
 async def get_client(
     installation_store: DetaDriveInstallationStore,
-    enterprise_id: str | None = None,
-    team_id: str | None = None,
+    enterprise_id: Optional[str] = None,
+    team_id: Optional[str] = None,
 ):
     bot = await installation_store.async_find_bot(
         # in the case where this app gets a request from an Enterprise Grid workspace

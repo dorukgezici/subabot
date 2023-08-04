@@ -10,9 +10,12 @@ micros:
     dev: npm run dev
     presets:
       env:
+        - name: NEXT_PUBLIC_BACKEND_URL
+          description: Backend URL
+          default: "/api"
         - name: NEXT_PUBLIC_SLACK_CLIENT_ID
           description: Slack Client ID
-          default: "5582876164549.5586544881811"
+          default: ""
 
   - name: backend
     src: ./backend
@@ -25,12 +28,21 @@ micros:
         - name: SUBABOT_STAGE
           description: Subabot Stage
           default: "production"
+        - name: SUBABOT_BACKEND_URL
+          description: Subabot Backend URL
+          default: ""
         - name: SLACK_CLIENT_ID
           description: Slack Client ID
-          default: "5582876164549.5586544881811"
+          default: ""
         - name: SLACK_CLIENT_SECRET
           description: Slack Client Secret
-          default: "<secret>"
+          default: ""
+        - name: SLACK_SIGNING_SECRET
+          description: Slack Signing Secret
+          default: ""
+        - name: SLACK_CHANNEL_ID
+          description: Slack Channel ID
+          default: ""
     actions:
       - id: "run_crawler"
         name: "Run Crawler"

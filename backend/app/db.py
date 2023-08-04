@@ -1,13 +1,13 @@
 from deta import Deta, _Base
 
-from .settings import SUBABOT_STAGE
+from .settings import STAGE
 
 
 def prefix_name(name: str) -> str:
-    if SUBABOT_STAGE == "production":
+    if STAGE == "production":
         return name
 
-    return f"{SUBABOT_STAGE[:3]}_{name}"
+    return f"{STAGE[:3]}_{name}"
 
 
 deta = Deta()  # DETA_PROJECT_KEY
