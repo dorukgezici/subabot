@@ -1,13 +1,9 @@
 from fastapi import APIRouter
 
-from ..db import db_events, db_feeds, db_keywords, drive
-from ..helpers import now_timestamp
+from ..core import db_events, db_feeds, db_keywords, now_timestamp
 from ..rss import Feed, Keyword, run_crawler
-from ..slack import get_client
-from ..slack.store import DetaDriveInstallationStore
+from ..slack import get_client, installation_store
 from .models import Action
-
-installation_store = DetaDriveInstallationStore(drive=drive)
 
 router = APIRouter(prefix="/__space")
 

@@ -10,6 +10,8 @@ from slack_sdk.oauth.installation_store.installation_store import InstallationSt
 from slack_sdk.oauth.installation_store.models.bot import Bot
 from slack_sdk.oauth.installation_store.models.installation import Installation
 
+from ..core import drive
+
 
 class DetaDriveInstallationStore(InstallationStore, AsyncInstallationStore):
     def __init__(
@@ -301,3 +303,6 @@ class DetaDriveInstallationStore(InstallationStore, AsyncInstallationStore):
             except Exception as e:  # skipcq: PYL-W0703
                 message = f"Failed to find bot installation data for enterprise: {e_id}, team: {t_id}: {e}"
                 raise SlackClientConfigurationError(message)
+
+
+installation_store = DetaDriveInstallationStore(drive=drive)

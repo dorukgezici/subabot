@@ -1,23 +1,19 @@
 import html
 import json
-from typing import Annotated, Optional
+from typing import Optional
 
-from fastapi import Body, Depends, FastAPI, Form, Request
+from fastapi import Body, FastAPI, Form, Request
 from slack_sdk.oauth.installation_store import Installation
 from slack_sdk.web.async_client import AsyncWebClient
 
-from ..db import drive
-from ..settings import BACKEND_URL, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
-from .cmd import configure, keywords
-from .dependencies import CommandForm
+from ..core.settings import BACKEND_URL, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
+from .cmd import router as cmd_router
 from .middlewares import SignatureVerifierMiddleware
-from .store import DetaDriveInstallationStore
-from .utils import get_client
-
-installation_store = DetaDriveInstallationStore(drive=drive)
+from .store import installation_store
 
 app = FastAPI(title="Subabot Slack App", version="0.1.0")
 app.add_middleware(SignatureVerifierMiddleware)
+app.include_router(cmd_router, prefix="/cmd")
 
 
 @app.get("/oauth")
@@ -154,27 +150,3 @@ def handle_events(
 async def handle_response(request: Request):
     print(await request.body())
     return
-
-
-# / commands
-
-
-@app.post("/cmd/configure")
-async def handle_cmd_configure(command: Annotated[CommandForm, Depends()]):
-    client = await get_client(
-        installation_store=installation_store,
-        team_id=command.team_id,
-        enterprise_id=command.enterprise_id,
-    )
-
-    await client.chat_postMessage(
-        channel=command.channel_id,
-        text="hey",
-    )
-
-    return await configure()
-
-
-@app.post("/cmd/keywords")
-async def handle_cmd_keywords(command: Annotated[CommandForm, Depends()]):
-    return ", ".join(keyword.get("value") for keyword in await keywords())

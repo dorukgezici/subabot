@@ -3,6 +3,10 @@ from typing import Annotated, Optional
 from fastapi import Form
 
 
+async def client():
+    pass
+
+
 class CommandForm:
     def __init__(
         self,

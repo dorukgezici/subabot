@@ -12,10 +12,9 @@ micros:
       env:
         - name: NEXT_PUBLIC_BACKEND_URL
           description: Backend URL
-          default: "/api"
+          default: "http://localhost:4200/api"
         - name: NEXT_PUBLIC_SLACK_CLIENT_ID
           description: Slack Client ID
-          default: ""
 
   - name: backend
     src: ./backend
@@ -27,22 +26,18 @@ micros:
       env:
         - name: SUBABOT_STAGE
           description: Subabot Stage
-          default: "production"
+          default: "development"
         - name: SUBABOT_BACKEND_URL
           description: Subabot Backend URL
-          default: ""
+          default: "http://localhost:4200/api"
         - name: SLACK_CLIENT_ID
           description: Slack Client ID
-          default: ""
         - name: SLACK_CLIENT_SECRET
           description: Slack Client Secret
-          default: ""
         - name: SLACK_SIGNING_SECRET
           description: Slack Signing Secret
-          default: ""
         - name: SLACK_CHANNEL_ID
           description: Slack Channel ID
-          default: ""
     actions:
       - id: "run_crawler"
         name: "Run Crawler"

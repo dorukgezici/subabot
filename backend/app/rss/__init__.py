@@ -1,5 +1,5 @@
+from .crawler import run_crawler
 from .models import Feed, Keyword
-from .utils import run_crawler
 
 feeds: list[Feed] = [
     Feed(key="hackernews", title="Hacker News", url="https://hnrss.org/newest"),
@@ -11,3 +11,5 @@ keywords: list[Keyword] = [
     Keyword(key="ethereum", value="Ethereum"),
     Keyword(key="dogecoin", value="Dogecoin"),
 ]
+
+__all__ = ["run_crawler", "Feed", "Keyword", "feeds", "keywords"]

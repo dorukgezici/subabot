@@ -3,23 +3,22 @@ import SlackButton from "@/components/SlackButton";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-dayjs.extend(relativeTime);
+import Link from "next/link";
 
-async function getFeeds() {
+async function getFeeds(): Promise<Feed[]> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/feeds`, {
     next: { revalidate: 1 },
   });
   if (!res.ok) return [];
-  return res.json();
+  return await res.json();
 }
 
-async function getKeywords() {
+async function getKeywords(): Promise<Keyword[]> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/keywords`, {
     next: { revalidate: 1 },
   });
   if (!res.ok) return [];
-  return res.json();
+  return await res.json();
 }
 
 export default async function Home() {
@@ -75,11 +74,16 @@ export default async function Home() {
         <div className="flex flex-col">
           <h2 className="text-xl font-bold">Sources</h2>
           <ul className="list-disc">
-            {feeds.map((feed: any) => (
+            {feeds.map((feed) => (
               <li key={feed.key}>
-                <h3>{feed.title}</h3>
-                <p>{feed.url}</p>
-                <p>{dayjs.unix(feed.refreshed_at).fromNow()}</p>
+                <Link href={feed.url} target="_blank" className="link">
+                  {feed.title}
+                </Link>
+                <p>
+                  {feed.refreshed_at
+                    ? dayjs.unix(feed.refreshed_at).fromNow()
+                    : "never"}
+                </p>
               </li>
             ))}
           </ul>
@@ -88,11 +92,14 @@ export default async function Home() {
         <div className="flex flex-col">
           <h2 className="text-xl font-bold">Keywords</h2>
           <ul className="list-disc">
-            {keywords.map((keyword: any) => (
+            {keywords.map((keyword) => (
               <li key={keyword.key}>
                 <h3>{keyword.value}</h3>
-                <p>{keyword.matches}</p>
-                <p>refreshed {dayjs(keyword.checkedAt).fromNow()}</p>
+                <p>
+                  {keyword.checked_at
+                    ? dayjs.unix(keyword.checked_at).fromNow()
+                    : "never"}
+                </p>
               </li>
             ))}
           </ul>

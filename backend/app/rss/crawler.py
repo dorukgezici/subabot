@@ -2,8 +2,7 @@ from typing import Any, Dict, Generator, List, Tuple, Union
 
 from feedparser import FeedParserDict, parse
 
-from ..db import db_feeds, db_keywords
-from ..helpers import now_timestamp
+from ..core import db_feeds, db_keywords, now_timestamp
 from .models import Feed, Keyword
 
 
