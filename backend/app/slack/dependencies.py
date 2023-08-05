@@ -1,10 +1,21 @@
 from typing import Annotated, Optional
 
 from fastapi import Form
+from slack_sdk.web.async_client import AsyncWebClient
+
+from .store import installation_store
+from .utils import get_client
 
 
-async def client():
-    pass
+async def client(
+    team_id: Annotated[Optional[str], Form()] = None,
+    enterprise_id: Annotated[Optional[str], Form()] = None,
+) -> AsyncWebClient:
+    return await get_client(
+        installation_store=installation_store,
+        team_id=team_id,
+        enterprise_id=enterprise_id,
+    )
 
 
 class CommandForm:
