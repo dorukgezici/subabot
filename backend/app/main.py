@@ -33,3 +33,8 @@ async def health():
 @app.get("/feeds")
 def read_feeds() -> List[dict]:
     return fetch_all(db_feeds)
+
+
+@app.get("/keywords")
+def read_keywords() -> List[dict]:
+    return fetch_all(db_keywords)

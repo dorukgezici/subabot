@@ -2,6 +2,9 @@ import RobotTile from "@/components/RobotTile";
 import SlackButton from "@/components/SlackButton";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 async function getFeeds() {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/feeds`, {
@@ -11,8 +14,17 @@ async function getFeeds() {
   return res.json();
 }
 
+async function getKeywords() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/keywords`, {
+    next: { revalidate: 1 },
+  });
+  if (!res.ok) return [];
+  return res.json();
+}
+
 export default async function Home() {
   const feeds = await getFeeds();
+  const keywords = await getKeywords();
 
   return (
     <main>
@@ -59,15 +71,31 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="flex items-center justify-center p-8 sm:p-16">
-        <h1>Sources</h1>
-        <div>
-          {feeds.map((feed: any) => (
-            <div key={feed.id}>
-              <h2>{feed.name}</h2>
-              <p>{feed.url}</p>
-            </div>
-          ))}
+      <section className="flex flex-wrap justify-center p-8 sm:p-16 gap-8">
+        <div className="flex flex-col">
+          <h2 className="text-xl font-bold">Sources</h2>
+          <ul className="list-disc">
+            {feeds.map((feed: any) => (
+              <li key={feed.key}>
+                <h3>{feed.title}</h3>
+                <p>{feed.url}</p>
+                <p>{dayjs.unix(feed.refreshed_at).fromNow()}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="flex flex-col">
+          <h2 className="text-xl font-bold">Keywords</h2>
+          <ul className="list-disc">
+            {keywords.map((keyword: any) => (
+              <li key={keyword.key}>
+                <h3>{keyword.value}</h3>
+                <p>{keyword.matches}</p>
+                <p>refreshed {dayjs(keyword.checkedAt).fromNow()}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
