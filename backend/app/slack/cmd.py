@@ -2,23 +2,17 @@ from typing import Annotated
 
 from asyncer import asyncify
 from fastapi import APIRouter, Depends
-from slack_sdk.web.async_client import AsyncWebClient
 
 from ..core import db_feeds, db_keywords, fetch_all
-from .dependencies import CommandForm, client
+from .dependencies import CommandForm
+from .utils import check_and_alert
 
 router = APIRouter()
 
 
-@router.post("/configure")
-async def handle_cmd_configure(
-    client: Annotated[AsyncWebClient, Depends(client)],
-    command: Annotated[CommandForm, Depends()],
-):
-    await client.chat_postMessage(
-        channel=command.channel_id,
-        text="hey",
-    )
+@router.post("/debug")
+async def handle_cmd_debug():
+    await check_and_alert()
 
 
 @router.post("/keywords")
