@@ -7,7 +7,7 @@ import Link from "next/link";
 
 async function getFeeds(): Promise<Feed[]> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/feeds`, {
-    next: { revalidate: 1 },
+    cache: "no-store",
   });
   if (!res.ok) return [];
   return await res.json();
@@ -15,7 +15,7 @@ async function getFeeds(): Promise<Feed[]> {
 
 async function getKeywords(): Promise<Keyword[]> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/keywords`, {
-    next: { revalidate: 1 },
+    cache: "no-store",
   });
   if (!res.ok) return [];
   return await res.json();

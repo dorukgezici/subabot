@@ -36,6 +36,8 @@ micros:
           description: Slack Client Secret
         - name: SLACK_SIGNING_SECRET
           description: Slack Signing Secret
+        - name: SLACK_TEAM_ID
+          description: Slack Team ID
         - name: SLACK_CHANNEL_ID
           description: Slack Channel ID
     actions:

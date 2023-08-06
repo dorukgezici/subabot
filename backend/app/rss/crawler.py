@@ -26,7 +26,14 @@ def find_matches(
         yield pre_path
 
 
-def run_crawler(feed: Feed, keywords: List[Keyword]) -> Dict[str, List[Tuple[str, ...]]]:
+def get_matching_entries(entries: List[FeedParserDict], matches: List[Tuple[str, ...]]) -> List[Dict[str, Any]]:
+    """Returns a list of unique entries from the matches."""
+    indexes = set(match[0] for match in matches)
+    return [entries[int(index)] for index in indexes]
+
+
+def run_crawler(feed: Feed, keywords: List[Keyword]) -> List[Dict[str, Any]]:
+    """Runs the crawler for the given feed and keywords."""
     data: FeedParserDict = parse(feed.url)
 
     new_feed = feed.model_dump()
@@ -53,4 +60,4 @@ def run_crawler(feed: Feed, keywords: List[Keyword]) -> Dict[str, List[Tuple[str
         new_keyword["matches"][feed.key] = matches[feed.key]
         db_keywords.put(new_keyword, keyword.key)
 
-    return matches
+    return get_matching_entries(data.entries, matches[feed.key])
