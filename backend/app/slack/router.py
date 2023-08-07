@@ -1,15 +1,21 @@
 import html
 import json
-from typing import Optional
+from typing import Annotated, Optional
 
-from fastapi import Body, FastAPI, Form, Request
+from fastapi import Body, Depends, FastAPI, Form
 from slack_sdk.oauth.installation_store import Installation
 from slack_sdk.web.async_client import AsyncWebClient
+from slack_sdk.webhook.async_client import AsyncWebhookClient
+from slugify import slugify
 
+from ..core import db_keywords, fetch_all
 from ..core.settings import BACKEND_URL, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
+from ..rss import Keyword
 from .cmd import router as cmd_router
+from .dependencies import PayloadForm
 from .middlewares import SignatureVerifierMiddleware
 from .store import installation_store
+from .utils import configure_blocks
 
 app = FastAPI(title="Subabot Slack App", version="0.1.0")
 app.add_middleware(SignatureVerifierMiddleware)
@@ -147,6 +153,31 @@ def handle_events(
 
 
 @app.post("/response")
-async def handle_response(request: Request):
-    print(await request.body())
-    return
+async def handle_response(payload: Annotated[PayloadForm, Depends()]):
+    client = AsyncWebhookClient(payload.response_url)
+
+    async with db_keywords as db:
+        keywords = [keyword["value"] for keyword in await fetch_all(db)]
+
+        if payload.action["action_id"] == "add_keyword":
+            keyword, feedback = payload.action.get("value"), None
+
+            if not keyword or len(keyword) < 3:
+                feedback = ":warning: Please enter a keyword that is at least 3 characters long."
+
+            elif keyword in keywords:
+                feedback = f":warning: Keyword `{keyword}` is already in the list."
+
+            else:
+                await db.put(Keyword(key=slugify(keyword), value=keyword).model_dump())
+                keywords.append(keyword)
+
+            await client.send(
+                blocks=configure_blocks(
+                    keywords=keywords,
+                    channel=payload.channel["id"],
+                    unfurls=0,
+                    notifications=0,
+                    feedback={"keyword": feedback} if feedback else None,
+                ),
+            )

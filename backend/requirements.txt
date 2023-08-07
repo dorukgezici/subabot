@@ -6,3 +6,4 @@ deta==1.2.0
 feedparser==6.0.10
 slack_sdk==3.21.3
 aiohttp==3.8.5
+python-slugify==8.0.1

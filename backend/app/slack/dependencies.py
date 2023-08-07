@@ -1,21 +1,7 @@
-from typing import Annotated, Optional
+import json
+from typing import Annotated, Any, Dict, Literal, Optional, Union
 
 from fastapi import Form
-from slack_sdk.web.async_client import AsyncWebClient
-
-from .store import installation_store
-from .utils import get_client
-
-
-async def client(
-    team_id: Annotated[Optional[str], Form()] = None,
-    enterprise_id: Annotated[Optional[str], Form()] = None,
-) -> AsyncWebClient:
-    return await get_client(
-        installation_store=installation_store,
-        team_id=team_id,
-        enterprise_id=enterprise_id,
-    )
 
 
 class CommandForm:
@@ -53,3 +39,20 @@ class CommandForm:
         self.is_enterprise_install = is_enterprise_install
         self.enterprise_id = enterprise_id
         self.enterprise_name = enterprise_name
+
+
+class PayloadForm:
+    response_url: str
+    message: Union[Dict[Literal["bot_id", "type", "text", "user", "ts", "app_id", "blocks", "team"], Any], None]
+    action: Dict[Literal["type", "block_id", "action_id", "value", "action_ts"], str]
+    channel: Dict[Literal["id", "name"], str]
+    team: Dict[Literal["id", "domain"], str]
+
+    def __init__(self, payload: Annotated[str, Form(...)]) -> None:
+        self.payload = json.loads(payload)
+
+        self.response_url = self.payload["response_url"]
+        self.message = self.payload.get("message")
+        self.action = self.payload["actions"][0]
+        self.channel = self.payload["channel"]
+        self.team = self.payload["team"]
