@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, BackgroundTasks, Depends, Response
 from starlette.status import HTTP_200_OK
 
 from ..core import db_feeds, db_keywords, fetch_all
@@ -11,8 +11,8 @@ router = APIRouter()
 
 
 @router.post("/debug")
-async def handle_cmd_debug():
-    await crawl_and_alert()
+async def handle_cmd_debug(background_tasks: BackgroundTasks):
+    background_tasks.add_task(crawl_and_alert)
     return Response(status_code=HTTP_200_OK)
 
 
