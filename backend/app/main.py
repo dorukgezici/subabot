@@ -1,4 +1,3 @@
-import logging
 import os
 from typing import List
 
@@ -10,14 +9,10 @@ from .deta import router as deta_router
 from .rss import FEEDS, KEYWORDS
 from .slack import app as slack_app
 
-uvicorn_logger = logging.getLogger("uvicorn")
-logger.handlers = uvicorn_logger.handlers
-logger.setLevel(uvicorn_logger.level)
-
 app = FastAPI(
     title="Subabot",
     version="0.1.0",
-    # needed for 'space dev' docs to work
+    # needed for Deta Space `/docs` to work
     root_path="/api" if "DETA_SPACE_APP_HOSTNAME" in os.environ else "",
 )
 app.include_router(deta_router)

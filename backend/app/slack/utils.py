@@ -44,11 +44,12 @@ async def crawl_and_alert():
             for entry in entries
         ]
 
-        await client.chat_postMessage(
-            channel=SLACK_CHANNEL_ID,
-            text="New entries found!",
-            blocks=blocks,
-        )
+        if len(blocks) > 0:
+            await client.chat_postMessage(
+                channel=SLACK_CHANNEL_ID,
+                text="New entries found!",
+                blocks=blocks,
+            )
 
 
 def configure_blocks(
@@ -152,46 +153,46 @@ def configure_blocks(
             if feedback
             else []
         ),
-        {
-            "type": "divider",
-        },
-        {
-            "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": ":hash: CHANNEL :hash:",
-            },
-        },
-        {
-            "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": "Select a public channel to receive notifications in:",
-            },
-            "accessory": {
-                "action_id": "set_channel",
-                "type": "conversations_select",
-                "placeholder": {
-                    "type": "plain_text",
-                    "text": "Select a channel...",
-                    "emoji": True,
-                },
-                **({"initial_conversation": channel} if channel else {}),
-            },
-        },
-        *(
-            [
-                {
-                    "type": "context",
-                    "elements": [
-                        {
-                            "type": "mrkdwn",
-                            "text": feedback["channel"],
-                        },
-                    ],
-                },
-            ]
-            if feedback
-            else []
-        ),
+        # {
+        #     "type": "divider",
+        # },
+        # {
+        #     "type": "section",
+        #     "text": {
+        #         "type": "mrkdwn",
+        #         "text": ":hash: CHANNEL :hash:",
+        #     },
+        # },
+        # {
+        #     "type": "section",
+        #     "text": {
+        #         "type": "mrkdwn",
+        #         "text": "Select a public channel to receive notifications in:",
+        #     },
+        #     "accessory": {
+        #         "action_id": "set_channel",
+        #         "type": "conversations_select",
+        #         "placeholder": {
+        #             "type": "plain_text",
+        #             "text": "Select a channel...",
+        #             "emoji": True,
+        #         },
+        #         **({"initial_conversation": channel} if channel else {}),
+        #     },
+        # },
+        # *(
+        #     [
+        #         {
+        #             "type": "context",
+        #             "elements": [
+        #                 {
+        #                     "type": "mrkdwn",
+        #                     "text": feedback["channel"],
+        #                 },
+        #             ],
+        #         },
+        #     ]
+        #     if feedback
+        #     else []
+        # ),
     ]

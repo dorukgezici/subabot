@@ -18,3 +18,9 @@ class Keyword(BaseModel):
 
     checked_at: Optional[int] = Field(default=None)
     matches: dict = Field(default={})
+
+
+class History(BaseModel):
+    key: Optional[str] = Field(default=None)
+    link: str
+    created_at: int

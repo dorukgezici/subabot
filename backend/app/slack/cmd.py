@@ -19,23 +19,29 @@ async def handle_cmd_debug(background_tasks: BackgroundTasks):
 @router.post("/keywords")
 async def handle_cmd_keywords(command: Annotated[CommandForm, Depends()]):
     async with db_keywords as db:
-        keywords = await fetch_all(db=db)
+        keywords = await fetch_all(db)
 
-    return ", ".join(keyword.get("value", "") for keyword in keywords)
+    return {
+        "response_type": "ephemeral",
+        "text": ", ".join(keyword.get("value", "") for keyword in keywords),
+    }
 
 
 @router.post("/feeds")
 async def handle_cmd_feeds(command: Annotated[CommandForm, Depends()]):
     async with db_feeds as db:
-        feeds = await fetch_all(db=db)
+        feeds = await fetch_all(db)
 
-    return ", ".join(feed.get("title", "") for feed in feeds)
+    return {
+        "response_type": "ephemeral",
+        "text": ", ".join(feed.get("title", "") for feed in feeds),
+    }
 
 
 @router.post("/configure")
 async def handle_cmd_configure(command: Annotated[CommandForm, Depends()]):
     async with db_keywords as db:
-        keywords = await fetch_all(db=db)
+        keywords = await fetch_all(db)
 
     return {
         "response_type": "ephemeral",

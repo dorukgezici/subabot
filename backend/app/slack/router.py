@@ -1,8 +1,7 @@
 import html
-import json
 from typing import Annotated, Optional
 
-from fastapi import Body, Depends, FastAPI, Form
+from fastapi import Body, Depends, FastAPI
 from slack_sdk.oauth.installation_store import Installation
 from slack_sdk.web.async_client import AsyncWebClient
 from slack_sdk.webhook.async_client import AsyncWebhookClient
@@ -82,74 +81,10 @@ async def handle_oauth(code: str, error: Optional[str] = None):
 
 
 @app.post("/events")
-def handle_events(
-    body: dict = Body(...),
-    command: str = Form(),
-    # enterprise_id: str = Form(...),
-    # team_id: str = Form(...),
-    # trigger_id: str = Form(...),
-    payload: str = Form(),
-):
+def handle_events(body: dict = Body(...)):
     # Slack events URL verification
     if body.get("type") == "url_verification":
         return body
-
-    # Handle a slash command invocation
-    # if command == "/open-modal":
-    #     try:
-    #         # Lookup the stored bot token for this workspace
-    #         bot = installation_store.find_bot(
-    #             # in the case where this app gets a request from an Enterprise Grid workspace
-    #             enterprise_id=enterprise_id,
-    #             # The workspace's ID
-    #             team_id=team_id,
-    #         )
-    #         bot_token = bot.bot_token if bot else None
-    #         if not bot_token:
-    #             # The app may be uninstalled or be used in a shared channel
-    #             return "Please install this app first!", 200
-
-    #         # Open a modal using the valid bot token
-    #         client = WebClient(token=bot_token)
-    #         response = client.views_open(
-    #             trigger_id=trigger_id,
-    #             view={
-    #                 "type": "modal",
-    #                 "callback_id": "modal-id",
-    #                 "title": {"type": "plain_text", "text": "Awesome Modal"},
-    #                 "submit": {"type": "plain_text", "text": "Submit"},
-    #                 "blocks": [
-    #                     {
-    #                         "type": "input",
-    #                         "block_id": "b-id",
-    #                         "label": {
-    #                             "type": "plain_text",
-    #                             "text": "Input label",
-    #                         },
-    #                         "element": {
-    #                             "action_id": "a-id",
-    #                             "type": "plain_text_input",
-    #                         },
-    #                     }
-    #                 ],
-    #             },
-    #         )
-    #         return "", 200
-    #     except SlackApiError as e:
-    #         code = e.response["error"]
-    #         return f"Failed to open a modal due to {code}", 200
-
-    if payload:
-        # Data submission from the modal
-        payload_dict: dict = json.loads(payload)
-        if payload_dict["type"] == "view_submission" and payload_dict["view"]["callback_id"] == "modal-id":
-            submitted_data = payload_dict["view"]["state"]["values"]
-            print(submitted_data)  # {'b-id': {'a-id': {'type': 'plain_text_input', 'value': 'your input'}}}
-            # You can use WebClient with a valid token here too
-            return "", 200
-
-    # Indicate unsupported request patterns
-    return "", 404
 
 
 @app.post("/response")
@@ -158,6 +93,7 @@ async def handle_response(payload: Annotated[PayloadForm, Depends()]):
 
     async with db_keywords as db:
         keywords = [keyword["value"] for keyword in await fetch_all(db)]
+        feedback: Optional[str] = None
 
         if payload.action["action_id"] == "add_keyword":
             keyword, feedback = payload.action.get("value"), None
@@ -181,3 +117,20 @@ async def handle_response(payload: Annotated[PayloadForm, Depends()]):
                     feedback={"keyword": feedback} if feedback else None,
                 ),
             )
+
+        elif payload.action["action_id"] == "remove_keyword":
+            keyword = payload.action.get("value")
+
+            if keyword and keyword in keywords:
+                await db.delete(slugify(keyword))
+                keywords.remove(keyword)
+
+        await client.send(
+            blocks=configure_blocks(
+                keywords=keywords,
+                channel=payload.channel["id"],
+                unfurls=0,
+                notifications=0,
+                feedback={"keyword": feedback} if feedback else None,
+            ),
+        )

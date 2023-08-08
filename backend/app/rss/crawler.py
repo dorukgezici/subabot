@@ -1,18 +1,23 @@
-from typing import Any, Dict, Generator, List, Tuple, Union
+from typing import Any, AsyncGenerator, Dict, Generator, List, Tuple, Union
 
 from asyncer import asyncify
+from fastapi.logger import logger
 from feedparser import FeedParserDict, parse
 
-from ..core import db_feeds, db_keywords, now_timestamp
-from .models import Feed, Keyword
+from ..core import db_feeds, db_history, db_keywords, now_timestamp
+from ..core.utils import fetch_all
+from .models import Feed, History, Keyword
+
+Path = Tuple[str, ...]
+Entry = Dict[str, Any]
 
 
 def find_matches(
-    data: Union[List[Dict[str, Any]], Dict[str, Any], str],
+    data: Union[List[Entry], Entry, str],
     keyword: str,
-    pre_path: Tuple[str, ...] = (),
-) -> Generator[Tuple[str], Any, Any]:
-    """Returns a tuple of paths to the keyword found in the data."""
+    pre_path: Path = (),
+) -> Generator[Path, Any, Any]:
+    """Generates tuples of paths to the keyword found in the data."""
 
     if isinstance(data, list):
         for index, item in enumerate(data):
@@ -28,18 +33,21 @@ def find_matches(
         yield pre_path
 
 
-def get_matching_entries(entries: List[FeedParserDict], matches: List[Tuple[str, ...]]) -> List[Dict[str, Any]]:
-    """Returns a list of unique entries from the matches."""
+async def get_matching_entries(entries: List[FeedParserDict], matches: List[Path]) -> List[Entry]:
+    """Returns a list of unique entries from the matches that are NOT in history."""
 
-    indexes = set(match[0] for match in matches)
-    return [entries[int(index)] for index in indexes]
+    async with db_history as db:
+        links = [history.get("link") for history in await fetch_all(db)]
+
+    indexes = set(int(match[0]) for match in matches)
+    return [entries[i] for i in indexes if entries[i].get("link") not in links]
 
 
-async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[Dict[str, Any]]:
+async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[Entry]:
     """Runs the crawler for the given feed and keywords."""
 
     data: FeedParserDict = await asyncify(parse)(feed.url)
-    matches: Dict[str, List[Tuple[str, ...]]] = {}
+    matches: Dict[str, List[Path]] = {}
 
     async with db_feeds as db:
         new_feed = feed.model_dump()
@@ -66,10 +74,19 @@ async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[Dict[str, Any]
             new_keyword["matches"][feed.key] = matches[feed.key]
             await db.put(new_keyword, keyword.key)
 
-    return get_matching_entries(data.entries, matches[feed.key])
+    entries = await get_matching_entries(data.entries, matches[feed.key])
+    logger.debug(f"Found {len(entries)} new entries for {feed.url}.")
+
+    if len(entries) > 0:
+        async with db_history as db:
+            history = [History(link=entry["link"], created_at=now_timestamp()) for entry in entries]
+            # keep history for 2 days via `expire_in`
+            await db.put_many([h.model_dump() for h in history], expire_in=172800)
+
+    return entries
 
 
-async def run_crawler():
+async def run_crawler() -> AsyncGenerator[List[Entry], Any]:
     """Runs the crawler for all feeds and keywords."""
 
     # Query feeds that were refreshed more than a minute ago or never at all
@@ -80,6 +97,8 @@ async def run_crawler():
     async with db_keywords as db:
         res = await db.fetch()
         keywords = [Keyword(**keyword) for keyword in res.items]
+
+    logger.debug(f"Crawling {len(feeds)} feeds for {len(keywords)} keywords...")
 
     for feed in feeds:
         yield await crawl_feed(feed, keywords)

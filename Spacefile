@@ -20,8 +20,8 @@ micros:
     src: ./backend
     engine: python3.9
     path: api
-    run: uvicorn app.main:app
-    dev: uvicorn app.main:app --reload
+    run: uvicorn app.main:app --workers 2
+    dev: uvicorn app.main:app --reload --log-level debug
     presets:
       env:
         - name: SUBABOT_STAGE
