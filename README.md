@@ -14,7 +14,7 @@ _An AI-powered Slack alert bot to subscribe, classify and notify for keywords on
 
 - [x] Crawl RSS feeds for keywords
 - [x] Alert Slack when new matches are found
-- [ ] Classification using OpenAI
+- [ ] Classify matches using OpenAI
 
 ## Contributors
 
