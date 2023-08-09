@@ -20,4 +20,4 @@ jobs:
           id: ${{ secrets.SPACE_PROJECT_ID }}
           version: "0.1.0"
           notes: "Release automatically with GitHub deta action"
-          listed: false
+          listed: true
