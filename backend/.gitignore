@@ -1,7 +1,7 @@
-# Python & FastAPI
+# python
 __pycache__
-db.sqlite3
-.env
+.venv
 
 # misc
-.venv
+.env
+.envrc

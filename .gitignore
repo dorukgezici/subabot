@@ -1,9 +1,9 @@
 # OS & IDE
 .DS_Store
 .idea
-.vscode
+.vscode/**
+!.vscode/launch.json
 
 # misc
-.venv
 .space
 .vercel

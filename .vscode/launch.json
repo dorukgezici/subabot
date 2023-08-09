@@ -1,0 +1,29 @@
+{
+  "compounds": [
+    {
+      "name": "subabot",
+      "configurations": ["backend", "frontend"],
+      "stopAll": true
+    }
+  ],
+  "configurations": [
+    {
+      "name": "backend",
+      "type": "python",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/backend",
+      "envFile": "${workspaceFolder}/backend/.env",
+      "module": "uvicorn",
+      "args": ["app.main:app", "--reload", "--log-level", "debug"],
+      "jinja": true,
+      "justMyCode": true
+    },
+    {
+      "name": "frontend",
+      "type": "node-terminal",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/frontend",
+      "command": "npm run dev"
+    }
+  ]
+}
