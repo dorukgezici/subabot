@@ -23,6 +23,7 @@
       "type": "node-terminal",
       "request": "launch",
       "cwd": "${workspaceFolder}/frontend",
+      "envFile": "${workspaceFolder}/frontend/.env",
       "command": "npm run dev"
     }
   ]

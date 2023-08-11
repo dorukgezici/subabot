@@ -1,4 +1,4 @@
-![Subabot](/frontend/public/img/subabot-cover.svg)
+![Subabot](/frontend/static/img/subabot-cover.svg)
 
 ---
 

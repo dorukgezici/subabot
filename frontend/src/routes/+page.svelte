@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { PUBLIC_BACKEND_URL, PUBLIC_SLACK_CLIENT_ID } from '$env/static/public';
+	import { env } from '$env/dynamic/public';
 	import RobotTile from '$lib/RobotTile.svelte';
 	import SlackButton from '$lib/SlackButton.svelte';
 	import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
@@ -33,7 +33,7 @@
 
 			<SlackButton
 				text="Add to Slack"
-				url={`https://slack.com/oauth/v2/authorize?scope=chat:write,chat:write.public,links:read,links:write,commands,team:read&client_id=${PUBLIC_SLACK_CLIENT_ID}&redirect_uri=${PUBLIC_BACKEND_URL}/slack/oauth`}
+				url={`https://slack.com/oauth/v2/authorize?scope=chat:write,chat:write.public,links:read,links:write,commands,team:read&client_id=${env.PUBLIC_SLACK_CLIENT_ID}&redirect_uri=${env.PUBLIC_BACKEND_URL}/slack/oauth`}
 			/>
 		</div>
 	</section>
