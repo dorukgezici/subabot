@@ -2,7 +2,7 @@ import Footer from "@/components/Footer";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Inter } from "next/font/google";
+import { PT_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 import "./globals.scss";
 
@@ -14,7 +14,7 @@ export const metadata = {
     "An AI-powered Slack alert bot to subscribe, classify and notify for keywords on the web.",
 };
 
-const font = Inter({ subsets: ["latin"] });
+const font = PT_Mono({ weight: "400", subsets: ["latin-ext"] });
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

@@ -2,7 +2,7 @@
   "compounds": [
     {
       "name": "subabot",
-      "configurations": ["backend", "frontend"],
+      "configurations": ["backend", "svelte"],
       "stopAll": true
     }
   ],
@@ -23,6 +23,13 @@
       "type": "node-terminal",
       "request": "launch",
       "cwd": "${workspaceFolder}/frontend",
+      "command": "npm run dev"
+    },
+    {
+      "name": "svelte",
+      "type": "node-terminal",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/svelte",
       "command": "npm run dev"
     }
   ]

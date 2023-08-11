@@ -37,7 +37,7 @@ export default function RobotTile() {
     <FontAwesomeIcon
       key={index} icon={faRobot}
       className={classNames(
-        'text-[10rem] text-lighter opacity-75 m-4',
+        'text-[10rem] text-accent opacity-75 m-4',
         index % 2 === 0 ? 'rotate-[-20deg]' : 'rotate-[20deg]',
         index === botIndex && 'fa-bounce z-10'
       )}
