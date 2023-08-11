@@ -1,6 +1,6 @@
 # Spacefile Docs: https://go.deta.dev/docs/spacefile/v0
 v: 0
-icon: frontend/public/img/subabot-512.png
+icon: frontend/static/img/subabot-512.png
 micros:
   - name: frontend
     src: ./frontend
