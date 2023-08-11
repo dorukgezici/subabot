@@ -30,6 +30,9 @@ micros:
         - name: SUBABOT_BACKEND_URL
           description: Subabot Backend URL
           default: "http://localhost:4200/api"
+        - name: SUBABOT_FRONTEND_URL
+          description: Subabot Frontend URL
+          default: "http://localhost:4200"
         - name: SLACK_CLIENT_ID
           description: Slack Client ID
         - name: SLACK_CLIENT_SECRET

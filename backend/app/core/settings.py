@@ -2,6 +2,7 @@ import os
 
 STAGE = os.environ.get("SUBABOT_STAGE", "development")
 BACKEND_URL = os.environ.get("SUBABOT_BACKEND_URL", "http://localhost:8000")
+FRONTEND_URL = os.environ.get("SUBABOT_FRONTEND_URL", "http://localhost:5173")
 
 DETA_PROJECT_KEY = os.environ.get("DETA_PROJECT_KEY", "")
 

@@ -7,10 +7,10 @@ export default {
 		themes: [
 			{
 				subabot: {
-					primary: '#203a43ff',
-					secondary: '#2c5364ff',
-					accent: '#b0c4deff',
-					neutral: '#0f2027ff',
+					primary: '#203a43',
+					secondary: '#2c5364',
+					accent: '#b0c4de',
+					neutral: '#0f2027',
 					'base-100': colors.slate[300],
 					info: '#3abff8',
 					success: '#36d399',

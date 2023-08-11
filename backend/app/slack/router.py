@@ -2,13 +2,15 @@ import html
 from typing import Annotated, Optional
 
 from fastapi import Body, Depends, FastAPI
+from fastapi.responses import RedirectResponse
 from slack_sdk.oauth.installation_store import Installation
 from slack_sdk.web.async_client import AsyncWebClient
 from slack_sdk.webhook.async_client import AsyncWebhookClient
 from slugify import slugify
+from starlette.status import HTTP_307_TEMPORARY_REDIRECT
 
 from ..core import db_keywords, fetch_all
-from ..core.settings import BACKEND_URL, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
+from ..core.settings import BACKEND_URL, FRONTEND_URL, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
 from ..rss import Keyword
 from .cmd import router as cmd_router
 from .dependencies import PayloadForm
@@ -75,7 +77,7 @@ async def handle_oauth(code: str, error: Optional[str] = None):
         # Store the installation
         installation_store.save(installation)
 
-        return "Thanks for installing this app!"
+        return RedirectResponse(FRONTEND_URL, status_code=HTTP_307_TEMPORARY_REDIRECT)
 
     return f"Something is wrong with the installation (error: {html.escape(str(error or ''))})", 400
 
