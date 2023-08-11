@@ -1,5 +1,5 @@
 <script>
-	import Footer from '$lib/Footer.svelte';
+	import { Footer } from '$lib';
 	import { config } from '@fortawesome/fontawesome-svg-core';
 	import '@fortawesome/fontawesome-svg-core/styles.css';
 	import dayjs from 'dayjs';

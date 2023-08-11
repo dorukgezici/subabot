@@ -1,27 +1,9 @@
-import { env } from '$env/dynamic/public';
+import { getFeeds, getKeywords } from '$lib/api';
+import type { PageLoad } from './$types';
 
-/** @type {import('./$types').PageLoad} */
-export async function load({ fetch }) {
+export const load: PageLoad = async ({ fetch }) => {
 	return {
 		feeds: await getFeeds(fetch),
 		keywords: await getKeywords(fetch)
 	};
-}
-
-type Fetch = typeof fetch;
-
-async function getFeeds(fetch: Fetch): Promise<Feed[]> {
-	const res = await fetch(`${env.PUBLIC_BACKEND_URL}/feeds`, {
-		cache: 'no-store'
-	});
-	if (!res.ok) return [];
-	return await res.json();
-}
-
-async function getKeywords(fetch: Fetch): Promise<Keyword[]> {
-	const res = await fetch(`${env.PUBLIC_BACKEND_URL}/keywords`, {
-		cache: 'no-store'
-	});
-	if (!res.ok) return [];
-	return await res.json();
-}
+};

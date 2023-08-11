@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { env } from '$env/dynamic/public';
-	import RobotTile from '$lib/RobotTile.svelte';
-	import SlackButton from '$lib/SlackButton.svelte';
+	import { RobotTile, SlackButton } from '$lib';
 	import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 	import dayjs from 'dayjs';
 	import Fa from 'svelte-fa';

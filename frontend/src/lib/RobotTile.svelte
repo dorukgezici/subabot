@@ -35,13 +35,19 @@
 </script>
 
 {#each Array.from({ length: botCount }) as _, index (index)}
-	<Fa
-		icon={faRobot}
-		class={classNames(
-			'text-[10rem] text-accent opacity-75 m-4',
-			index % 2 === 0 ? 'rotate-[-20deg]' : 'rotate-[20deg]',
-			index === botIndex && 'fa-bounce z-10'
-		)}
+	<span
+		class={index === botIndex ? 'z-10' : 'z-0'}
 		on:click={() => pickRandom(index)}
-	/>
+		role={index === botIndex ? 'button' : 'img'}
+		tabindex="-1"
+	>
+		<Fa
+			icon={faRobot}
+			class={classNames(
+				'text-[10rem] text-accent opacity-75 m-4',
+				index % 2 === 0 ? 'rotate-[-20deg]' : 'rotate-[20deg]',
+				index === botIndex && 'fa-bounce'
+			)}
+		/>
+	</span>
 {/each}

@@ -1,13 +1,12 @@
 <script lang="ts">
 	import slackGif from '$lib/assets/slackanimation.gif';
+
 	export let text: string;
 	export let url: string;
-	export let onClick: (() => void) | null = null;
 </script>
 
 <a
 	href={url}
-	on:click={onClick}
 	class="group inline-flex items-center justify-center rounded-md w-[236px] h-[48px] bg-slate-300 font-bold transition-all"
 >
 	<div class="group-hover:block hidden relative w-9 h-9 -ml-1">
