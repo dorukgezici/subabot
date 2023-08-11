@@ -5,8 +5,7 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fastapi)
 ![PyPI](https://img.shields.io/pypi/v/fastapi?label=FastAPI)
 ![npm](https://img.shields.io/npm/v/typescript?label=TypeScript&color=yellow)
-![npm](https://img.shields.io/npm/v/next?label=NextJS&color=purple)
-![npm](https://img.shields.io/npm/v/react?label=React&color=purple)
+![npm](https://img.shields.io/npm/v/svelte?label=Svelte&color=purple)
 
 _An AI-powered Slack alert bot to subscribe, classify and notify for keywords on RSS feeds._
 

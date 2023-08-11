@@ -4,16 +4,16 @@ icon: frontend/public/img/subabot-512.png
 micros:
   - name: frontend
     src: ./frontend
-    engine: next
+    engine: svelte-kit
     primary: true
     public: true
     dev: npm run dev
     presets:
       env:
-        - name: NEXT_PUBLIC_BACKEND_URL
-          description: Backend URL
+        - name: PUBLIC_BACKEND_URL
+          description: Subabot Backend URL
           default: "http://localhost:4200/api"
-        - name: NEXT_PUBLIC_SLACK_CLIENT_ID
+        - name: PUBLIC_SLACK_CLIENT_ID
           description: Slack Client ID
 
   - name: backend

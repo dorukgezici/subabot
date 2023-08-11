@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 body {
-  @apply text-primary;
+	@apply text-primary;
 }

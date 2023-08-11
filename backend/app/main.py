@@ -3,6 +3,7 @@ from typing import List
 
 from fastapi import FastAPI
 from fastapi.logger import logger
+from fastapi.middleware.cors import CORSMiddleware
 
 from .core import db_feeds, db_keywords, fetch_all
 from .deta import router as deta_router
@@ -17,6 +18,14 @@ app = FastAPI(
 )
 app.include_router(deta_router)
 app.mount("/slack", slack_app)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.on_event("startup")
