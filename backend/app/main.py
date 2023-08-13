@@ -2,12 +2,10 @@ import os
 from typing import List
 
 from fastapi import FastAPI
-from fastapi.logger import logger
 from fastapi.middleware.cors import CORSMiddleware
 
 from .core import db_feeds, db_keywords, fetch_all
 from .deta import router as deta_router
-from .rss import FEEDS, KEYWORDS
 from .slack import app as slack_app
 
 app = FastAPI(
@@ -26,19 +24,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.on_event("startup")
-async def on_startup():
-    async with db_feeds as db:
-        if len(await fetch_all(db)) == 0:
-            logger.info("Loading initial RSS feeds to the db...")
-            await db.put_many([feed.model_dump() for feed in FEEDS])
-
-    async with db_keywords as db:
-        if len(await fetch_all(db)) == 0:
-            logger.info("Loading initial keywords to the db...")
-            await db.put_many([keyword.model_dump() for keyword in KEYWORDS])
 
 
 @app.get("/")

@@ -3,8 +3,8 @@ from typing import Dict, List, Literal, Optional
 from fastapi import HTTPException
 from slack_sdk.web.async_client import AsyncWebClient
 
-from ..core.settings import SLACK_CHANNEL_ID, SLACK_TEAM_ID
-from ..rss import run_crawler
+from ..core.settings import SLACK_APP_ID, SLACK_CHANNEL_ID, SLACK_TEAM_ID
+from ..rss import Feed, Keyword, run_crawler
 from .store import installation_store
 
 
@@ -53,11 +53,10 @@ async def crawl_and_alert():
 
 
 def configure_blocks(
-    keywords: List[str],
+    feeds: List[Feed],
+    keywords: List[Keyword],
     channel: str,
-    unfurls: int,
-    notifications: int,
-    feedback: Optional[Dict[Literal["keyword", "channel"], str]] = None,
+    feedback: Optional[Dict[Literal["feed", "keyword", "channel"], str]] = None,
 ):
     return [
         {
@@ -73,7 +72,8 @@ def configure_blocks(
             "elements": [
                 {
                     "type": "mrkdwn",
-                    "text": f"Current Usage: {unfurls} link previews shown, {notifications} notifications sent |  <https://slack.com/apps/A03QV0U65HN|More Configuration Settings>",
+                    "text": f"Current Usage: {len(feeds)} feeds, {len(keywords)} keywords"
+                    f" | <https://slack.com/apps/{SLACK_APP_ID}|More Configuration Settings>",
                 },
             ],
         },
@@ -99,10 +99,10 @@ def configure_blocks(
         *[
             {
                 "type": "section",
-                "block_id": f"keyword_{keyword}",
+                "block_id": f"keyword_{keyword.key}",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"`{keyword}`",
+                    "text": f"`{keyword.value}`",
                 },
                 "accessory": {
                     "action_id": "remove_keyword",
@@ -111,7 +111,7 @@ def configure_blocks(
                         "type": "plain_text",
                         "text": "Remove",
                     },
-                    "value": keyword,
+                    "value": keyword.key,
                 },
             }
             for keyword in keywords
@@ -150,7 +150,7 @@ def configure_blocks(
                     ],
                 },
             ]
-            if feedback
+            if feedback and "keyword" in feedback
             else []
         ),
         # {

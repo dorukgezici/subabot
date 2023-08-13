@@ -1,5 +1,5 @@
 import html
-from typing import Annotated, Optional
+from typing import Annotated, Dict, Literal, Optional
 
 from fastapi import Body, Depends, FastAPI
 from fastapi.responses import RedirectResponse
@@ -9,9 +9,9 @@ from slack_sdk.webhook.async_client import AsyncWebhookClient
 from slugify import slugify
 from starlette.status import HTTP_307_TEMPORARY_REDIRECT
 
-from ..core import db_keywords, fetch_all
+from ..core import db_feeds, db_keywords, fetch_all
 from ..core.settings import BACKEND_URL, FRONTEND_URL, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
-from ..rss import Keyword
+from ..rss import Feed, Keyword
 from .cmd import router as cmd_router
 from .dependencies import PayloadForm
 from .middlewares import SignatureVerifierMiddleware
@@ -93,46 +93,49 @@ def handle_events(body: dict = Body(...)):
 async def handle_response(payload: Annotated[PayloadForm, Depends()]):
     client = AsyncWebhookClient(payload.response_url)
 
-    async with db_keywords as db:
-        keywords = [keyword["value"] for keyword in await fetch_all(db)]
-        feedback: Optional[str] = None
+    async with db_feeds as db_f, db_keywords as db_k:
+        feeds = [Feed(**feed) for feed in await fetch_all(db_f)]
+        keywords = [Keyword(**keyword) for keyword in await fetch_all(db_k)]
+        feedback: Dict[Literal["feed", "keyword", "channel"], str] = {}
 
-        if payload.action["action_id"] == "add_keyword":
-            keyword, feedback = payload.action.get("value"), None
+        # Feed management
+        if payload.action["action_id"] == "add_feed":
+            feed = payload.action.get("value")
+
+        elif payload.action["action_id"] == "remove_feed":
+            feed = payload.action.get("value")
+
+            if feed and feed in feeds:
+                await db_f.delete(slugify(feed))
+                feeds.remove(feed)
+
+        # Keyword management
+        elif payload.action["action_id"] == "add_keyword":
+            keyword = payload.action.get("value")
 
             if not keyword or len(keyword) < 3:
-                feedback = ":warning: Please enter a keyword that is at least 3 characters long."
+                feedback["keyword"] = ":warning: Please enter a keyword that is at least 3 characters long."
 
             elif keyword in keywords:
-                feedback = f":warning: Keyword `{keyword}` is already in the list."
+                feedback["keyword"] = f":warning: Keyword `{keyword}` is already in the list."
 
             else:
-                await db.put(Keyword(key=slugify(keyword), value=keyword).model_dump())
-                keywords.append(keyword)
-
-            await client.send(
-                blocks=configure_blocks(
-                    keywords=keywords,
-                    channel=payload.channel["id"],
-                    unfurls=0,
-                    notifications=0,
-                    feedback={"keyword": feedback} if feedback else None,
-                ),
-            )
+                new_keyword = Keyword(key=slugify(keyword), value=keyword)
+                await db_k.put(new_keyword.model_dump())
+                keywords.append(new_keyword)
 
         elif payload.action["action_id"] == "remove_keyword":
             keyword = payload.action.get("value")
 
             if keyword and keyword in keywords:
-                await db.delete(slugify(keyword))
+                await db_k.delete(slugify(keyword))
                 keywords.remove(keyword)
 
-        await client.send(
-            blocks=configure_blocks(
-                keywords=keywords,
-                channel=payload.channel["id"],
-                unfurls=0,
-                notifications=0,
-                feedback={"keyword": feedback} if feedback else None,
-            ),
-        )
+    await client.send(
+        blocks=configure_blocks(
+            feeds=feeds,
+            keywords=keywords,
+            channel=payload.channel["id"],
+            feedback=feedback,
+        ),
+    )

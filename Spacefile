@@ -15,6 +15,8 @@ micros:
           default: "http://localhost:4200/api"
         - name: PUBLIC_SLACK_CLIENT_ID
           description: Slack Client ID
+        - name: PUBLIC_SLACK_APP_ID
+          description: Slack App ID
 
   - name: backend
     src: ./backend
@@ -39,6 +41,8 @@ micros:
           description: Slack Client Secret
         - name: SLACK_SIGNING_SECRET
           description: Slack Signing Secret
+        - name: SLACK_APP_ID
+          description: Slack App ID
         - name: SLACK_TEAM_ID
           description: Slack Team ID
         - name: SLACK_CHANNEL_ID
