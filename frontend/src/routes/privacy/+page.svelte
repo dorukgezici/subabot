@@ -181,12 +181,6 @@
 	on this page. These changes are effective immediately, after they are posted on this page.
 </p>
 
-<p>
-	Our Privacy Policy was created with the help of the <a
-		href="https://www.termsfeed.com/privacy-policy-generator/">Privacy Policy Generator</a
-	>.
-</p>
-
 <h2>Contact Us</h2>
 
 <p>
