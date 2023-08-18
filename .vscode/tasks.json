@@ -1,0 +1,28 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "space dev",
+      "type": "shell",
+      "command": "set -o allexport; source backend/.env; source frontend/.env; set +o allexport && export SUBABOT_BACKEND_URL=http://localhost:4200/api && export SUBABOT_FRONTEND_URL=http://localhost:4200 && export PUBLIC_BACKEND_URL=http://localhost:4200/api && source backend/.venv/bin/activate && space dev",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "space dev trigger run_crawler",
+      "type": "shell",
+      "command": "space dev trigger run_crawler",
+      "group": "build"
+    },
+    {
+      "label": "space push",
+      "type": "shell",
+      "command": "space push",
+      "group": "build"
+    }
+  ]
+}
