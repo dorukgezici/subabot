@@ -1,0 +1,15 @@
+https://www.aa.com.tr/tr/rss/default?cat=guncel
+https://www.ntv.com.tr/son-dakika.rss
+https://www.ntv.com.tr/gundem.rss
+http://www.cumhuriyet.com.tr/rss/son_dakika.xml
+https://www.haberturk.com/rss
+https://bigpara.hurriyet.com.tr/rss/
+https://www.milliyet.com.tr/rss/rssNew/SonDakikaRss.xml
+https://www.milliyet.com.tr/rss/rssNew/gundemRss.xml
+https://www.sabah.com.tr/rss/sondakika.xml
+https://www.sabah.com.tr/rss/gundem.xml
+https://www.ahaber.com.tr/rss/gundem.xml
+http://www.trthaber.com/sondakika.rss
+https://www.cnnturk.com/feed/rss/turkiye/news
+https://www.tobb.org.tr/Sayfalar/RssFeeder.php?List=Haberler
+https://www.tobb.org.tr/Sayfalar/RssFeeder.php?List=DuyurularListesi

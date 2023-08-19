@@ -1,4 +1,8 @@
 import os
+from pathlib import Path
+
+# Build paths inside the project like this: APP_DIR / 'subdir'.
+APP_DIR = Path(__file__).resolve().parent.parent
 
 STAGE = os.environ.get("SUBABOT_STAGE", "development")
 BACKEND_URL = os.environ.get("SUBABOT_BACKEND_URL", "http://localhost:8000")

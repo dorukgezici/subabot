@@ -32,21 +32,21 @@ async def crawl_and_alert():
     # Slack client
     client = await get_client()
 
-    async for entries in run_crawler():
-        blocks = [
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"Found <{entry['link']}|{entry['title']}>.",
-                },
-            }
-            for entry in entries
-        ]
+    # Crawl all feeds
+    blocks = [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"Found <{entry['link']}|{entry['title']}>.",
+            },
+        }
+        for entry in await run_crawler()
+    ]
 
-        if len(blocks) > 0:
-            await client.chat_postMessage(
-                channel=SLACK_CHANNEL_ID,
-                text="New entries found!",
-                blocks=blocks,
-            )
+    if len(blocks) > 0:
+        await client.chat_postMessage(
+            channel=SLACK_CHANNEL_ID,
+            text="New entries found!",
+            blocks=blocks,
+        )

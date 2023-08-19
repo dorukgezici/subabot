@@ -1,6 +1,7 @@
-from math import e
-from typing import Any, AsyncGenerator, Dict, Generator, List, Tuple, Union, cast
+import asyncio
+from typing import Any, Dict, Generator, List, Tuple, Union, cast
 
+from aiohttp import ClientResponseError
 from asyncer import asyncify
 from fastapi.logger import logger
 from feedparser import FeedParserDict, parse
@@ -53,7 +54,7 @@ async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[Entry]:
     matches: List[Path] = []
 
     async with db_feeds as db:
-        new_feed = feed.model_dump()
+        new_feed = feed.model_dump(mode="json")
         new_feed.update(
             {
                 "title": rss_channel.get("title", feed.title),
@@ -64,7 +65,11 @@ async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[Entry]:
                 },
             },
         )
-        await db.put(new_feed, url)
+
+        try:
+            await db.put(new_feed, url)
+        except ClientResponseError as e:
+            logger.error(f"Error while saving {url}: {e}")
 
     async with db_keywords as db:
         for keyword in keywords:
@@ -91,7 +96,7 @@ async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[Entry]:
     return entries
 
 
-async def run_crawler() -> AsyncGenerator[List[Entry], Any]:
+async def run_crawler() -> List[Entry]:
     """Runs the crawler for all feeds and keywords."""
 
     # Query feeds that were refreshed more than a minute ago or never at all
@@ -105,5 +110,6 @@ async def run_crawler() -> AsyncGenerator[List[Entry], Any]:
 
     logger.debug(f"Crawling {len(feeds)} feeds for {len(keywords)} keywords...")
 
-    for feed in feeds:
-        yield await crawl_feed(feed, keywords)
+    coroutines = [crawl_feed(feed, keywords) for feed in feeds]
+    results = await asyncio.gather(*coroutines, return_exceptions=True)
+    return [entry for result in results if isinstance(result, list) for entry in result]

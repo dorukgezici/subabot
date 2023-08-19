@@ -120,7 +120,7 @@ async def handle_response(payload: Annotated[PayloadForm, Depends()]):
                     feedback["feed"] = f":warning: {e}"
                 else:
                     new_feed = await db_f.get(url)
-                    feeds.append(Feed(**(new_feed or feed.model_dump())))
+                    feeds.append(Feed(**(new_feed or feed.model_dump(mode="json"))))
 
         elif action_id == "remove_feed":
             url = payload.action.get("value")

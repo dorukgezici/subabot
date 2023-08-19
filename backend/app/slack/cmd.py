@@ -1,11 +1,12 @@
 from typing import Annotated
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Response
-from fastapi.logger import logger
+from pydantic import HttpUrl
 from starlette.status import HTTP_200_OK
 
 from ..core import db_feeds, db_keywords, fetch_all
-from ..rss import FEEDS, KEYWORDS, Feed, Keyword
+from ..core.settings import APP_DIR
+from ..rss import Feed, Keyword
 from .blocks import generate_configuration_blocks
 from .dependencies import CommandForm
 from .utils import crawl_and_alert
@@ -32,15 +33,19 @@ async def handle_cmd_configure(command: Annotated[CommandForm, Depends()]):
 
 @router.post("/crawl")
 async def handle_cmd_crawl(background_tasks: BackgroundTasks):
-    async with db_feeds as db:
-        if len(await fetch_all(db)) == 0:
-            logger.info("Loading initial RSS feeds to the db...")
-            await db.put_many([feed.model_dump() for feed in FEEDS])
+    # run crawler in the background
+    background_tasks.add_task(crawl_and_alert)
 
-    async with db_keywords as db:
-        if len(await fetch_all(db)) == 0:
-            logger.info("Loading initial keywords to the db...")
-            await db.put_many([keyword.model_dump() for keyword in KEYWORDS])
+    return Response(status_code=HTTP_200_OK)
+
+
+@router.post("/import")
+async def handle_cmd_import(background_tasks: BackgroundTasks):
+    with open(APP_DIR / "rss/feeds/tr.txt") as f:
+        urls = [line.strip() for line in f.readlines()]
+
+    async with db_feeds as db:
+        await db.put_many([Feed(key=HttpUrl(url=url), title=url).model_dump(mode="json") for url in urls])
 
     # run crawler in the background
     background_tasks.add_task(crawl_and_alert)

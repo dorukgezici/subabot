@@ -59,7 +59,7 @@
 			<ul class="list-disc">
 				{#each data.feeds as feed (feed.key)}
 					<li>
-						<a href={feed.url} target="_blank" class="link">
+						<a href={feed.key} target="_blank" class="link">
 							{feed.title}
 						</a>
 						<p>
