@@ -1,8 +1,9 @@
 import html
-from typing import Annotated, Dict, Literal, Optional
+from typing import Annotated, Optional
 
 from fastapi import Body, Depends, FastAPI
 from fastapi.responses import RedirectResponse
+from pydantic import HttpUrl, ValidationError
 from slack_sdk.oauth.installation_store import Installation
 from slack_sdk.web.async_client import AsyncWebClient
 from slack_sdk.webhook.async_client import AsyncWebhookClient
@@ -11,12 +12,12 @@ from starlette.status import HTTP_307_TEMPORARY_REDIRECT
 
 from ..core import db_feeds, db_keywords, fetch_all
 from ..core.settings import BACKEND_URL, FRONTEND_URL, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
-from ..rss import Feed, Keyword
+from ..rss import Feed, Keyword, crawl_feed
+from .blocks import Feedback, generate_configuration_blocks
 from .cmd import router as cmd_router
 from .dependencies import PayloadForm
 from .middlewares import SignatureVerifierMiddleware
 from .store import installation_store
-from .utils import configure_blocks
 
 app = FastAPI(title="Subabot Slack App", version="0.1.0")
 app.add_middleware(SignatureVerifierMiddleware)
@@ -96,46 +97,70 @@ async def handle_response(payload: Annotated[PayloadForm, Depends()]):
     async with db_feeds as db_f, db_keywords as db_k:
         feeds = [Feed(**feed) for feed in await fetch_all(db_f)]
         keywords = [Keyword(**keyword) for keyword in await fetch_all(db_k)]
-        feedback: Dict[Literal["feed", "keyword", "channel"], str] = {}
+
+        feedback: Feedback = {}
+        action_id, channel_id = payload.action.get("action_id"), payload.channel.get("id")
 
         # Feed management
-        if payload.action["action_id"] == "add_feed":
-            feed = payload.action.get("value")
+        if action_id == "add_feed":
+            url = payload.action.get("value")
 
-        elif payload.action["action_id"] == "remove_feed":
-            feed = payload.action.get("value")
+            if not url or len(url) < 11:
+                feedback["feed"] = ":warning: Please enter a full URL including `https://`."
 
-            if feed and feed in feeds:
-                await db_f.delete(slugify(feed))
-                feeds.remove(feed)
-
-        # Keyword management
-        elif payload.action["action_id"] == "add_keyword":
-            keyword = payload.action.get("value")
-
-            if not keyword or len(keyword) < 3:
-                feedback["keyword"] = ":warning: Please enter a keyword that is at least 3 characters long."
-
-            elif keyword in keywords:
-                feedback["keyword"] = f":warning: Keyword `{keyword}` is already in the list."
+            elif url in [f.key.unicode_string() for f in feeds]:
+                feedback["feed"] = f":warning: Feed `{url}` is already in the list."
 
             else:
-                new_keyword = Keyword(key=slugify(keyword), value=keyword)
+                try:
+                    http_url = HttpUrl(url=url)
+                    feed = Feed(key=http_url, title=http_url.unicode_host() or url)
+                    await crawl_feed(feed, keywords)
+                except (ValidationError, Exception) as e:
+                    feedback["feed"] = f":warning: {e}"
+                else:
+                    new_feed = await db_f.get(url)
+                    feeds.append(Feed(**(new_feed or feed.model_dump())))
+
+        elif action_id == "remove_feed":
+            url = payload.action.get("value")
+
+            if url and url in [f.key.unicode_string() for f in feeds]:
+                await db_f.delete(url)
+                feeds = [f for f in feeds if f.key.unicode_string() != url]
+
+        # Keyword management
+        elif action_id == "add_keyword":
+            value = payload.action.get("value")
+
+            if not value or len(value) < 3:
+                feedback["keyword"] = ":warning: Please enter a keyword that is at least 3 characters long."
+
+            elif value in [k.value for k in keywords]:
+                feedback["keyword"] = f":warning: Keyword `{value}` is already in the list."
+
+            else:
+                new_keyword = Keyword(key=slugify(value), value=value)
                 await db_k.put(new_keyword.model_dump())
                 keywords.append(new_keyword)
 
-        elif payload.action["action_id"] == "remove_keyword":
-            keyword = payload.action.get("value")
+        elif action_id == "remove_keyword":
+            key = payload.action.get("value")
 
-            if keyword and keyword in keywords:
-                await db_k.delete(slugify(keyword))
-                keywords.remove(keyword)
+            if key and key in [k.key for k in keywords]:
+                await db_k.delete(key)
+                keywords = [k for k in keywords if k.key != key]
+
+        # Channel management
+        elif action_id == "set_channel":
+            # TODO: implement
+            feedback["channel"] = ":warning: This feature is not implemented yet."
 
     await client.send(
-        blocks=configure_blocks(
+        blocks=generate_configuration_blocks(
             feeds=feeds,
             keywords=keywords,
-            channel=payload.channel["id"],
+            channel=channel_id,
             feedback=feedback,
         ),
     )

@@ -1,4 +1,5 @@
-from typing import Any, AsyncGenerator, Dict, Generator, List, Tuple, Union
+from math import e
+from typing import Any, AsyncGenerator, Dict, Generator, List, Tuple, Union, cast
 
 from asyncer import asyncify
 from fastapi.logger import logger
@@ -46,13 +47,16 @@ async def get_matching_entries(entries: List[FeedParserDict], matches: List[Path
 async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[Entry]:
     """Runs the crawler for the given feed and keywords."""
 
-    data: FeedParserDict = await asyncify(parse)(feed.url)
-    matches: Dict[str, List[Path]] = {}
+    url = feed.key.unicode_string()
+    data: FeedParserDict = await asyncify(parse)(url)
+    rss_channel = cast(dict, data.feed)
+    matches: List[Path] = []
 
     async with db_feeds as db:
         new_feed = feed.model_dump()
         new_feed.update(
             {
+                "title": rss_channel.get("title", feed.title),
                 "refreshed_at": now_timestamp(),
                 "data": {
                     "feed": data.feed,
@@ -60,22 +64,23 @@ async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[Entry]:
                 },
             },
         )
-        await db.put(new_feed, feed.key)
+        await db.put(new_feed, url)
 
     async with db_keywords as db:
         for keyword in keywords:
-            matches[feed.key] = [match for match in find_matches(list(data.entries), keyword.value)]
+            keyword_matches = [match for match in find_matches(list(data.entries), keyword.value)]
+            matches.extend(keyword_matches)
 
             # this reload was needed not to overwrite the matches from other feeds
             if not isinstance(new_keyword := await db.get(keyword.key), dict):
                 new_keyword = keyword.model_dump()
 
             new_keyword["checked_at"] = now_timestamp()
-            new_keyword["matches"][feed.key] = matches[feed.key]
+            new_keyword["matches"][url] = keyword_matches
             await db.put(new_keyword, keyword.key)
 
-    entries = await get_matching_entries(data.entries, matches[feed.key])
-    logger.debug(f"Found {len(entries)} new entries for {feed.url}.")
+    entries = await get_matching_entries(data.entries, matches)
+    logger.debug(f"Found {len(entries)} new entries for {url}.")
 
     if len(entries) > 0:
         async with db_history as db:

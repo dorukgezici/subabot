@@ -1,12 +1,11 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, HttpUrl
 
 
 class Feed(BaseModel):
-    key: str
+    key: HttpUrl
     title: str
-    url: str
 
     refreshed_at: Optional[int] = Field(default=None)
     data: Optional[dict] = Field(default=None)

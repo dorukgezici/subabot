@@ -1,9 +1,11 @@
-from .crawler import run_crawler
+from pydantic import HttpUrl
+
+from .crawler import crawl_feed, run_crawler
 from .models import Feed, History, Keyword
 
 FEEDS: list[Feed] = [
-    Feed(key="hackernews", title="Hacker News", url="https://hnrss.org/newest"),
-    Feed(key="cointelegraph", title="Cointelegraph", url="https://cointelegraph.com/rss"),
+    Feed(key=HttpUrl("https://hnrss.org/newest"), title="Hacker News"),
+    Feed(key=HttpUrl("https://cointelegraph.com/rss"), title="Cointelegraph"),
 ]
 
 KEYWORDS: list[Keyword] = [
@@ -12,4 +14,4 @@ KEYWORDS: list[Keyword] = [
     Keyword(key="dogecoin", value="Dogecoin"),
 ]
 
-__all__ = ["run_crawler", "Feed", "History", "Keyword", "FEEDS", "KEYWORDS"]
+__all__ = ["crawl_feed", "run_crawler", "Feed", "History", "Keyword", "FEEDS", "KEYWORDS"]
