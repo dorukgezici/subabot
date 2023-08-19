@@ -2,26 +2,10 @@
 v: 0
 icon: frontend/static/img/subabot-512.png
 micros:
-  - name: frontend
-    src: ./frontend
-    engine: svelte-kit
-    primary: true
-    public: true
-    dev: npm run dev
-    presets:
-      env:
-        - name: PUBLIC_BACKEND_URL
-          description: Subabot Backend URL
-          default: "http://localhost:4200/api"
-        - name: PUBLIC_SLACK_CLIENT_ID
-          description: Slack Client ID
-        - name: PUBLIC_SLACK_APP_ID
-          description: Slack App ID
-
   - name: backend
     src: ./backend
     engine: python3.9
-    path: api
+    primary: true
     run: uvicorn app.main:app --log-level debug
     dev: uvicorn app.main:app --reload --log-level debug
     presets:
