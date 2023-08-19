@@ -1,29 +1,24 @@
-import os
 from typing import List
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .core import fetch_all, get_db_feeds, get_db_keywords
+from .core.settings import FRONTEND_URL
 from .deta import router as deta_router
 from .slack import app as slack_app
 
-app = FastAPI(
-    title="Subabot",
-    version="0.1.0",
-    # needed for Deta Space `/docs` to work
-    root_path="/api" if "DETA_SPACE_APP_HOSTNAME" in os.environ else "",
-)
-app.include_router(deta_router)
-app.mount("/slack", slack_app)
-
+app = FastAPI(title="Subabot", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(deta_router)
+app.mount("/slack", slack_app)
 
 
 @app.get("/")
