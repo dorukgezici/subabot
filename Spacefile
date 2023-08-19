@@ -6,6 +6,7 @@ micros:
     src: ./backend
     engine: python3.9
     primary: true
+    public: true
     run: uvicorn app.main:app --log-level debug
     dev: uvicorn app.main:app --reload --log-level debug
     presets:
