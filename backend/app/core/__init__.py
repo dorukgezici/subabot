@@ -1,4 +1,4 @@
-from .store import db_events, db_feeds, db_history, db_keywords, drive
+from .store import drive, get_db_events, get_db_feeds, get_db_history, get_db_keywords
 from .utils import fetch_all, now_timestamp
 
-__all__ = ["db_events", "db_feeds", "db_history", "db_keywords", "drive", "fetch_all", "now_timestamp"]
+__all__ = ["drive", "get_db_events", "get_db_feeds", "get_db_history", "get_db_keywords", "fetch_all", "now_timestamp"]

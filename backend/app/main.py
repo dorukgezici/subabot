@@ -4,7 +4,7 @@ from typing import List
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .core import db_feeds, db_keywords, fetch_all
+from .core import fetch_all, get_db_feeds, get_db_keywords
 from .deta import router as deta_router
 from .slack import app as slack_app
 
@@ -33,7 +33,7 @@ async def health():
 
 @app.get("/feeds")
 async def read_feeds() -> List[dict]:
-    async with db_feeds as db:
+    async with get_db_feeds() as db:
         feeds = await fetch_all(db)
 
     return feeds
@@ -41,7 +41,7 @@ async def read_feeds() -> List[dict]:
 
 @app.get("/keywords")
 async def read_keywords() -> List[dict]:
-    async with db_keywords as db:
+    async with get_db_keywords() as db:
         keywords = await fetch_all(db)
 
     return keywords

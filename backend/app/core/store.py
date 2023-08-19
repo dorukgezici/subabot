@@ -5,9 +5,9 @@ from .utils import DBContext, _prefix
 
 deta = Deta(DETA_PROJECT_KEY)
 
-db_feeds = DBContext(deta, "feeds")
-db_keywords = DBContext(deta, "keywords")
-db_events = DBContext(deta, "events")
-db_history = DBContext(deta, "history")
+get_db_feeds = lambda: DBContext(deta, "feeds")
+get_db_keywords = lambda: DBContext(deta, "keywords")
+get_db_events = lambda: DBContext(deta, "events")
+get_db_history = lambda: DBContext(deta, "history")
 
 drive = deta.Drive(_prefix("slack"))

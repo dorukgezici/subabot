@@ -1,7 +1,7 @@
 import html
 from typing import Annotated, Optional
 
-from fastapi import Body, Depends, FastAPI
+from fastapi import BackgroundTasks, Body, Depends, FastAPI
 from fastapi.responses import RedirectResponse
 from pydantic import HttpUrl, ValidationError
 from slack_sdk.oauth.installation_store import Installation
@@ -10,7 +10,7 @@ from slack_sdk.webhook.async_client import AsyncWebhookClient
 from slugify import slugify
 from starlette.status import HTTP_307_TEMPORARY_REDIRECT
 
-from ..core import db_feeds, db_keywords, fetch_all
+from ..core import fetch_all, get_db_feeds, get_db_keywords
 from ..core.settings import BACKEND_URL, FRONTEND_URL, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
 from ..rss import Feed, Keyword, crawl_feed
 from .blocks import Feedback, generate_configuration_blocks
@@ -91,10 +91,13 @@ def handle_events(body: dict = Body(...)):
 
 
 @app.post("/response")
-async def handle_response(payload: Annotated[PayloadForm, Depends()]):
+async def handle_response(
+    payload: Annotated[PayloadForm, Depends()],
+    background_tasks: BackgroundTasks,
+):
     client = AsyncWebhookClient(payload.response_url)
 
-    async with db_feeds as db_f, db_keywords as db_k:
+    async with get_db_feeds() as db_f, get_db_keywords() as db_k:
         feeds = [Feed(**feed) for feed in await fetch_all(db_f)]
         keywords = [Keyword(**keyword) for keyword in await fetch_all(db_k)]
 
@@ -115,12 +118,12 @@ async def handle_response(payload: Annotated[PayloadForm, Depends()]):
                 try:
                     http_url = HttpUrl(url=url)
                     feed = Feed(key=http_url, title=http_url.unicode_host() or url)
-                    await crawl_feed(feed, keywords)
+                    background_tasks.add_task(crawl_feed, feed, keywords)
                 except (ValidationError, Exception) as e:
                     feedback["feed"] = f":warning: {e}"
                 else:
-                    new_feed = await db_f.get(url)
-                    feeds.append(Feed(**(new_feed or feed.model_dump(mode="json"))))
+                    await db_f.put(feed.model_dump(mode="json"))
+                    feeds.append(feed)
 
         elif action_id == "remove_feed":
             url = payload.action.get("value")

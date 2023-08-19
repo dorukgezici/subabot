@@ -1,6 +1,4 @@
 https://www.aa.com.tr/tr/rss/default?cat=guncel
-https://www.ntv.com.tr/son-dakika.rss
-https://www.ntv.com.tr/gundem.rss
 http://www.cumhuriyet.com.tr/rss/son_dakika.xml
 https://www.haberturk.com/rss
 https://bigpara.hurriyet.com.tr/rss/
