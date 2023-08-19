@@ -26,7 +26,7 @@
 					An AI-powered Slack alert bot to{' '}
 					<span class="underline">subscribe</span>,{' '}
 					<span class="underline">classify</span> and{' '}
-					<span class="underline">notify</span> for keywords on the web.
+					<span class="underline">notify</span> for keywords on RSS feeds.
 				</p>
 			</div>
 
