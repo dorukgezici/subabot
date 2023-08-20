@@ -1,4 +1,4 @@
-name: deploy to deta space
+name: Deploy to Deta Space
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    name: deploy to deta space
+    name: Deploy to Deta Space
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
