@@ -7,7 +7,6 @@ from pydantic import HttpUrl, ValidationError
 from slack_sdk.oauth.installation_store import Installation
 from slack_sdk.web.async_client import AsyncWebClient
 from slack_sdk.webhook.async_client import AsyncWebhookClient
-from slugify import slugify
 from starlette.status import HTTP_307_TEMPORARY_REDIRECT
 
 from ..core import fetch_all, get_db_feeds, get_db_keywords
@@ -116,21 +115,22 @@ async def handle_response(
 
             else:
                 try:
-                    http_url = HttpUrl(url=url)
-                    feed = Feed(key=http_url, title=http_url.unicode_host() or url)
-                    background_tasks.add_task(crawl_feed, feed, keywords)
+                    feed = Feed.create(url)
+                    await db_f.put(feed.model_dump(mode="json"))
                 except (ValidationError, Exception) as e:
                     feedback["feed"] = f":warning: {e}"
                 else:
-                    await db_f.put(feed.model_dump(mode="json"))
                     feeds.append(feed)
+                    background_tasks.add_task(crawl_feed, feed, keywords)
 
         elif action_id == "remove_feed":
-            url = payload.action.get("value")
-
-            if url and url in [f.key.unicode_string() for f in feeds]:
-                await db_f.delete(url)
-                feeds = [f for f in feeds if f.key.unicode_string() != url]
+            try:
+                url = HttpUrl(url=payload.action["value"])
+                await db_f.delete(str(url))
+            except (ValidationError, Exception) as e:
+                feedback["feed"] = f":warning: {e}"
+            else:
+                feeds = [f for f in feeds if f.key != url]
 
         # Keyword management
         elif action_id == "add_keyword":
@@ -143,7 +143,7 @@ async def handle_response(
                 feedback["keyword"] = f":warning: Keyword `{value}` is already in the list."
 
             else:
-                new_keyword = Keyword(key=slugify(value), value=value)
+                new_keyword = Keyword.create(value)
                 await db_k.put(new_keyword.model_dump())
                 keywords.append(new_keyword)
 

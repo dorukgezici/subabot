@@ -1,14 +1,13 @@
 import os
-from typing import List
+from typing import Dict, Literal
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .core import fetch_all, get_db_feeds, get_db_keywords
 from .core.settings import FRONTEND_URL
-from .deta import router as deta_router
-from .rss import Feed, Keyword
-from .slack import app as slack_app
+from .deta.router import router as deta_router
+from .rss.router import router as rss_router
+from .slack.app import app as slack_app
 
 app = FastAPI(
     title="Subabot",
@@ -25,25 +24,10 @@ app.add_middleware(
 )
 
 app.include_router(deta_router)
+app.include_router(rss_router)
 app.mount("/slack", slack_app)
 
 
 @app.get("/")
-async def health():
+async def health() -> Dict[Literal["status"], Literal["ok"]]:
     return {"status": "ok"}
-
-
-@app.get("/feeds")
-async def read_feeds() -> List[Feed]:
-    async with get_db_feeds() as db:
-        feeds = [Feed(**data) for data in await fetch_all(db)]
-
-    return feeds
-
-
-@app.get("/keywords")
-async def read_keywords() -> List[Keyword]:
-    async with get_db_keywords() as db:
-        keywords = [Keyword(**data) for data in await fetch_all(db)]
-
-    return keywords

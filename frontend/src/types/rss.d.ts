@@ -1,16 +1,11 @@
 type Feed = {
 	key: string;
 	title: string;
-	url: string;
-
-	refreshed_at: number | null;
-	data: JSON | null;
+	refreshed_at?: number;
 };
 
 type Keyword = {
 	key: string;
 	value: string;
-
-	checked_at: number | null;
-	matches: JSON;
+	checked_at?: number;
 };

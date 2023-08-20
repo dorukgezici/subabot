@@ -1,6 +1,6 @@
 <script>
 	import { env } from '$env/dynamic/public';
-	import { Footer } from '$lib';
+	import { Footer } from '$lib/components';
 	import { config } from '@fortawesome/fontawesome-svg-core';
 	import '@fortawesome/fontawesome-svg-core/styles.css';
 	import dayjs from 'dayjs';

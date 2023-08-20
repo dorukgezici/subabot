@@ -9,5 +9,3 @@ https://www.sabah.com.tr/rss/gundem.xml
 https://www.ahaber.com.tr/rss/gundem.xml
 http://www.trthaber.com/sondakika.rss
 https://www.cnnturk.com/feed/rss/turkiye/news
-https://www.tobb.org.tr/Sayfalar/RssFeeder.php?List=Haberler
-https://www.tobb.org.tr/Sayfalar/RssFeeder.php?List=DuyurularListesi

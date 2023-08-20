@@ -45,7 +45,7 @@ async def get_matching_entries(entries: List[FeedParserDict], matches: List[Path
 async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[Entry]:
     """Runs the crawler for the given feed and keywords."""
 
-    url = feed.key.unicode_string()
+    url = str(feed.key)
     data: FeedParserDict = await asyncify(parse)(url)
     rss_channel, now = cast(dict, data.feed), now_timestamp()
 
@@ -61,6 +61,8 @@ async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[Entry]:
             await db.put(crawl.model_dump(mode="json"), url)
         except ClientResponseError as e:
             logger.error(f"Error while saving crawl {url}: {e}")
+        else:
+            logger.debug(f"Saved crawl for {url}.")
 
     async with get_db_feeds() as db:
         new_feed = feed.model_dump(mode="json")

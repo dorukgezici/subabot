@@ -1,14 +1,8 @@
 <script lang="ts">
 	import { env } from '$env/dynamic/public';
-	import { RobotTile, SlackButton } from '$lib';
+	import { RobotTile, SlackButton } from '$lib/components';
 	import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
-	import dayjs from 'dayjs';
 	import Fa from 'svelte-fa';
-
-	export let data: {
-		feeds: Feed[];
-		keywords: Keyword[];
-	};
 </script>
 
 <main>
@@ -30,10 +24,13 @@
 				</p>
 			</div>
 
-			<SlackButton
-				text="Add to Slack"
-				url={`https://slack.com/oauth/v2/authorize?scope=chat:write,chat:write.public,links:read,links:write,commands,team:read&client_id=${env.PUBLIC_SLACK_CLIENT_ID}&redirect_uri=${env.PUBLIC_BACKEND_URL}/slack/oauth`}
-			/>
+			<div class="flex flex-wrap gap-4">
+				<SlackButton
+					text="Add to Slack"
+					url={`https://slack.com/oauth/v2/authorize?scope=chat:write,chat:write.public,links:read,links:write,commands,team:read&client_id=${env.PUBLIC_SLACK_CLIENT_ID}&redirect_uri=${env.PUBLIC_BACKEND_URL}/slack/oauth`}
+				/>
+				<a href="/dashboard" class="btn">Dashboard</a>
+			</div>
 		</div>
 	</section>
 
@@ -50,38 +47,6 @@
 		</div>
 		<div class="w-2/5 hidden md:flex max-w-sm">
 			<Fa icon={faMagnifyingGlass} style="width: %100; height: auto" />
-		</div>
-	</section>
-
-	<section class="flex flex-wrap justify-center p-8 sm:p-16 gap-8">
-		<div class="flex flex-col">
-			<h2 class="text-xl font-bold">Sources</h2>
-			<ul class="list-disc">
-				{#each data.feeds as feed (feed.key)}
-					<li>
-						<a href={feed.key} target="_blank" class="link">
-							{feed.title}
-						</a>
-						<p>
-							{feed.refreshed_at ? dayjs.unix(feed.refreshed_at).fromNow() : 'never'}
-						</p>
-					</li>
-				{/each}
-			</ul>
-		</div>
-
-		<div class="flex flex-col">
-			<h2 class="text-xl font-bold">Keywords</h2>
-			<ul class="list-disc">
-				{#each data.keywords as keyword (keyword.key)}
-					<li>
-						<h3>{keyword.value}</h3>
-						<p>
-							{keyword.checked_at ? dayjs.unix(keyword.checked_at).fromNow() : 'never'}
-						</p>
-					</li>
-				{/each}
-			</ul>
 		</div>
 	</section>
 

@@ -56,13 +56,13 @@ def generate_configuration_blocks(
         *[
             {
                 "type": "section",
-                "block_id": f"feed_{feed.key.unicode_string()}",
-                "text": {"type": "mrkdwn", "text": f"{feed.title}: `{feed.key.unicode_string()}`"},
+                "block_id": f"feed_{feed.key}",
+                "text": {"type": "mrkdwn", "text": f"{feed.title}: `{feed.key}`"},
                 "accessory": {
                     "action_id": "remove_feed",
                     "type": "button",
                     "text": {"type": "plain_text", "text": "Remove"},
-                    "value": feed.key.unicode_string(),
+                    "value": str(feed.key),
                 },
             }
             for feed in feeds
