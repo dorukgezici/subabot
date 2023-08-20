@@ -1,23 +1,18 @@
 name: Deploy to Deta Space
-
 on:
   push:
     branches:
       - main
-
 jobs:
   deploy:
     name: Deploy to Deta Space
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Deploy
-        uses: lizheming/deta-action@master
+      - uses: actions/checkout@v3
+      - uses: lizheming/deta-action@master
         with:
           access_token: ${{ secrets.SPACE_ACCESS_TOKEN }}
           id: ${{ secrets.SPACE_PROJECT_ID }}
-          version: "0.1.0"
+          version: ${{ github.sha }}
           notes: "Released automatically with GitHub deta action"
           listed: false
