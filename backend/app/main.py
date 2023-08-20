@@ -1,3 +1,4 @@
+import os
 from typing import List
 
 from fastapi import FastAPI
@@ -9,7 +10,12 @@ from .deta import router as deta_router
 from .rss import Feed, Keyword
 from .slack import app as slack_app
 
-app = FastAPI(title="Subabot", version="0.1.0")
+app = FastAPI(
+    title="Subabot",
+    version="0.1.0",
+    # needed for Deta Space `/api/docs` to work
+    root_path="/api" if "DETA_SPACE_APP_HOSTNAME" in os.environ else "",
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[FRONTEND_URL],

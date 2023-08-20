@@ -14,5 +14,4 @@ jobs:
           access_token: ${{ secrets.SPACE_ACCESS_TOKEN }}
           id: ${{ secrets.SPACE_PROJECT_ID }}
           version: ${{ github.sha }}
-          notes: "Released automatically with GitHub deta action"
           listed: false
