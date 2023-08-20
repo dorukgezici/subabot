@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, field_serializer
 
 
 class Feed(BaseModel):
@@ -9,6 +9,10 @@ class Feed(BaseModel):
 
     refreshed_at: Optional[int] = Field(default=None)
     data: Optional[dict] = Field(default=None)
+
+    @field_serializer("key")
+    def serialize_key(self, key: HttpUrl, _info):
+        return key.unicode_string()
 
 
 class Keyword(BaseModel):

@@ -110,6 +110,7 @@ async def run_crawler() -> List[Entry]:
 
     logger.debug(f"Crawling {len(feeds)} feeds for {len(keywords)} keywords...")
 
-    coroutines = [crawl_feed(feed, keywords) for feed in feeds]
-    results = await asyncio.gather(*coroutines, return_exceptions=True)
+    crawlers = [crawl_feed(feed, keywords) for feed in feeds]
+    # swallow exceptions to keep the loop running
+    results = await asyncio.gather(*crawlers, return_exceptions=True)
     return [entry for result in results if isinstance(result, list) for entry in result]
