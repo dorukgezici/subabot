@@ -1,17 +1,14 @@
 import asyncio
-from typing import Any, Dict, Generator, List, Tuple, Union, cast
+from typing import Any, Generator, List, Union, cast
 
 from aiohttp import ClientResponseError
 from asyncer import asyncify
 from fastapi.logger import logger
 from feedparser import FeedParserDict, parse
 
-from ..core import get_db_feeds, get_db_history, get_db_keywords, now_timestamp
+from ..core import get_db_crawls, get_db_feeds, get_db_history, get_db_keywords, get_db_searches, now_timestamp
 from ..core.utils import fetch_all
-from .models import Feed, History, Keyword
-
-Path = Tuple[str, ...]
-Entry = Dict[str, Any]
+from .models import Crawl, Entry, Feed, History, Keyword, Path, Search
 
 
 def find_matches(
@@ -39,7 +36,7 @@ async def get_matching_entries(entries: List[FeedParserDict], matches: List[Path
     """Returns a list of unique entries from the matches that are NOT in history."""
 
     async with get_db_history() as db:
-        links = [history.get("link") for history in await fetch_all(db)]
+        links = [history.get("key") for history in await fetch_all(db)]
 
     indexes = set(int(match[0]) for match in matches)
     return [entries[i] for i in indexes if entries[i].get("link") not in links]
@@ -50,48 +47,67 @@ async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[Entry]:
 
     url = feed.key.unicode_string()
     data: FeedParserDict = await asyncify(parse)(url)
-    rss_channel = cast(dict, data.feed)
-    matches: List[Path] = []
+    rss_channel, now = cast(dict, data.feed), now_timestamp()
+
+    async with get_db_crawls() as db:
+        crawl = Crawl(
+            key=feed.key,
+            feed=data.feed if isinstance(data.feed, dict) else {},
+            entries=list(data.entries),
+            updated_at=now,
+        )
+
+        try:
+            await db.put(crawl.model_dump(mode="json"), url)
+        except ClientResponseError as e:
+            logger.error(f"Error while saving crawl {url}: {e}")
 
     async with get_db_feeds() as db:
         new_feed = feed.model_dump(mode="json")
         new_feed.update(
             {
                 "title": rss_channel.get("title", feed.title),
-                "refreshed_at": now_timestamp(),
-                "data": {
-                    "feed": data.feed,
-                    "entries": data.entries,
-                },
+                "refreshed_at": now,
             },
         )
 
         try:
             await db.put(new_feed, url)
         except ClientResponseError as e:
-            logger.error(f"Error while saving {url}: {e}")
+            logger.error(f"Error while saving feed {url}: {e}")
 
-    async with get_db_keywords() as db:
+    async with get_db_keywords() as db_k, get_db_searches() as db_s:
+        new_keywords: List[dict] = []
+        matches: List[Path] = []
+        searches: List[Search] = []
+
         for keyword in keywords:
-            keyword_matches = [match for match in find_matches(list(data.entries), keyword.value)]
-            matches.extend(keyword_matches)
-
-            # this reload was needed not to overwrite the matches from other feeds
-            if not isinstance(new_keyword := await db.get(keyword.key), dict):
-                new_keyword = keyword.model_dump()
-
+            new_keyword: dict = keyword.model_dump()
             new_keyword["checked_at"] = now_timestamp()
-            new_keyword["matches"][url] = keyword_matches
-            await db.put(new_keyword, keyword.key)
+            new_keywords.append(new_keyword)
+
+            keyword_matches = [path for path in find_matches(list(data.entries), keyword.value)]
+            matches.extend(keyword_matches)
+            searches.append(
+                Search(
+                    keyword=keyword.key,
+                    feed=feed.key,
+                    paths=keyword_matches,
+                    updated_at=now,
+                ),
+            )
+
+        await db_k.put_many(list(new_keywords))
+        await db_s.put_many([s.model_dump(mode="json") for s in searches])
 
     entries = await get_matching_entries(data.entries, matches)
     logger.debug(f"Found {len(entries)} new entries for {url}.")
 
     if len(entries) > 0:
         async with get_db_history() as db:
-            history = [History(link=entry["link"], created_at=now_timestamp()) for entry in entries]
+            history = [History(key=entry["link"], updated_at=now) for entry in entries]
             # keep history for 2 days via `expire_in`
-            await db.put_many([h.model_dump() for h in history], expire_in=172800)
+            await db.put_many([h.model_dump(mode="json") for h in history], expire_in=172800)
 
     return entries
 
