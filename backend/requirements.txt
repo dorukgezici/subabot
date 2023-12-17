@@ -1,9 +1,9 @@
-aiohttp==3.8.5
+aiohttp==3.9.1
 asyncer==0.0.2
 deta==1.2.0
-fastapi==0.101.1
-feedparser==6.0.10
+fastapi==0.105.0
+feedparser==6.0.11
 python-multipart==0.0.6
 python-slugify==8.0.1
-slack_sdk==3.21.3
-uvicorn[standard]==0.23.2
+slack_sdk==3.26.1
+uvicorn[standard]==0.24.0

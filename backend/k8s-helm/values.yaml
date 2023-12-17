@@ -1,0 +1,157 @@
+# Default values for subabot.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: dorukgezici/subabot
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+imagePullSecrets: []
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "service-account"
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  {}
+  # fsGroup: 2000
+
+securityContext:
+  {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8000
+
+env:
+  - name: "SUBABOT_STAGE"
+    valueFrom:
+      secretKeyRef:
+        key: stage
+        name: subabot
+  - name: "SUBABOT_BACKEND_URL"
+    valueFrom:
+      secretKeyRef:
+        key: backend_url
+        name: subabot
+  - name: "SUBABOT_FRONTEND_URL"
+    valueFrom:
+      secretKeyRef:
+        key: frontend_url
+        name: subabot
+  - name: "DETA_PROJECT_KEY"
+    valueFrom:
+      secretKeyRef:
+        key: deta.project_key
+        name: subabot
+  - name: "SLACK_CLIENT_ID"
+    valueFrom:
+      secretKeyRef:
+        key: slack.client_id
+        name: subabot
+  - name: "SLACK_CLIENT_SECRET"
+    valueFrom:
+      secretKeyRef:
+        key: slack.client_secret
+        name: subabot
+  - name: "SLACK_SIGNING_SECRET"
+    valueFrom:
+      secretKeyRef:
+        key: slack.signing_secret
+        name: subabot
+  - name: "SLACK_APP_ID"
+    valueFrom:
+      secretKeyRef:
+        key: slack.app_id
+        name: subabot
+  - name: "SLACK_TEAM_ID"
+    valueFrom:
+      secretKeyRef:
+        key: slack.team_id
+        name: subabot
+  - name: "SLACK_CHANNEL_ID"
+    valueFrom:
+      secretKeyRef:
+        key: slack.channel_id
+        name: subabot
+
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 500m
+  hosts:
+    - host: subabot.rpi.dorukgezici.eu1.kubegateway.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+    - host: subabot-api.gezici.me
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: subabot-tls
+      hosts:
+        - subabot.rpi.dorukgezici.eu1.kubegateway.com
+        - subabot-api.gezici.me
+
+resources:
+  {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
