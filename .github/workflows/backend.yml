@@ -40,12 +40,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Netbird Connect
-        uses: dorukgezici/netbird-connect@v1
-        with:
-          setup-key: ${{ secrets.NETBIRD_SETUP_KEY }}
-          hostname: github-run-${{ github.run_id }}
-
       - name: Helm Configure & Deploy
         uses: dorukgezici/helm-deploy-action@v1
         with:

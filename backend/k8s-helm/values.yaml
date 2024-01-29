@@ -99,23 +99,18 @@ ingress:
   enabled: true
   className: traefik
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt
-    kubernetes.io/tls-acme: "true"
-    nginx.ingress.kubernetes.io/proxy-body-size: 500m
+    cert-manager.io/cluster-issuer: cloudflare
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
   hosts:
-    - host: subabot.rpi.dorukgezici.eu1.kubegateway.com
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-    - host: subabot-api.gezici.me
+    - host: subabot-api.lab.gezici.me
       paths:
         - path: /
           pathType: ImplementationSpecific
   tls:
     - secretName: subabot-tls
       hosts:
-        - subabot.rpi.dorukgezici.eu1.kubegateway.com
-        - subabot-api.gezici.me
+        - subabot-api.lab.gezici.me
 
 resources:
   {}
