@@ -55,14 +55,14 @@ ingress:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
   hosts:
-    - host: subabot-api.lab.gezici.me
+    - host: subabot.pub.gezici.me
       paths:
         - path: /
           pathType: ImplementationSpecific
   tls:
     - secretName: subabot-tls
       hosts:
-        - subabot-api.lab.gezici.me
+        - subabot.pub.gezici.me
 
 resources:
   {}
