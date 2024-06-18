@@ -1,6 +1,6 @@
-import colors from "tailwindcss/colors";
 import typography from "@tailwindcss/typography";
 import daisyui from "daisyui";
+import colors from "tailwindcss/colors";
 
 /** @type {import('tailwindcss').Config} */
 export default {
