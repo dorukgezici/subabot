@@ -1,6 +1,7 @@
 <script lang="ts">
     import { Alert, Header, RemoveButton } from "@/components";
     import { importFeeds, triggerCrawl } from "@/lib/api";
+    import type { Feed, Keyword } from "@/types/rss";
     import dayjs from "@/lib/dayjs";
 
     export let data: {
@@ -18,12 +19,12 @@
     <Header />
 
     <section class="flex flex-wrap justify-center p-8 sm:p-16 gap-8">
-        <button class="btn" on:click={() => triggerCrawl(fetch)}
-            >Trigger Crawl</button
-        >
+        <button class="btn" on:click={async () => await triggerCrawl()}>
+            Trigger Crawl
+        </button>
         <button
             class="btn"
-            on:click={async () => (data.feeds = await importFeeds(fetch))}
+            on:click={async () => (data.feeds = await importFeeds())}
         >
             Import Feeds
         </button>

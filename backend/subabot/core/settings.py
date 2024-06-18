@@ -6,7 +6,7 @@ APP_DIR = Path(__file__).resolve().parent.parent
 
 STAGE = os.environ.get("SUBABOT_STAGE", "development")
 BACKEND_URL = os.environ.get("SUBABOT_BACKEND_URL", "http://localhost:8000")
-FRONTEND_URL = os.environ.get("SUBABOT_FRONTEND_URL", "http://localhost:5173")
+FRONTEND_URL = os.environ.get("SUBABOT_FRONTEND_URL", "http://localhost:4321")
 
 DETA_PROJECT_KEY = os.environ["DETA_PROJECT_KEY"]
 

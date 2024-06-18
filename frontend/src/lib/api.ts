@@ -1,7 +1,7 @@
-type Fetch = typeof fetch;
+import type { Feed, Keyword } from "@/types/rss";
 
 // feeds
-export async function getFeeds(fetch: Fetch): Promise<Feed[]> {
+export async function getFeeds(): Promise<Feed[]> {
   const res = await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/feeds`, {
     cache: "no-store",
   });
@@ -9,7 +9,7 @@ export async function getFeeds(fetch: Fetch): Promise<Feed[]> {
   return await res.json();
 }
 
-export async function createFeed(fetch: Fetch, url: string): Promise<Feed> {
+export async function createFeed(url: string): Promise<Feed> {
   const res = await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/feeds`, {
     method: "POST",
     body: JSON.stringify({ key: url }),
@@ -19,7 +19,7 @@ export async function createFeed(fetch: Fetch, url: string): Promise<Feed> {
   return await res.json();
 }
 
-export async function deleteFeed(fetch: Fetch, url: string): Promise<void> {
+export async function deleteFeed(url: string): Promise<void> {
   await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/feeds`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
@@ -27,7 +27,7 @@ export async function deleteFeed(fetch: Fetch, url: string): Promise<void> {
   });
 }
 
-export async function importFeeds(fetch: Fetch): Promise<Feed[]> {
+export async function importFeeds(): Promise<Feed[]> {
   const res = await fetch(
     `${import.meta.env.PUBLIC_BACKEND_URL}/feeds/import`,
     { cache: "no-store" },
@@ -37,7 +37,7 @@ export async function importFeeds(fetch: Fetch): Promise<Feed[]> {
 }
 
 // keywords
-export async function getKeywords(fetch: Fetch): Promise<Keyword[]> {
+export async function getKeywords(): Promise<Keyword[]> {
   const res = await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/keywords`, {
     cache: "no-store",
   });
@@ -45,10 +45,7 @@ export async function getKeywords(fetch: Fetch): Promise<Keyword[]> {
   return await res.json();
 }
 
-export async function createKeyword(
-  fetch: Fetch,
-  value: string,
-): Promise<Keyword> {
+export async function createKeyword(value: string): Promise<Keyword> {
   const res = await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/keywords`, {
     method: "POST",
     body: JSON.stringify({ value }),
@@ -58,14 +55,14 @@ export async function createKeyword(
   return await res.json();
 }
 
-export async function deleteKeyword(fetch: Fetch, key: string): Promise<void> {
+export async function deleteKeyword(key: string): Promise<void> {
   await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/keywords/${key}`, {
     method: "DELETE",
   });
 }
 
 // crawler
-export async function triggerCrawl(fetch: Fetch): Promise<void> {
+export async function triggerCrawl(): Promise<void> {
   await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/__space/v0/actions`, {
     method: "POST",
     body: JSON.stringify({ event: { id: "trigger_crawl", trigger: "manuel" } }),

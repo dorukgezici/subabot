@@ -10,7 +10,7 @@ import Fa from "svelte-fa";
         <section
             class="h-screen flex flex-wrap items-center justify-center overflow-hidden space-y-12 bg-gradient-to-tl from-neutral via-primary to-secondary"
         >
-            <RobotTile />
+            <RobotTile client:load />
 
             <div
                 class="bg-primary opacity-95 absolute p-8 sm:p-16 md:p-24 shadow-2xl rounded-3xl w-full lg:w-2/3 max-w-[900px] border-solid border-2 border-primary"
@@ -34,6 +34,7 @@ import Fa from "svelte-fa";
 
                 <div class="flex flex-wrap gap-4">
                     <SlackButton
+                        client:load
                         text="Add to Slack"
                         url={`https://slack.com/oauth/v2/authorize?scope=chat:write,chat:write.public,links:read,links:write,commands,team:read&client_id=${import.meta.env.PUBLIC_SLACK_CLIENT_ID}&redirect_uri=${import.meta.env.PUBLIC_BACKEND_URL}/slack/oauth`}
                     />

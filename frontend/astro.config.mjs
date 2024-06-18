@@ -1,4 +1,3 @@
-import react from "@astrojs/react";
 import svelte from "@astrojs/svelte";
 import tailwind from "@astrojs/tailwind";
 import vercel from "@astrojs/vercel/serverless";
@@ -10,6 +9,6 @@ export default defineConfig({
   experimental: {
     actions: true,
   },
-  integrations: [tailwind(), react(), svelte()],
+  integrations: [tailwind(), svelte()],
   adapter: vercel(),
 });

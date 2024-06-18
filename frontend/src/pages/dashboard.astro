@@ -15,5 +15,9 @@ const form = {
 ---
 
 <Layout title="Subabot">
-    <DashboardPage data={{ feeds, keywords }} form={form} />
+    <DashboardPage
+        client:only="svelte"
+        data={{ feeds, keywords }}
+        form={form}
+    />
 </Layout>
