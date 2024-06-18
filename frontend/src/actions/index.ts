@@ -13,7 +13,7 @@ export const server = {
       feed: z.string().url(),
     }),
     handler: async ({ feed }) => {
-      await createFeed(fetch, feed);
+      await createFeed(feed);
       return { success: true };
     },
   }),
@@ -23,7 +23,7 @@ export const server = {
       key: z.string(),
     }),
     handler: async ({ key }) => {
-      await deleteFeed(fetch, key);
+      await deleteFeed(key);
       return { success: true };
     },
   }),
@@ -34,7 +34,7 @@ export const server = {
       keyword: z.string().min(3).max(30),
     }),
     handler: async ({ keyword }) => {
-      await createKeyword(fetch, keyword);
+      await createKeyword(keyword);
       return { success: true };
     },
   }),
@@ -44,7 +44,7 @@ export const server = {
       key: z.string(),
     }),
     handler: async ({ key }) => {
-      await deleteKeyword(fetch, key);
+      await deleteKeyword(key);
       return { success: true };
     },
   }),
