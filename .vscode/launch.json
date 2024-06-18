@@ -14,7 +14,7 @@
       "cwd": "${workspaceFolder}/backend",
       "envFile": "${workspaceFolder}/backend/.env",
       "module": "uvicorn",
-      "args": ["app.main:app", "--reload", "--log-level", "debug"],
+      "args": ["subabot.main:app", "--reload", "--log-level", "debug"],
       "jinja": true,
       "justMyCode": true
     },
@@ -24,7 +24,7 @@
       "request": "launch",
       "cwd": "${workspaceFolder}/frontend",
       "envFile": "${workspaceFolder}/frontend/.env",
-      "command": "npm run dev"
+      "command": "pnpm run dev"
     }
   ]
 }

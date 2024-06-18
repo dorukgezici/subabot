@@ -1,0 +1,20 @@
+[
+  {
+    "label": "api",
+    "cwd": "$ZED_WORKTREE_ROOT/backend",
+    "command": "source .venv/bin/activate && poetry run task dev",
+    "reveal": "always"
+  },
+  {
+    "label": "frontend",
+    "cwd": "$ZED_WORKTREE_ROOT/frontend",
+    "command": "pnpm run dev",
+    "reveal": "always"
+  },
+  {
+    "label": "typegen",
+    "cwd": "$ZED_WORKTREE_ROOT/frontend",
+    "command": "pnpm run typegen",
+    "reveal": "always"
+  }
+]

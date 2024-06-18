@@ -1,13 +1,12 @@
 # OS & IDE
 .DS_Store
 .idea
-.vscode/**
-!.vscode/launch.json
-!.vscode/settings.json
-!.vscode/tasks.json
 
 # python
-/.venv
+.venv/
+
+# node
+node_modules/
 
 # misc
 .space

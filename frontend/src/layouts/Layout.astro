@@ -1,0 +1,39 @@
+---
+import "@/styles/globals.css";
+import { Footer } from "@/components";
+import { config } from "@fortawesome/fontawesome-svg-core";
+import "@fortawesome/fontawesome-svg-core/styles.css";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+config.autoAddCss = false;
+dayjs.extend(relativeTime);
+
+interface Props {
+    title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <title>{title}</title>
+        <meta
+            name="description"
+            content="An AI-powered Slack alert bot to subscribe, classify and notify for keywords on RSS feeds."
+        />
+        <meta
+            name="slack-app-id"
+            content={import.meta.env.PUBLIC_SLACK_APP_ID}
+        />
+    </head>
+    <body>
+        <slot />
+        <Footer />
+    </body>
+</html>

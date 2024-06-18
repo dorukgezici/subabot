@@ -1,0 +1,21 @@
+{
+  "preferred_line_length": 120,
+  "languages": {
+    "TypeScript": {
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true
+      }
+    }
+  },
+  "language_overrides": {
+    "Python": {
+      "format_on_save": "on",
+      "formatter": {
+        "external": {
+          "command": "ruff",
+          "arguments": ["format", "--stdin-filename", "{buffer_path}"]
+        }
+      }
+    }
+  }
+}

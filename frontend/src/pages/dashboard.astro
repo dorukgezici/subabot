@@ -1,18 +1,21 @@
-<script lang="ts">
-	import { importFeeds, triggerCrawl } from '$lib/api';
-	import { Alert, Header, RemoveButton } from '$lib/components';
-	import dayjs from 'dayjs';
+---
+import dayjs from "dayjs";
+import { importFeeds, triggerCrawl } from "@/lib/api";
+import { Alert, Header, RemoveButton } from "@/components";
+import { getFeeds, getKeywords } from '@/lib/api';
 
-	export let data: {
-		feeds: Feed[];
-		keywords: Keyword[];
-	};
-	export let form: {
-		feed?: string;
-		keyword?: string;
-		error?: string;
-	};
-</script>
+export let data: {
+    feeds: Feed[];
+    keywords: Keyword[];
+};
+export let form: {
+    feed?: string;
+    keyword?: string;
+    error?: string;
+};
+
+const [feeds, keywords] = await Promise.all([getFeeds(fetch), getKeywords(fetch)]);
+---
 
 <main class="min-h-screen">
 	<Header />
@@ -28,7 +31,7 @@
 		<div class="flex flex-col prose">
 			<h2>Sources <span class="badge">{data.feeds.length}</span></h2>
 			<ul>
-				{#each data.feeds as feed (feed.key)}
+				{data.feeds ? data.feeds.map((feed) => {
 					<li>
 						<a href={feed.key} target="_blank">{feed.title}</a>
 						<form method="POST" action="?/removeFeed" class="inline">
@@ -39,9 +42,7 @@
 							{feed.refreshed_at ? dayjs.unix(feed.refreshed_at).fromNow() : 'never'}
 						</small>
 					</li>
-				{:else}
-					<li><i>No feeds are added.</i></li>
-				{/each}
+				}) : <li><i>No feeds are added.</i></li>}
 			</ul>
 			<form method="POST" action="?/addFeed">
 				<input
@@ -52,9 +53,9 @@
 					class="input w-full max-w-xs my-2"
 				/>
 
-				{#if form?.feed && form?.error}
+				{form?.feed && form?.error && (
 					<Alert error={form.error} />
-				{/if}
+				)}
 			</form>
 		</div>
 
