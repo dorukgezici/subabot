@@ -1,5 +1,6 @@
 {
   "extends": "astro/tsconfigs/strict",
+  "exclude": ["node_modules", "dist", ".vercel"],
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "react",

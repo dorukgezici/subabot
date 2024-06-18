@@ -21,4 +21,4 @@ _An AI-powered Slack alert bot to subscribe, classify and notify for keywords on
 
 ## License
 
-[GNU General Public License v3](/LICENSE)
+[GNU Lesser General Public License v3.0](/LICENSE)
