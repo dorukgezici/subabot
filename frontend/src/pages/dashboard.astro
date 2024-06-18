@@ -3,10 +3,7 @@ import Layout from "@/layouts/Layout.astro";
 import { DashboardPage } from "@/components";
 import { getFeeds, getKeywords } from "@/lib/api";
 
-const [feeds, keywords] = await Promise.all([
-    getFeeds(fetch),
-    getKeywords(fetch),
-]);
+const [feeds, keywords] = await Promise.all([getFeeds(), getKeywords()]);
 const form = {
     feed: undefined,
     keyword: undefined,
