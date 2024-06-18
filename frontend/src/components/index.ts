@@ -5,4 +5,4 @@ export { default as RemoveButton } from "./RemoveButton.svelte";
 export { default as RobotTile } from "./RobotTile.svelte";
 export { default as SlackButton } from "./SlackButton.svelte";
 
-export { default as Dashboard } from "./Dashboard.svelte";
+export { default as DashboardPage } from "./DashboardPage.svelte";

@@ -1,14 +1,19 @@
 ---
-import { Layout } from "@/layouts/Layout.astro";
-import { Dashboard } from "@/components";
+import Layout from "@/layouts/Layout.astro";
+import { DashboardPage } from "@/components";
 import { getFeeds, getKeywords } from "@/lib/api";
 
 const [feeds, keywords] = await Promise.all([
     getFeeds(fetch),
     getKeywords(fetch),
 ]);
+const form = {
+    feed: undefined,
+    keyword: undefined,
+    error: undefined,
+};
 ---
 
 <Layout title="Subabot">
-    <Dashboard data={(feeds, keywords)} />
+    <DashboardPage data={{ feeds, keywords }} form={form} />
 </Layout>

@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { importFeeds, triggerCrawl } from "@/lib/api";
     import { Alert, Header, RemoveButton } from "@/components";
-    import dayjs from "dayjs";
+    import { importFeeds, triggerCrawl } from "@/lib/api";
+    import dayjs from "@/lib/dayjs";
 
     export let data: {
         feeds: Feed[];

@@ -3,11 +3,8 @@ import "@/styles/globals.css";
 import { Footer } from "@/components";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
 
 config.autoAddCss = false;
-dayjs.extend(relativeTime);
 
 interface Props {
     title: string;
