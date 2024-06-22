@@ -1,0 +1,24 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_cprbu9889kk9o48g9s6g",
+    "operations": [
+      {
+        "add_column": {
+          "table": "Crawl",
+          "column": {
+            "pk": false,
+            "name": "entries",
+            "type": "jsonb",
+            "unique": false,
+            "nullable": true
+          }
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_cprbu9889kk9o48g9s6g",
+  "parent": "mig_cprbtl71pnsl6dnkdjh0",
+  "startedAt": "2024-06-22T12:10:13.441229Z"
+}

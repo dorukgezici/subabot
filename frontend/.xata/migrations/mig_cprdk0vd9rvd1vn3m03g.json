@@ -1,0 +1,18 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_cprdk0vd9rvd1vn3m03g",
+    "operations": [
+      {
+        "rename_table": {
+          "to": "Feeds",
+          "from": "Feed"
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_cprdk0vd9rvd1vn3m03g",
+  "parent": "mig_cprbu9889kk9o48g9s6g",
+  "startedAt": "2024-06-22T14:04:51.950991Z"
+}

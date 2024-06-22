@@ -1,0 +1,6 @@
+{
+  "databaseURL": "https://DGtech-q1f4co.eu-west-1.xata.sh/db/subabot",
+  "codegen": {
+    "output": "src/lib/xata.ts"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_cprbq5v1pnsl6dnkdja0",
+    "operations": [
+      {
+        "create_table": {
+          "name": "Crawl",
+          "columns": [
+            {
+              "name": "xata_updatedat",
+              "type": "timestamptz",
+              "default": "now()",
+              "nullable": false
+            },
+            {
+              "name": "xata_id",
+              "type": "text",
+              "check": {
+                "name": "Crawl_xata_id_length_xata_id",
+                "constraint": "length(\"xata_id\") < 256"
+              },
+              "unique": true,
+              "default": "'rec_' || xata_private.xid()",
+              "nullable": false
+            },
+            {
+              "name": "xata_version",
+              "type": "integer",
+              "default": "0",
+              "nullable": false
+            },
+            {
+              "name": "xata_createdat",
+              "type": "timestamptz",
+              "default": "now()",
+              "nullable": false
+            }
+          ]
+        }
+      },
+      {
+        "sql": {
+          "up": "ALTER TABLE \"Crawl\" REPLICA IDENTITY FULL",
+          "onComplete": true
+        }
+      },
+      {
+        "sql": {
+          "up": "CREATE TRIGGER xata_maintain_metadata_trigger_pgroll\n  BEFORE INSERT OR UPDATE\n  ON \"Crawl\"\n  FOR EACH ROW\n  EXECUTE FUNCTION xata_private.maintain_metadata_trigger_pgroll()",
+          "onComplete": true
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_cprbq5v1pnsl6dnkdja0",
+  "parent": "mig_cprbq1n1pnsl6dnkdj90",
+  "startedAt": "2024-06-22T12:01:28.951493Z"
+}

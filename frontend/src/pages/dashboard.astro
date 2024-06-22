@@ -1,9 +1,24 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import { DashboardPage } from "@/components";
-import { getFeeds, getKeywords } from "@/lib/api";
+import { XataClient } from "@/lib/xata";
 
-const [feeds, keywords] = await Promise.all([getFeeds(), getKeywords()]);
+const xata = new XataClient({
+    apiKey: import.meta.env.XATA_API_KEY,
+    branch: import.meta.env.XATA_BRANCH,
+});
+
+const { records: feeds } = await xata.db.Feed.getPaginated({
+    pagination: {
+        size: 50,
+    },
+});
+const { records: keywords } = await xata.db.Keyword.getPaginated({
+    pagination: {
+        size: 50,
+    },
+});
+
 const form = {
     feed: undefined,
     keyword: undefined,

@@ -1,0 +1,26 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_cprdk971pnsl6dnkdk60",
+    "operations": [
+      {
+        "rename_constraint": {
+          "to": "Feed_xata_string_length_key",
+          "from": "Feeds_xata_string_length_key",
+          "table": "Feed"
+        }
+      },
+      {
+        "rename_constraint": {
+          "to": "Feed_xata_string_length_title",
+          "from": "Feeds_xata_string_length_title",
+          "table": "Feed"
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_cprdk971pnsl6dnkdk60",
+  "parent": "mig_cprdk8nd9rvd1vn3m05g",
+  "startedAt": "2024-06-22T14:05:25.183498Z"
+}

@@ -1,0 +1,17 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_cprbpn889kk9o48g9rvg",
+    "operations": [
+      {
+        "drop_table": {
+          "name": "Feeds"
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_cprbpn889kk9o48g9rvg",
+  "parent": "mig_cprboog89kk9o48g9rug",
+  "startedAt": "2024-06-22T12:00:30.590306Z"
+}

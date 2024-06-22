@@ -9,11 +9,16 @@
 
 _An AI-powered Slack alert bot to subscribe, classify and notify for keywords on RSS feeds._
 
+> This project is still in development and only partially functional.
+> I am open to accept contributors early on, so feel free to reach out.
+
 ## 🔨 Features & Roadmap
 
 - [x] Crawl RSS feeds for keywords
+- [x] Simple web interface to manage feeds & keywords
 - [x] Alert Slack when new matches are found
-- [ ] Classify matches using an open-source LLM
+- [ ] Classify matches using an open-source RAG
+- [ ] Improve the web interface with rule & alert management
 
 ## Contributors
 
