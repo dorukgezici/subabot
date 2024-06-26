@@ -5,6 +5,7 @@ from aiohttp import ClientResponseError
 from asyncer import asyncify
 from fastapi.logger import logger
 from feedparser import FeedParserDict, parse
+from prefect import flow
 
 from ..core import get_db_crawls, get_db_feeds, get_db_history, get_db_keywords, get_db_searches, now_timestamp
 from ..core.utils import fetch_all
@@ -114,6 +115,7 @@ async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[Entry]:
     return entries
 
 
+@flow(log_prints=True)
 async def run_crawler() -> List[Entry]:
     """Runs the crawler for all feeds and keywords."""
 
