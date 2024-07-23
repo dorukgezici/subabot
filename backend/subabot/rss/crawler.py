@@ -2,16 +2,17 @@ import asyncio
 from typing import Any, Generator, List, Union, cast
 
 from aiohttp import ClientResponseError
-from asyncer import asyncify
+from asyncer import asyncify, syncify
 from fastapi.logger import logger
 from feedparser import FeedParserDict, parse
-from prefect import flow
+from prefect import flow, task
 
-from ..core import get_db_crawls, get_db_feeds, get_db_history, get_db_keywords, get_db_searches, now_timestamp
-from ..core.utils import fetch_all
-from .models import Crawl, Entry, Feed, History, Keyword, Path, Search
+from subabot.core import get_db_crawls, get_db_feeds, get_db_history, get_db_keywords, get_db_searches, now_timestamp
+from subabot.core.utils import fetch_all
+from subabot.rss.models import Crawl, Entry, Feed, History, Keyword, Path, Search
 
 
+@task
 def find_matches(
     data: Union[List[Entry], Entry, str],
     keyword: str,
@@ -43,6 +44,7 @@ async def get_matching_entries(entries: List[FeedParserDict], matches: List[Path
     return [entries[i] for i in indexes if entries[i].get("link") not in links]
 
 
+@task
 async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[Entry]:
     """Runs the crawler for the given feed and keywords."""
 
