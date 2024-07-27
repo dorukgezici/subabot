@@ -25,7 +25,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./backend
-          file: ./backend/subabot-dockerfile
           push: true
           tags: ${{ github.repository_owner }}/${{ env.PROJECT_NAME }}:${{ github.sha }}
           platforms: linux/arm64,linux/amd64
