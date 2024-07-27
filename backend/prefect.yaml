@@ -35,11 +35,11 @@ pull:
 
 # the deployments section allows you to provide configuration for deploying flows
 deployments:
-  - name: crawler
+  - name: subabot
     version:
     tags: []
     description:
-    entrypoint: backend/subabot/flows.py:run_crawler
+    entrypoint: backend/subabot/flows.py:rss_crawler
     parameters: {}
     work_pool:
       name: workers
