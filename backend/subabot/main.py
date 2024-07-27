@@ -5,7 +5,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .core.settings import FRONTEND_URL
-from .deta.router import router as deta_router
 from .rss.router import router as rss_router
 from .slack.app import app as slack_app
 
@@ -23,7 +22,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(deta_router)
 app.include_router(rss_router)
 app.mount("/slack", slack_app)
 
