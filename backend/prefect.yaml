@@ -39,7 +39,7 @@ deployments:
     version:
     tags: []
     description:
-    entrypoint: backend/subabot/rss/crawler.py:run_crawler
+    entrypoint: backend/subabot/flows.py:run_crawler
     parameters: {}
     work_pool:
       name: workers
