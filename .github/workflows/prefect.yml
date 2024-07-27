@@ -24,6 +24,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Setup Poetry
+        uses: abatilo/actions-poetry@v2
+
       - name: Tailscale
         uses: tailscale/github-action@v2
         with:
@@ -35,5 +38,8 @@ jobs:
         env:
           PREFECT_API_URL: ${{ secrets.PREFECT_API_URL }}
         run: |
-          pip install -r backend/requirements.txt
-          python backend/prefect.py
+          cd backend
+          poetry config virtualenvs.create true --local
+          poetry config virtualenvs.in-project true --local
+          poetry install --no-interaction
+          python prefect.py
