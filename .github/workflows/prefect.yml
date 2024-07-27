@@ -42,4 +42,4 @@ jobs:
           poetry config virtualenvs.create true --local
           poetry config virtualenvs.in-project true --local
           poetry install --no-interaction
-          python prefect.py
+          python subabot/flows.py
