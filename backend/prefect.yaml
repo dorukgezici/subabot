@@ -15,7 +15,7 @@ push:
 # pull section allows you to provide instructions for cloning this project in remote locations
 pull:
   - prefect.deployments.steps.git_clone:
-      repository: git@github.com:dorukgezici/subabot.git
+      repository: https://github.com/dorukgezici/subabot.git
       branch: main
       access_token: "{{ prefect.blocks.secret.deployment-crawler-run-crawler-repo-token }}"
 
