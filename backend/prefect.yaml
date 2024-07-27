@@ -8,6 +8,16 @@ prefect-version: 3.0.0rc1
 
 # build section allows you to manage and build docker images
 build:
+  # - prefect.deployments.steps.run_shell_script:
+  #     id: get-commit-hash
+  #     script: git rev-parse --short HEAD
+  #     stream_output: false
+  # - prefect_docker.deployments.steps.build_docker_image:
+  #     requires: prefect-docker
+  #     image_name: dorukgezici/subabot
+  #     tag: "prefect-{{ get-commit-hash.stdout }}"
+  #     dockerfile: auto
+  #     push: true
 
 # push section allows you to manage if and how this project is uploaded to remote locations
 push:
@@ -15,13 +25,17 @@ push:
 # pull section allows you to provide instructions for cloning this project in remote locations
 pull:
   - prefect.deployments.steps.git_clone:
+      id: clone-step
       repository: https://github.com/dorukgezici/subabot.git
       branch: main
       access_token: "{{ prefect.blocks.secret.deployment-crawler-run-crawler-repo-token }}"
+  - prefect.deployments.steps.pip_install_requirements:
+      directory: "{{ clone-step.directory }}"
+      requirements_file: backend/requirements.txt
 
 # the deployments section allows you to provide configuration for deploying flows
 deployments:
-  - name: default
+  - name: crawler
     version:
     tags: []
     description:
