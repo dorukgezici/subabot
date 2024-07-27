@@ -42,4 +42,4 @@ jobs:
           poetry config virtualenvs.create true --local
           poetry config virtualenvs.in-project true --local
           poetry install --no-interaction
-          python subabot/flows.py
+          poetry run task deploy
