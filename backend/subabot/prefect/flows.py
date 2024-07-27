@@ -13,7 +13,7 @@ if __name__ == "__main__":
     async def main():
         flow = await rss_crawler.from_source(
             source="https://github.com/dorukgezici/subabot.git",
-            entrypoint="./backend/subabot/flows.py:rss_crawler",
+            entrypoint="./backend/subabot/prefect/flows.py:rss_crawler",
         )
         await flow.deploy(
             name="subabot",
