@@ -7,29 +7,35 @@ name: subabot
 prefect-version: 3.0.0rc1
 
 # build section allows you to manage and build docker images
-build: null
+build:
 
 # push section allows you to manage if and how this project is uploaded to remote locations
-push: null
+push:
 
 # pull section allows you to provide instructions for cloning this project in remote locations
 pull:
   - prefect.deployments.steps.git_clone:
       repository: git@github.com:dorukgezici/subabot.git
       branch: main
-      access_token: null
+      access_token: "{{ prefect.blocks.secret.deployment-crawler-run-crawler-repo-token }}"
 
 # the deployments section allows you to provide configuration for deploying flows
 deployments:
-  - name: null
-    version: null
+  - name: default
+    version:
     tags: []
-    description: null
-    schedule: {}
-    flow_name: null
-    entrypoint: null
+    description:
+    entrypoint: backend/subabot/rss/crawler.py:run_crawler
     parameters: {}
     work_pool:
-      name: null
-      work_queue_name: null
+      name: workers
+      work_queue_name:
       job_variables: {}
+    enforce_parameter_schema: true
+    schedules:
+      - cron: 0 0 * * *
+        timezone: UTC
+        day_or: true
+        active: true
+        max_active_runs:
+        catchup: false

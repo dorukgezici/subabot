@@ -5,6 +5,10 @@
 # python
 .venv/
 
+# shell
+.env
+.envrc
+
 # node
 node_modules/
 
