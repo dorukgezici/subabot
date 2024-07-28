@@ -9,7 +9,7 @@ from prefect import task, flow
 
 from subabot.core import get_db_crawls, get_db_feeds, get_db_history, get_db_keywords, get_db_searches, now_timestamp
 from subabot.core.utils import fetch_all
-from .models import Crawl, Entry, Feed, History, Keyword, Path, Search
+from subabot.rss.models import Crawl, Entry, Feed, History, Keyword, Path, Search
 
 
 @task

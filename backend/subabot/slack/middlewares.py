@@ -4,7 +4,7 @@ from slack_sdk.signature import SignatureVerifier
 from starlette.status import HTTP_403_FORBIDDEN
 from starlette.types import ASGIApp, Receive, Scope, Send
 
-from ..core.settings import SLACK_SIGNING_SECRET
+from subabot.core.settings import SLACK_SIGNING_SECRET
 
 signature_verifier = SignatureVerifier(signing_secret=SLACK_SIGNING_SECRET)
 

@@ -1,7 +1,7 @@
 from deta import Deta
 
-from .settings import DETA_PROJECT_KEY
-from .utils import DBContext, _prefix
+from subabot.core.settings import DETA_PROJECT_KEY
+from subabot.core.utils import DBContext, _prefix
 
 deta = Deta(DETA_PROJECT_KEY)
 

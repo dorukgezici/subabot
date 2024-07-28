@@ -1,5 +1,5 @@
 from xata.client import XataClient
-from .settings import XATA_DATABASE_URL, XATA_BRANCH, XATA_API_KEY
+from subabot.core_new.settings import XATA_DATABASE_URL, XATA_BRANCH, XATA_API_KEY
 
 xata = XataClient(
     api_key=XATA_API_KEY,

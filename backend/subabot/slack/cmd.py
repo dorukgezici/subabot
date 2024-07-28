@@ -7,9 +7,9 @@ from starlette.status import HTTP_200_OK
 from subabot.core import fetch_all, get_db_feeds, get_db_keywords
 from subabot.core.settings import APP_DIR
 from subabot.rss import Feed, Keyword
-from .blocks import generate_configuration_blocks
-from .dependencies import CommandForm
-from .utils import crawl_and_alert
+from subabot.slack.blocks import generate_configuration_blocks
+from subabot.slack.dependencies import CommandForm
+from subabot.slack.utils import crawl_and_alert
 
 router = APIRouter()
 

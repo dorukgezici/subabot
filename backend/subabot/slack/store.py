@@ -10,7 +10,7 @@ from slack_sdk.oauth.installation_store.installation_store import InstallationSt
 from slack_sdk.oauth.installation_store.models.bot import Bot
 from slack_sdk.oauth.installation_store.models.installation import Installation
 
-from ..core import drive
+from subabot.core import drive
 
 
 class DetaDriveInstallationStore(InstallationStore, AsyncInstallationStore):

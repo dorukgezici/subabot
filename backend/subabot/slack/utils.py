@@ -5,7 +5,7 @@ from slack_sdk.web.async_client import AsyncWebClient
 
 from subabot.core.settings import SLACK_CHANNEL_ID, SLACK_TEAM_ID
 from subabot.rss import run_crawler
-from .store import installation_store
+from subabot.slack.store import installation_store
 
 
 async def get_client(

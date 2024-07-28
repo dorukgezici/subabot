@@ -4,10 +4,10 @@ from fastapi import APIRouter, BackgroundTasks, Body
 from fastapi.logger import logger
 from pydantic import HttpUrl, ValidationError
 
-from ..core import fetch_all, get_db_feeds, get_db_keywords
-from ..core.settings import APP_DIR
-from .crawler import crawl_feed
-from .models import Feed, Keyword
+from subabot.core import fetch_all, get_db_feeds, get_db_keywords
+from subabot.core.settings import APP_DIR
+from subabot.rss.crawler import crawl_feed
+from subabot.rss.models import Feed, Keyword
 
 router = APIRouter()
 

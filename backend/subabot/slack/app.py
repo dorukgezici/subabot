@@ -12,11 +12,11 @@ from starlette.status import HTTP_307_TEMPORARY_REDIRECT
 from subabot.core import fetch_all, get_db_feeds, get_db_keywords
 from subabot.core.settings import BACKEND_URL, FRONTEND_URL, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
 from subabot.rss import Feed, Keyword, crawl_feed
-from .blocks import Feedback, generate_configuration_blocks
-from .cmd import router as cmd_router
-from .dependencies import PayloadForm
-from .middlewares import SignatureVerifierMiddleware
-from .store import installation_store
+from subabot.slack.blocks import Feedback, generate_configuration_blocks
+from subabot.slack.cmd import router as cmd_router
+from subabot.slack.dependencies import PayloadForm
+from subabot.slack.middlewares import SignatureVerifierMiddleware
+from subabot.slack.store import installation_store
 
 app = FastAPI(title="Subabot Slack App", version="0.1.0")
 app.add_middleware(SignatureVerifierMiddleware)

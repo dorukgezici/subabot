@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 from deta import Deta
 from deta._async.client import _AsyncBase
 
-from .settings import STAGE
+from subabot.core.settings import STAGE
 
 
 def _prefix(name: str) -> str:

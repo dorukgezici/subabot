@@ -4,9 +4,9 @@ from typing import Dict, Literal
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .core.settings import FRONTEND_URL
-from .rss.router import router as rss_router
-from .slack.app import app as slack_app
+from subabot.core.settings import FRONTEND_URL
+from subabot.rss.router import router as rss_router
+from subabot.slack.app import app as slack_app
 
 app = FastAPI(
     title="Subabot",

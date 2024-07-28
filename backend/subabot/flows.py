@@ -7,7 +7,7 @@ from subabot.rss.crawler import run_crawler
 async def deploy():
     flow = await run_crawler.from_source(
         source="https://github.com/dorukgezici/subabot.git",
-        entrypoint="./backend/flows.py:run_crawler",
+        entrypoint="./backend/subabot/__init__.py:run_crawler",
     )
     await flow.deploy(
         name="subabot",
