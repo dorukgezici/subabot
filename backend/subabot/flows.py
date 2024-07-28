@@ -1,12 +1,11 @@
-import os
+import os.path
 import sys
 import asyncio
 from prefect import flow
 
 from subabot.rss.crawler import run_crawler as _run_crawler
 
-file_dir = os.path.dirname(__file__)
-sys.path.append(file_dir)
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 
 @flow(log_prints=True)
