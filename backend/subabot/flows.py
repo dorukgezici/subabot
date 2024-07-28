@@ -5,7 +5,7 @@ from prefect import flow
 
 from subabot.rss.crawler import run_crawler as _run_crawler
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 
 
 @flow(log_prints=True)
