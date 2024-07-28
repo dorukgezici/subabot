@@ -5,10 +5,10 @@ from aiohttp import ClientResponseError
 from asyncer import asyncify, syncify
 from fastapi.logger import logger
 from feedparser import FeedParserDict, parse
-from prefect import task
+from prefect import task, flow
 
-from ..core import get_db_crawls, get_db_feeds, get_db_history, get_db_keywords, get_db_searches, now_timestamp
-from ..core.utils import fetch_all
+from subabot.core import get_db_crawls, get_db_feeds, get_db_history, get_db_keywords, get_db_searches, now_timestamp
+from subabot.core.utils import fetch_all
 from .models import Crawl, Entry, Feed, History, Keyword, Path, Search
 
 
@@ -117,7 +117,7 @@ async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[Entry]:
     return entries
 
 
-@task
+@flow(log_prints=True)
 async def run_crawler() -> List[Entry]:
     """Runs the crawler for all feeds and keywords."""
 

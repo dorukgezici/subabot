@@ -28,12 +28,15 @@ ruff = "^0.4.9"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.poetry.scripts]
+crawl = "subabot.flows:main_sync"
+
 [tool.taskipy.tasks]
 dev = "set -a && source .env && set +a && uvicorn subabot.main:app --host 0.0.0.0 --port 8000 --reload"
 lint = "ruff check"
 format = "ruff format"
 export = "poetry export --output requirements.txt"
-deploy = "poetry env use python3 && python subabot/prefect/flows.py"
+deploy = "poetry env use python3 && python flows.py"
 
 [tool.ruff]
 line-length = 120

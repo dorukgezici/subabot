@@ -9,9 +9,9 @@ from slack_sdk.web.async_client import AsyncWebClient
 from slack_sdk.webhook.async_client import AsyncWebhookClient
 from starlette.status import HTTP_307_TEMPORARY_REDIRECT
 
-from ..core import fetch_all, get_db_feeds, get_db_keywords
-from ..core.settings import BACKEND_URL, FRONTEND_URL, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
-from ..rss import Feed, Keyword, crawl_feed
+from subabot.core import fetch_all, get_db_feeds, get_db_keywords
+from subabot.core.settings import BACKEND_URL, FRONTEND_URL, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
+from subabot.rss import Feed, Keyword, crawl_feed
 from .blocks import Feedback, generate_configuration_blocks
 from .cmd import router as cmd_router
 from .dependencies import PayloadForm

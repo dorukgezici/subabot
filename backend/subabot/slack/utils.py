@@ -3,8 +3,8 @@ from typing import Optional
 from fastapi import HTTPException
 from slack_sdk.web.async_client import AsyncWebClient
 
-from ..core.settings import SLACK_CHANNEL_ID, SLACK_TEAM_ID
-from ..rss import run_crawler
+from subabot.core.settings import SLACK_CHANNEL_ID, SLACK_TEAM_ID
+from subabot.rss import run_crawler
 from .store import installation_store
 
 
