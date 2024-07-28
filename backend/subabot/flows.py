@@ -1,13 +1,23 @@
+import os
+import sys
 import asyncio
-from prefect import flow, task
+from prefect import flow
 
-from subabot.rss.crawler import run_crawler
+from subabot.rss.crawler import run_crawler as _run_crawler
+
+file_dir = os.path.dirname(__file__)
+sys.path.append(file_dir)
+
+
+@flow(log_prints=True)
+async def rss_crawler():
+    return await _run_crawler()
 
 
 async def deploy():
-    flow = await run_crawler.from_source(
+    flow = await rss_crawler.from_source(
         source="https://github.com/dorukgezici/subabot.git",
-        entrypoint="./backend/subabot/__init__.py:run_crawler",
+        entrypoint="./backend/subabot/flows.py:rss_crawler",
     )
     await flow.deploy(
         name="subabot",
