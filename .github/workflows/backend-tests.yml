@@ -1,0 +1,31 @@
+name: "Backend: Lint & Test"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  lint_and_test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "backend/.python-version"
+
+      - name: Install the project
+        run: uv sync --all-extras --dev
+
+      - name: Lint the project
+        run: uv run task lint
+
+      - name: Run tests
+        run: uv run task test

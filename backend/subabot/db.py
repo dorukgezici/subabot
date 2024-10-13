@@ -1,8 +1,11 @@
+from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 
 from fastapi import Depends
 from sqlmodel import Session, create_engine, select
+
+from subabot.utils import now_timestamp
 
 engine = create_engine("sqlite:///database.db", connect_args={"check_same_thread": False})
 
@@ -16,7 +19,7 @@ SessionDep = Annotated[Session, Depends(get_session)]
 
 
 @dataclass
-class DBMixin:
+class DBMixin(ABC):
     key: str
 
     @classmethod
@@ -35,6 +38,9 @@ class DBMixin:
             else:
                 for key, value in fields.items():
                     setattr(obj, key, value)
+
+            if "updated_at" in getattr(cls, "model_fields"):
+                setattr(obj, "updated_at", now_timestamp())
 
             session.add(obj)
             session.commit()

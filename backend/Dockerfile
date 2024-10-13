@@ -6,5 +6,5 @@ RUN uv sync --frozen
 
 FROM base AS runtime
 ENV PYTHONUNBUFFERED=1
-COPY src/ ./src/
+COPY subabot/ ./subabot/
 CMD ["uv", "run", "start"]

@@ -4,13 +4,12 @@ from typing import Sequence
 from asyncer import asyncify
 from fastapi.logger import logger
 from feedparser import FeedParserDict, parse
-
 from sqlmodel import select
 
 from subabot.db import Session, engine
 from subabot.rss.models import Crawl, Feed, History, Keyword, Search
-from subabot.utils import now_timestamp
 from subabot.rss.utils import find_matches, get_matching_entries
+from subabot.utils import now_timestamp
 
 
 async def crawl_feed(feed: Feed, keywords: Sequence[Keyword]) -> list[dict]:
@@ -35,7 +34,6 @@ async def crawl_feed(feed: Feed, keywords: Sequence[Keyword]) -> list[dict]:
             keyword=keyword.value,
             feed=feed.key,
             paths=keyword_matches,
-            updated_at=now_timestamp(),
         )
 
     entries = get_matching_entries(entries, matches)
@@ -43,7 +41,7 @@ async def crawl_feed(feed: Feed, keywords: Sequence[Keyword]) -> list[dict]:
 
     for entry in entries:
         if link := entry.get("link"):
-            History.upsert(link, updated_at=now_timestamp())
+            History.upsert(link)
 
     return entries
 

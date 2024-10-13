@@ -3,7 +3,9 @@ from typing import Any, Dict, Optional
 from pydantic import model_validator
 from slugify import slugify
 from sqlmodel import JSON, Column, Field, SQLModel
+
 from subabot.db import DBMixin
+from subabot.utils import now_timestamp
 
 
 class Keyword(SQLModel, DBMixin, table=True):
@@ -33,7 +35,7 @@ class Crawl(SQLModel, DBMixin, table=True):
     key: str = Field(primary_key=True)
     feed: dict = Field(sa_column=Column(JSON), default_factory=dict)
     entries: list[dict] = Field(sa_column=Column(JSON), default_factory=list)
-    updated_at: int
+    updated_at: int = Field(default_factory=now_timestamp)
 
 
 class Search(SQLModel, DBMixin, table=True):
@@ -41,9 +43,9 @@ class Search(SQLModel, DBMixin, table=True):
     keyword: str
     feed: str
     paths: list[tuple] = Field(sa_column=Column(JSON), default_factory=list)
-    updated_at: int
+    updated_at: int = Field(default_factory=now_timestamp)
 
 
 class History(SQLModel, DBMixin, table=True):
     key: str = Field(primary_key=True)
-    updated_at: int
+    updated_at: int = Field(default_factory=now_timestamp)

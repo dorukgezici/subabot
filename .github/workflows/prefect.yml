@@ -1,4 +1,4 @@
-name: Deploy Prefect flow
+name: "Prefect: Deploy Flow"
 
 on:
   push:
@@ -19,20 +19,20 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Setup Poetry
-        uses: abatilo/actions-poetry@v2
-
       - name: Tailscale
         uses: tailscale/github-action@v2
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "backend/.python-version"
 
       - name: Prefect Deploy
         env:
@@ -48,7 +48,5 @@ jobs:
           SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
         run: |
           cd backend
-          poetry config virtualenvs.create true --local
-          poetry config virtualenvs.in-project true --local
-          poetry install --no-interaction
-          poetry run prefect
+          uv sync --all-extras --dev
+          uv run prefect
