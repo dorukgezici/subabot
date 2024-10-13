@@ -1,19 +1,15 @@
-import os
 from typing import Dict, Literal
 
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlmodel import SQLModel
 
-from subabot.core.settings import FRONTEND_URL
+from subabot.config import FRONTEND_URL
+from subabot.db import engine
 from subabot.rss.router import router as rss_router
-from subabot.slack.app import app as slack_app
 
-app = FastAPI(
-    title="Subabot",
-    version="0.1.0",
-    # needed for Deta Space `/api/docs` to work
-    root_path="/api" if "DETA_SPACE_APP_HOSTNAME" in os.environ else "",
-)
+app = FastAPI(title="Subabot", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[FRONTEND_URL],
@@ -23,9 +19,18 @@ app.add_middleware(
 )
 
 app.include_router(rss_router)
-app.mount("/slack", slack_app)
+# app.mount("/slack", slack_app)
+
+
+@app.on_event("startup")
+def on_startup():
+    SQLModel.metadata.create_all(engine)
 
 
 @app.get("/")
 async def health() -> Dict[Literal["status"], Literal["ok"]]:
     return {"status": "ok"}
+
+
+def start():
+    uvicorn.run(app, host="0.0.0.0", port=8000)

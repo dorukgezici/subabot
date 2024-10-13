@@ -2,22 +2,22 @@ import asyncio
 from typing import Any, Generator, List, Union, cast
 
 from aiohttp import ClientResponseError
-from asyncer import asyncify, syncify
+from asyncer import asyncify
 from fastapi.logger import logger
 from feedparser import FeedParserDict, parse
 from prefect import task
+from sqlmodel import JSON
 
-from subabot.core import get_db_crawls, get_db_feeds, get_db_history, get_db_keywords, get_db_searches, now_timestamp
-from subabot.core.utils import fetch_all
-from subabot.rss.models import Crawl, Entry, Feed, History, Keyword, Path, Search
+from subabot.rss.models import Crawl, Feed, History, Keyword, Search
+from subabot.rss.utils import now_timestamp
 
 
 @task
 def find_matches(
-    data: Union[List[Entry], Entry, str],
+    data: Union[List[JSON], JSON, str],
     keyword: str,
-    pre_path: Path = (),
-) -> Generator[Path, Any, Any]:
+    pre_path: tuple = (),
+) -> Generator[tuple, Any, Any]:
     """Generates tuples of paths to the keyword found in the data."""
 
     if isinstance(data, list):
@@ -34,18 +34,19 @@ def find_matches(
         yield pre_path
 
 
-async def get_matching_entries(entries: List[FeedParserDict], matches: List[Path]) -> List[Entry]:
+async def get_matching_entries(entries: List[FeedParserDict], matches: List[tuple]) -> List[JSON]:
     """Returns a list of unique entries from the matches that are NOT in history."""
 
-    async with get_db_history() as db:
-        links = [history.get("key") for history in await fetch_all(db)]
+    # async with get_db_history() as db:
+    #     links = [history.get("key") for history in await fetch_all(db)]
+    links = []
 
     indexes = set(int(match[0]) for match in matches)
     return [entries[i] for i in indexes if entries[i].get("link") not in links]
 
 
 @task
-async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[Entry]:
+async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[JSON]:
     """Runs the crawler for the given feed and keywords."""
 
     url = str(feed.key)
@@ -83,7 +84,7 @@ async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[Entry]:
 
     async with get_db_keywords() as db_k, get_db_searches() as db_s:
         new_keywords: List[dict] = []
-        matches: List[Path] = []
+        matches: List[tuple] = []
         searches: List[Search] = []
 
         for keyword in keywords:
@@ -118,17 +119,19 @@ async def crawl_feed(feed: Feed, keywords: List[Keyword]) -> List[Entry]:
 
 
 @task
-async def run_crawler() -> List[Entry]:
+async def run_crawler() -> List[JSON]:
     """Runs the crawler for all feeds and keywords."""
 
     # Query feeds that were refreshed more than a minute ago or never at all
-    async with get_db_feeds() as db:
-        res = await db.fetch([{"refreshed_at?lt": now_timestamp() - 60}, {"refreshed_at": None}])
-        feeds = [Feed(**feed) for feed in res.items]
+    # async with get_db_feeds() as db:
+    #     res = await db.fetch([{"refreshed_at?lt": now_timestamp() - 60}, {"refreshed_at": None}])
+    #     feeds = [Feed(**feed) for feed in res.items]
+    feeds = []
 
-    async with get_db_keywords() as db:
-        res = await db.fetch()
-        keywords = [Keyword(**keyword) for keyword in res.items]
+    # async with get_db_keywords() as db:
+    #     res = await db.fetch()
+    #     keywords = [Keyword(**keyword) for keyword in res.items]
+    keywords = []
 
     logger.debug(f"Crawling {len(feeds)} feeds for {len(keywords)} keywords...")
 

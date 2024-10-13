@@ -1,81 +1,51 @@
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
-from pydantic import BaseModel, Field, HttpUrl, field_serializer, model_validator
+from pydantic import model_validator
 from slugify import slugify
+from sqlmodel import JSON, Column, Field, SQLModel
 
-Path = Tuple[str, ...]
+# Path = Tuple[str, ...]
 Entry = Dict[str, Any]
 
 
-class Keyword(BaseModel):
+class Keyword(SQLModel, table=True):
+    key: str = Field(primary_key=True)
     value: str
-    key: str
     checked_at: Optional[int] = Field(default=None)
-
-    @classmethod
-    def create(cls, value: str) -> "Keyword":
-        return cls(value=value, key=slugify(value))
 
     @model_validator(mode="before")
     def populate_key(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        if "key" not in values:
-            values["key"] = slugify(values["value"])
-
+        values["key"] = slugify(values["value"])
         return values
 
 
-class Feed(BaseModel):
-    key: HttpUrl
+class Feed(SQLModel, table=True):
+    key: str = Field(primary_key=True)
     title: str
     refreshed_at: Optional[int] = Field(default=None)
 
-    @classmethod
-    def create(cls, url: str) -> "Feed":
-        http_url = HttpUrl(url=url)
-        return cls(key=http_url, title=http_url.unicode_host() or url)
-
     @model_validator(mode="before")
     def populate_title(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        url = values["key"]
-        http_url = HttpUrl(url=url)
-
         if "title" not in values:
-            values["title"] = http_url.unicode_host() or url
-
+            values["title"] = values["key"]
         return values
 
-    @field_serializer("key")
-    def serialize_key(self, key: HttpUrl, _info):
-        return str(key)
 
-
-class Crawl(BaseModel):
-    key: HttpUrl
-    feed: dict
-    entries: List[Entry]
+class Crawl(SQLModel, table=True):
+    key: str = Field(primary_key=True)
+    feed: dict = Field(sa_column=Column(JSON), default_factory=dict)
+    entries: list[dict] = Field(sa_column=Column(JSON), default_factory=list)
     updated_at: int
 
-    @field_serializer("key")
-    def serialize_key(self, key: HttpUrl, _info):
-        return str(key)
 
-
-class Search(BaseModel):
-    key: Optional[str] = Field(default=None)
+class Search(SQLModel, table=True):
+    key: Optional[str] = Field(default=None, primary_key=True)
     keyword: str
-    feed: HttpUrl
-    paths: List[Path]
+    feed: str
+    paths: list[dict] = Field(sa_column=Column(JSON), default_factory=list)
     updated_at: int
 
-    @field_serializer("feed")
-    def serialize_feed(self, feed: HttpUrl, _info):
-        return str(feed)
 
-
-class History(BaseModel):
-    key: HttpUrl
+class History(SQLModel, table=True):
+    key: str = Field(primary_key=True)
     updated_at: int
-
-    @field_serializer("key")
-    def serialize_key(self, key: HttpUrl, _info):
-        return str(key)

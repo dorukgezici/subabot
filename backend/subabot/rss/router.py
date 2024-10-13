@@ -4,8 +4,8 @@ from fastapi import APIRouter, BackgroundTasks, Body
 from fastapi.logger import logger
 from pydantic import HttpUrl, ValidationError
 
-from subabot.core import fetch_all, get_db_feeds, get_db_keywords
-from subabot.core.settings import APP_DIR
+from subabot.config import APP_DIR
+from subabot.db import SessionDep
 from subabot.rss.crawler import crawl_feed
 from subabot.rss.models import Feed, Keyword
 
@@ -14,7 +14,7 @@ router = APIRouter()
 
 # Feeds
 @router.get("/feeds")
-async def read_feeds() -> List[Feed]:
+async def read_feeds(session: SessionDep) -> List[Feed]:
     async with get_db_feeds() as db:
         feeds = [Feed(**data) for data in await fetch_all(db)]
 

@@ -1,6 +1,8 @@
 # python
-__pycache__
 .venv
+__pycache__
+.ruff_cache
+dist
 
 # misc
 .env

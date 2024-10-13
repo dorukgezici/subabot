@@ -1,11 +1,8 @@
-import os.path
-import sys
 import asyncio
+
 from prefect import flow
 
-from subabot.rss.crawler import run_crawler as _run_crawler
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+from rss.crawler import run_crawler as _run_crawler
 
 
 @flow(log_prints=True)
@@ -23,8 +20,10 @@ async def deploy():
         work_pool_name="workers",
     )
 
+
 def deploy_sync():
     asyncio.run(deploy())
 
+
 if __name__ == "__main__":
-   deploy_sync()
+    deploy_sync()

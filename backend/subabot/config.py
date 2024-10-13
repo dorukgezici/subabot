@@ -1,6 +1,10 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # Build paths inside the project like this: APP_DIR / 'subdir'.
 APP_DIR = Path(__file__).resolve().parent.parent
 
