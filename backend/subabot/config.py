@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Build paths inside the project like this: APP_DIR / 'subdir'.
-APP_DIR = Path(__file__).resolve().parent.parent
+APP_DIR = Path(__file__).resolve().parent
 
 STAGE = os.environ.get("SUBABOT_STAGE", "development")
 BACKEND_URL = os.environ.get("SUBABOT_BACKEND_URL", "http://localhost:8000")

@@ -3,12 +3,10 @@ from typing import Any, Dict, Optional
 from pydantic import model_validator
 from slugify import slugify
 from sqlmodel import JSON, Column, Field, SQLModel
-
-# Path = Tuple[str, ...]
-Entry = Dict[str, Any]
+from subabot.db import DBMixin
 
 
-class Keyword(SQLModel, table=True):
+class Keyword(SQLModel, DBMixin, table=True):
     key: str = Field(primary_key=True)
     value: str
     checked_at: Optional[int] = Field(default=None)
@@ -19,7 +17,7 @@ class Keyword(SQLModel, table=True):
         return values
 
 
-class Feed(SQLModel, table=True):
+class Feed(SQLModel, DBMixin, table=True):
     key: str = Field(primary_key=True)
     title: str
     refreshed_at: Optional[int] = Field(default=None)
@@ -31,21 +29,21 @@ class Feed(SQLModel, table=True):
         return values
 
 
-class Crawl(SQLModel, table=True):
+class Crawl(SQLModel, DBMixin, table=True):
     key: str = Field(primary_key=True)
     feed: dict = Field(sa_column=Column(JSON), default_factory=dict)
     entries: list[dict] = Field(sa_column=Column(JSON), default_factory=list)
     updated_at: int
 
 
-class Search(SQLModel, table=True):
-    key: Optional[str] = Field(default=None, primary_key=True)
+class Search(SQLModel, DBMixin, table=True):
+    key: str = Field(primary_key=True)
     keyword: str
     feed: str
-    paths: list[dict] = Field(sa_column=Column(JSON), default_factory=list)
+    paths: list[tuple] = Field(sa_column=Column(JSON), default_factory=list)
     updated_at: int
 
 
-class History(SQLModel, table=True):
+class History(SQLModel, DBMixin, table=True):
     key: str = Field(primary_key=True)
     updated_at: int

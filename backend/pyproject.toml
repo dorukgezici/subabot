@@ -22,7 +22,11 @@ dependencies = [
 ]
 
 [tool.uv]
-dev-dependencies = ["mypy>=1.11.2", "ruff>=0.6.9", "taskipy>=1.13.0"]
+dev-dependencies = [
+    "pytest>=8.3.3",
+    "ruff>=0.6.9",
+    "taskipy>=1.13.0",
+]
 
 [project.scripts]
 start = "subabot.api:start"
@@ -30,12 +34,16 @@ prefect = "subabot.flows:deploy_sync"
 
 [tool.taskipy.tasks]
 dev = "uvicorn subabot.api:app --host 0.0.0.0 --port 8000 --reload"
+test = "pytest tests"
 lint = "ruff check"
 format = "ruff format"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+include = ["/subabot", "/tests"]
 
 [tool.pyright]
 venvPath = "."

@@ -7,3 +7,6 @@ dist
 # misc
 .env
 .envrc
+
+# sqlite
+database.db

@@ -1,11 +1,10 @@
-from typing import List
-
 from fastapi import APIRouter, BackgroundTasks, Body
 from fastapi.logger import logger
-from pydantic import HttpUrl, ValidationError
 
 from subabot.config import APP_DIR
 from subabot.db import SessionDep
+from sqlmodel import select
+from fastapi import HTTPException
 from subabot.rss.crawler import crawl_feed
 from subabot.rss.models import Feed, Keyword
 
@@ -13,68 +12,74 @@ router = APIRouter()
 
 
 # Feeds
-@router.get("/feeds")
-async def read_feeds(session: SessionDep) -> List[Feed]:
-    async with get_db_feeds() as db:
-        feeds = [Feed(**data) for data in await fetch_all(db)]
-
-    return feeds
+@router.get("/feeds", response_model=list[Feed])
+def read_feeds(session: SessionDep):
+    return session.exec(select(Feed)).all()
 
 
-@router.post("/feeds")
-async def create_feed(feed: Feed, background_tasks: BackgroundTasks) -> Feed:
-    async with get_db_feeds() as db:
-        await db.put(feed.model_dump(mode="json"))
+@router.post("/feeds", response_model=Feed)
+def create_feed(feed: Feed, session: SessionDep, background_tasks: BackgroundTasks):
+    db_feed = Feed.model_validate(feed)
+    session.add(db_feed)
+    session.commit()
+    session.refresh(db_feed)
 
-    async with get_db_keywords() as db:
-        keywords = [Keyword(**keyword) for keyword in await fetch_all(db)]
-        background_tasks.add_task(crawl_feed, feed, keywords)
+    keywords = session.exec(select(Keyword)).all()
+    background_tasks.add_task(crawl_feed, feed, keywords)
 
-    return feed
+    return db_feed
 
 
 @router.delete("/feeds")
-async def delete_feed(body: dict = Body()) -> None:
+def delete_feed(session: SessionDep, body: dict = Body()):
     # had to do a hacky delete since URL can't be read from path
     try:
-        url = HttpUrl(url=body["key"])
-    except (ValidationError, Exception) as e:
-        logger.warning(f"Couldn't delete feed: {e}")
+        url = body["key"]
+        feed = session.get(Feed, url)
+        if not feed:
+            raise HTTPException(status_code=404, detail="Feed not found")
+    except KeyError as e:
+        logger.warning("Couldn't read key", exc_info=e)
     else:
-        async with get_db_feeds() as db:
-            await db.delete(str(url))
+        session.delete(feed)
+        session.commit()
 
 
-@router.get("/feeds/import")
-async def import_feeds() -> List[Feed]:
+@router.get("/feeds/import", response_model=list[Feed])
+def import_feeds(session: SessionDep):
+    feeds = []
     with open(APP_DIR / "rss/feeds/tr.txt") as f:
-        urls = [line.strip() for line in f.readlines()]
+        for line in f.readlines():
+            url = line.strip()
+            feed = Feed(key=url, title=url)
+            feeds.append(feed)
+            session.add(feed)
 
-    async with get_db_feeds() as db:
-        feeds = [Feed.create(url) for url in urls]
-        await db.put_many([f.model_dump(mode="json") for f in feeds])
-
+    session.commit()
+    session.refresh(feeds)
     return feeds
 
 
 # Keywords
-@router.get("/keywords")
-async def read_keywords() -> List[Keyword]:
-    async with get_db_keywords() as db:
-        keywords = [Keyword(**data) for data in await fetch_all(db)]
-
-    return keywords
+@router.get("/keywords", response_model=list[Keyword])
+def read_keywords(session: SessionDep):
+    return session.exec(select(Keyword)).all()
 
 
-@router.post("/keywords")
-async def create_keyword(keyword: Keyword) -> Keyword:
-    async with get_db_keywords() as db:
-        await db.put(keyword.model_dump(mode="json"))
-
-    return keyword
+@router.post("/keywords", response_model=Keyword)
+def create_keyword(keyword: Keyword, session: SessionDep):
+    db_keyword = Keyword.model_validate(keyword)
+    session.add(db_keyword)
+    session.commit()
+    session.refresh(db_keyword)
+    return db_keyword
 
 
 @router.delete("/keywords/{key}")
-async def delete_keyword(key: str) -> None:
-    async with get_db_keywords() as db:
-        await db.delete(key)
+def delete_keyword(session: SessionDep, key: str):
+    keyword = session.get(Keyword, key)
+    if not keyword:
+        raise HTTPException(status_code=404, detail="Keyword not found")
+
+    session.delete(keyword)
+    session.commit()

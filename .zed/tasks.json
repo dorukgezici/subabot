@@ -1,18 +1,24 @@
 [
   {
-    "label": "api",
+    "label": "backend-dev",
     "cwd": "$ZED_WORKTREE_ROOT/backend",
-    "command": "source .venv/bin/activate && poetry run task dev",
+    "command": "uv run task dev",
     "reveal": "always"
   },
   {
-    "label": "frontend",
+    "label": "backend-tests",
+    "cwd": "$ZED_WORKTREE_ROOT/backend",
+    "command": "uv run task test",
+    "reveal": "always"
+  },
+  {
+    "label": "frontend-dev",
     "cwd": "$ZED_WORKTREE_ROOT/frontend",
     "command": "pnpm run dev",
     "reveal": "always"
   },
   {
-    "label": "typegen",
+    "label": "frontend-typegen",
     "cwd": "$ZED_WORKTREE_ROOT/frontend",
     "command": "pnpm run typegen",
     "reveal": "always"
