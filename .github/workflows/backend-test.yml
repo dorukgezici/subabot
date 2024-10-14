@@ -19,11 +19,11 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Install Python 3.12
-        run: uv python install 3.12
-
       - name: Install the project
-        run: uv sync --frozen --directory backend
+        run: |
+          cd backend
+          uv sync --frozen
+          echo "VIRTUAL_ENV=./.venv" >> $GITHUB_ENV
 
       - name: Lint the project
         run: uv run task lint
