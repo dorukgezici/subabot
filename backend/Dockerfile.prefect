@@ -1,7 +1,7 @@
-FROM prefecthq/prefect:3.0.9.dev1-python3.12-kubernetes AS base
+FROM prefecthq/prefect:3.0.8-python3.12-kubernetes AS base
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 WORKDIR /app
-COPY pyproject.toml uv.lock README.md ./
+COPY subabot/__init__.py pyproject.toml uv.lock README.md ./
 RUN uv sync --frozen
 
 FROM base AS runtime

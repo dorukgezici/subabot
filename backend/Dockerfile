@@ -1,7 +1,7 @@
-FROM python:3.12-alpine AS base
+FROM python:3.12 AS base
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 WORKDIR /app
-COPY pyproject.toml uv.lock README.md ./
+COPY subabot/__init__.py pyproject.toml uv.lock README.md ./
 RUN uv sync --frozen
 
 FROM base AS runtime

@@ -935,7 +935,7 @@ wheels = [
 
 [[package]]
 name = "prefect"
-version = "3.0.9.dev1"
+version = "3.0.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiosqlite" },
@@ -990,9 +990,9 @@ dependencies = [
     { name = "uvicorn" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ff/7c/9fc2f134d27f274ddb5fe1f08c7ea5be331261cbaf8a5702ae005b6049bd/prefect-3.0.9.dev1.tar.gz", hash = "sha256:4f3dbd231046e35926d810eb03c2b59f44e9b0c99ca287a8e5ef9b5e9be57308", size = 5810260 }
+sdist = { url = "https://files.pythonhosted.org/packages/f1/e0/8c1ef2a8fd4437a928d8ab70413c20396dd61ad547043a5ed3c9cf00cf5e/prefect-3.0.8.tar.gz", hash = "sha256:985de394a9036b837c23b275c0fa12b705b1cf9674cf718b3394f55f1336a358", size = 5809632 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/62/e0/a2aa523c437d670bfdda0636c3230182cefc19024f4c8ed1a3ac9ff2213c/prefect-3.0.9.dev1-py3-none-any.whl", hash = "sha256:f1b9568e9acf7c32eed6289865cbe8f303d7057b2349ea4ee5fe8569295f0288", size = 6077009 },
+    { url = "https://files.pythonhosted.org/packages/d4/5c/4b548dc83c7a797c2a30303a8e7a581b6b1eb3a71b3d98e52b3a25fd7d3a/prefect-3.0.8-py3-none-any.whl", hash = "sha256:3bc1f142060743d7d084d7dfa85764b3095976d52928dac4b7541148942df43b", size = 6076934 },
 ]
 
 [[package]]
@@ -1619,7 +1619,7 @@ requires-dist = [
     { name = "asyncer", specifier = ">=0.0.8" },
     { name = "fastapi", specifier = ">=0.115.2" },
     { name = "feedparser", specifier = ">=6.0.11" },
-    { name = "prefect", specifier = ">=3.0.9.dev1" },
+    { name = "prefect", specifier = "==3.0.8" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "python-multipart", specifier = ">=0.0.12" },
     { name = "python-slugify", specifier = ">=8.0.4" },
