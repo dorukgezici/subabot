@@ -23,7 +23,9 @@ jobs:
           python-version-file: "backend/.python-version"
 
       - name: Install the project
-        run: cd backend && uv sync --all-extras --dev
+        run: |
+          cd backend
+          uv sync --all-extras --dev
 
       - name: Lint the project
         run: uv run task lint
