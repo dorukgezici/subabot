@@ -20,14 +20,10 @@ jobs:
           enable-cache: true
 
       - name: Install the project
-        run: |
-          cd backend
-          uv sync --frozen
-          echo "VIRTUAL_ENV=./.venv" >> $GITHUB_ENV
-          echo "./.venv/bin" >> $GITHUB_PATH
+        run: cd backend && uv sync --frozen
 
       - name: Lint the project
-        run: uv run task lint
+        run: source .venv/bin/activate && uv run task lint
 
       - name: Run tests
-        run: uv run task test
+        run: source .venv/bin/activate && uv run task test
