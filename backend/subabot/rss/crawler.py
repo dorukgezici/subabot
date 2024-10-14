@@ -12,25 +12,25 @@ from subabot.rss.utils import find_matches, get_matching_entries
 from subabot.utils import now_timestamp
 
 
-async def crawl_feed(feed: Feed, keywords: Sequence[Keyword]) -> list[dict]:
+async def crawl_feed(feed: Feed, keywords: Sequence[Keyword]) -> Sequence[dict]:
     """Runs the crawler for the given feed and keywords."""
 
     url = feed.key
-    data = FeedParserDict(await asyncify(parse)(url))
+    data = FeedParserDict(await asyncify(parse)(url))  # type: ignore
     feed_info, entries = data.feed, list(data.entries)
     assert isinstance(feed_info, dict)
     assert isinstance(entries, list)
 
-    Crawl.upsert(url, feed=feed_info, entries=entries)
-    Feed.upsert(url, title=feed_info.get("title", feed.title), refreshed_at=now_timestamp())
+    Crawl.upsert(key=url, feed=feed_info, entries=entries)
+    Feed.upsert(key=url, title=feed_info.get("title", feed.title), refreshed_at=now_timestamp())
 
     matches: list[tuple] = []
     for keyword in keywords:
-        Keyword.upsert(keyword.key, value=keyword.value, checked_at=now_timestamp())
+        Keyword.upsert(key=keyword.key, value=keyword.value, checked_at=now_timestamp())
         keyword_matches = [path for path in find_matches(entries, keyword.value)]
         matches.extend(keyword_matches)
         Search.upsert(
-            keyword.key,
+            key=keyword.key,
             keyword=keyword.value,
             feed=feed.key,
             paths=keyword_matches,
@@ -59,5 +59,5 @@ async def run_crawler() -> list[dict]:
 
     crawlers = [crawl_feed(feed, keywords) for feed in feeds]
     # swallow exceptions to keep the loop running
-    results = await asyncio.gather(*crawlers, return_exceptions=True)
+    results = await asyncio.gather(*crawlers, return_exceptions=True)  # type: ignore
     return [entry for result in results if isinstance(result, list) for entry in result]

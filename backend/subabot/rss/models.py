@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Self
 
 from pydantic import model_validator
 from slugify import slugify
@@ -25,10 +25,10 @@ class Feed(SQLModel, DBMixin, table=True):
     refreshed_at: Optional[int] = Field(default=None)
 
     @model_validator(mode="before")
-    def populate_title(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        if "title" not in values:
-            values["title"] = values["key"]
-        return values
+    def populate_title(cls, obj: Self) -> Self:
+        if not obj.title:
+            obj.title = obj.key
+        return obj
 
 
 class Crawl(SQLModel, DBMixin, table=True):

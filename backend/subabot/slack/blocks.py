@@ -1,7 +1,7 @@
 from typing import Dict, List, Literal, Optional
 
-from subabot.core.settings import SLACK_APP_ID
-from subabot.rss import Feed, Keyword
+from subabot.config import SLACK_APP_ID
+from subabot.rss.models import Feed, Keyword
 
 Feedback = Dict[Literal["feed", "keyword", "channel"], str]
 

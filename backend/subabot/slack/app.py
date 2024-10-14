@@ -3,19 +3,21 @@ from typing import Annotated, Optional
 
 from fastapi import BackgroundTasks, Body, Depends, FastAPI
 from fastapi.responses import RedirectResponse
-from pydantic import HttpUrl, ValidationError
+from pydantic import ValidationError
 from slack_sdk.oauth.installation_store import Installation
 from slack_sdk.web.async_client import AsyncWebClient
 from slack_sdk.webhook.async_client import AsyncWebhookClient
 from starlette.status import HTTP_307_TEMPORARY_REDIRECT
 
-from rss.models import Feed, Keyword
-from slack.blocks import Feedback, generate_configuration_blocks
-from slack.cmd import router as cmd_router
-from slack.dependencies import PayloadForm
-from slack.middlewares import SignatureVerifierMiddleware
-from slack.store import installation_store
 from subabot.config import BACKEND_URL, FRONTEND_URL, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
+from subabot.db import SessionDep
+from subabot.rss.crawler import crawl_feed
+from subabot.rss.models import Feed, Keyword
+from subabot.slack.blocks import Feedback, generate_configuration_blocks
+from subabot.slack.cmd import router as cmd_router
+from subabot.slack.dependencies import PayloadForm
+from subabot.slack.middlewares import SignatureVerifierMiddleware
+from subabot.slack.store import installation_store
 
 app = FastAPI(title="Subabot Slack App", version="0.1.0")
 app.add_middleware(SignatureVerifierMiddleware)
@@ -33,7 +35,7 @@ async def handle_oauth(code: str, error: Optional[str] = None):
             client_secret=SLACK_CLIENT_SECRET,
             redirect_uri=f"{BACKEND_URL}/slack/oauth",
             code=code,
-        )
+        )  # type: ignore
 
         installed_enterprise = oauth_response.get("enterprise", {})
         is_enterprise_install = oauth_response.get("is_enterprise_install", False)
@@ -46,7 +48,7 @@ async def handle_oauth(code: str, error: Optional[str] = None):
         bot_id = None
         enterprise_url = None
         if bot_token is not None:
-            auth_test = await client.auth_test(token=bot_token)
+            auth_test = await client.auth_test(token=bot_token)  # type: ignore
             bot_id = auth_test["bot_id"]
             if is_enterprise_install is True:
                 enterprise_url = auth_test.get("url")
@@ -91,72 +93,66 @@ def handle_events(body: dict = Body(...)):
 @app.post("/response")
 async def handle_response(
     payload: Annotated[PayloadForm, Depends()],
+    session: SessionDep,
     background_tasks: BackgroundTasks,
 ):
     client = AsyncWebhookClient(payload.response_url)
 
-    async with get_db_feeds() as db_f, get_db_keywords() as db_k:
-        feeds = [Feed(**feed) for feed in await fetch_all(db_f)]
-        keywords = [Keyword(**keyword) for keyword in await fetch_all(db_k)]
+    feeds = list(Feed.list(session))
+    keywords = list(Keyword.list(session))
 
-        feedback: Feedback = {}
-        action_id, channel_id = payload.action.get("action_id"), payload.channel.get("id")
+    feedback: Feedback = {}
+    action_id, channel_id = payload.action.get("action_id"), payload.channel.get("id")
 
-        # Feed management
-        if action_id == "add_feed":
-            url = payload.action.get("value")
+    # Feed management
+    if action_id == "add_feed":
+        url = payload.action.get("value")
 
-            if not url or len(url) < 11:
-                feedback["feed"] = ":warning: Please enter a full URL including `https://`."
-
-            elif url in [f.key.unicode_string() for f in feeds]:
-                feedback["feed"] = f":warning: Feed `{url}` is already in the list."
-
-            else:
-                try:
-                    feed = Feed.create(url)
-                    await db_f.put(feed.model_dump(mode="json"))
-                except (ValidationError, Exception) as e:
-                    feedback["feed"] = f":warning: {e}"
-                else:
-                    feeds.append(feed)
-                    background_tasks.add_task(crawl_feed, feed, keywords)
-
-        elif action_id == "remove_feed":
+        if not url or len(url) < 11:
+            feedback["feed"] = ":warning: Please enter a full URL including `https://`."
+        elif url in [f.key for f in feeds]:
+            feedback["feed"] = f":warning: Feed `{url}` is already in the list."
+        else:
             try:
-                url = HttpUrl(url=payload.action["value"])
-                await db_f.delete(str(url))
+                feed = Feed.upsert(session, key=url)
             except (ValidationError, Exception) as e:
                 feedback["feed"] = f":warning: {e}"
             else:
-                feeds = [f for f in feeds if f.key != url]
+                feeds.append(feed)
+                background_tasks.add_task(crawl_feed, feed, keywords)
 
-        # Keyword management
-        elif action_id == "add_keyword":
-            value = payload.action.get("value")
+    elif action_id == "remove_feed":
+        try:
+            url = payload.action["value"]
+            Feed.delete(url, session)
+        except (ValidationError, Exception) as e:
+            feedback["feed"] = f":warning: {e}"
+        else:
+            feeds = [f for f in feeds if f.key != url]
 
-            if not value or len(value) < 3:
-                feedback["keyword"] = ":warning: Please enter a keyword that is at least 3 characters long."
+    # Keyword management
+    elif action_id == "add_keyword":
+        value = payload.action.get("value")
 
-            elif value in [k.value for k in keywords]:
-                feedback["keyword"] = f":warning: Keyword `{value}` is already in the list."
+        if not value or len(value) < 3:
+            feedback["keyword"] = ":warning: Please enter a keyword that is at least 3 characters long."
+        elif value in [k.value for k in keywords]:
+            feedback["keyword"] = f":warning: Keyword `{value}` is already in the list."
+        else:
+            new_keyword = Keyword.upsert(session, value=value)
+            keywords.append(new_keyword)
 
-            else:
-                new_keyword = Keyword.create(value)
-                await db_k.put(new_keyword.model_dump())
-                keywords.append(new_keyword)
+    elif action_id == "remove_keyword":
+        key = payload.action.get("value")
 
-        elif action_id == "remove_keyword":
-            key = payload.action.get("value")
+        if key and key in [k.key for k in keywords]:
+            Keyword.delete(key, session)
+            keywords = [k for k in keywords if k.key != key]
 
-            if key and key in [k.key for k in keywords]:
-                await db_k.delete(key)
-                keywords = [k for k in keywords if k.key != key]
-
-        # Channel management
-        elif action_id == "set_channel":
-            # TODO: implement
-            feedback["channel"] = ":warning: This feature is not implemented yet."
+    # Channel management
+    elif action_id == "set_channel":
+        # TODO: implement
+        feedback["channel"] = ":warning: This feature is not implemented yet."
 
     await client.send(
         blocks=generate_configuration_blocks(
@@ -164,5 +160,5 @@ async def handle_response(
             keywords=keywords,
             channel=channel_id,
             feedback=feedback,
-        ),
+        )  # type: ignore
     )

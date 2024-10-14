@@ -1,10 +1,9 @@
-from fastapi import APIRouter, BackgroundTasks, Body
+from fastapi import APIRouter, BackgroundTasks, Body, HTTPException
 from fastapi.logger import logger
+from sqlmodel import select
 
 from subabot.config import APP_DIR
 from subabot.db import SessionDep
-from sqlmodel import select
-from fastapi import HTTPException
 from subabot.rss.crawler import crawl_feed
 from subabot.rss.models import Feed, Keyword
 
@@ -14,20 +13,16 @@ router = APIRouter()
 # Feeds
 @router.get("/feeds", response_model=list[Feed])
 def read_feeds(session: SessionDep):
-    return session.exec(select(Feed)).all()
+    return Feed.list()
 
 
 @router.post("/feeds", response_model=Feed)
 def create_feed(feed: Feed, session: SessionDep, background_tasks: BackgroundTasks):
-    db_feed = Feed.model_validate(feed)
-    session.add(db_feed)
-    session.commit()
-    session.refresh(db_feed)
-
-    keywords = session.exec(select(Keyword)).all()
+    feed = Feed.upsert(session, **feed.model_fields)
+    keywords = list(Keyword.list())
     background_tasks.add_task(crawl_feed, feed, keywords)
 
-    return db_feed
+    return feed
 
 
 @router.delete("/feeds")

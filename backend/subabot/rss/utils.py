@@ -1,17 +1,19 @@
-from typing import Any, Generator, Union
+from typing import Any, Generator, Sequence, Union
+
 from sqlmodel import select
+
 from subabot.db import Session, engine
 from subabot.rss.models import History
 
 
 def find_matches(
-    data: Union[list[dict], dict, str],
+    data: Union[Sequence[dict], dict, str],
     keyword: str,
     pre_path: tuple = (),
 ) -> Generator[tuple, Any, Any]:
     """Generates tuples of paths to the keyword found in the data."""
 
-    if isinstance(data, list):
+    if isinstance(data, list) or isinstance(data, Sequence):
         for index, item in enumerate(data):
             path = pre_path + (str(index),)
             yield from find_matches(item, keyword, path)
@@ -25,7 +27,7 @@ def find_matches(
         yield pre_path
 
 
-def get_matching_entries(entries: list[dict], matches: list[tuple]) -> list[dict]:
+def get_matching_entries(entries: Sequence[dict], matches: list[tuple]) -> Sequence[dict]:
     """Returns a list of unique entries from the matches that are NOT in history."""
 
     with Session(engine) as session:

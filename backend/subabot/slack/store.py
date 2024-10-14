@@ -3,21 +3,18 @@ import logging
 from logging import Logger
 from typing import Any, Optional
 
-from deta import _Drive
 from slack_sdk.errors import SlackClientConfigurationError
 from slack_sdk.oauth.installation_store.async_installation_store import AsyncInstallationStore
 from slack_sdk.oauth.installation_store.installation_store import InstallationStore
 from slack_sdk.oauth.installation_store.models.bot import Bot
 from slack_sdk.oauth.installation_store.models.installation import Installation
 
-from subabot.core import drive
-
 
 class DetaDriveInstallationStore(InstallationStore, AsyncInstallationStore):
     def __init__(
         self,
         *,
-        drive: _Drive,
+        drive,
         client_id: Optional[str] = None,
         historical_data_enabled: bool = True,
         logger: Logger = logging.getLogger(__name__),
@@ -305,4 +302,4 @@ class DetaDriveInstallationStore(InstallationStore, AsyncInstallationStore):
                 raise SlackClientConfigurationError(message)
 
 
-installation_store = DetaDriveInstallationStore(drive=drive)
+installation_store = DetaDriveInstallationStore(drive=None)
