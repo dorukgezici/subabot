@@ -1,5 +1,6 @@
 from typing import Any, Generator, Sequence, Union
 
+from feedparser import FeedParserDict
 from sqlmodel import select
 
 from subabot.db import Session, engine
@@ -7,13 +8,12 @@ from subabot.rss.models import History
 
 
 def find_matches(
-    data: Union[Sequence[dict], dict, str],
+    data: Union[list[FeedParserDict], dict, str],
     keyword: str,
     pre_path: tuple = (),
 ) -> Generator[tuple, Any, Any]:
     """Generates tuples of paths to the keyword found in the data."""
-
-    if isinstance(data, (list, Sequence)):
+    if isinstance(data, list):
         for index, item in enumerate(data):
             path = pre_path + (str(index),)
             yield from find_matches(item, keyword, path)

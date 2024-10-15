@@ -17,31 +17,33 @@ async def crawl_feed(feed: Feed, keywords: Sequence[Keyword]) -> Sequence[dict]:
 
     url = feed.key
     data = FeedParserDict(await asyncify(parse)(url))  # type: ignore
-    feed_info, entries = data.feed, list(data.entries)
+    feed_info, entries = data.feed, data.entries
     assert isinstance(feed_info, dict)
     assert isinstance(entries, list)
 
-    Crawl.upsert(key=url, feed=feed_info, entries=entries)
-    Feed.upsert(key=url, title=feed_info.get("title", feed.title), refreshed_at=now_timestamp())
+    with Session(engine) as session:
+        Crawl.upsert(session, key=url, feed=feed_info, entries=entries)
+        Feed.upsert(session, key=url, title=feed_info.get("title", feed.title), refreshed_at=now_timestamp())
 
-    matches: list[tuple] = []
-    for keyword in keywords:
-        Keyword.upsert(key=keyword.key, value=keyword.value, checked_at=now_timestamp())
-        keyword_matches = [path for path in find_matches(entries, keyword.value)]
-        matches.extend(keyword_matches)
-        Search.upsert(
-            key=keyword.key,
-            keyword=keyword.value,
-            feed=feed.key,
-            paths=keyword_matches,
-        )
+        matches: list[tuple] = []
+        for keyword in keywords:
+            Keyword.upsert(session, key=keyword.key, value=keyword.value, checked_at=now_timestamp())
+            keyword_matches = [path for path in find_matches(entries, keyword.value)]
+            matches.extend(keyword_matches)
+            Search.upsert(
+                session,
+                key=keyword.key,
+                keyword=keyword.value,
+                feed=feed.key,
+                paths=keyword_matches,
+            )
 
-    entries = get_matching_entries(entries, matches)
-    logger.debug(f"Found {len(entries)} new entries for {url}.")
+        entries = get_matching_entries(entries, matches)
+        logger.debug(f"Found {len(entries)} new entries for {url}.")
 
-    for entry in entries:
-        if link := entry.get("link"):
-            History.upsert(link)
+        for entry in entries:
+            if link := entry.get("link"):
+                History.upsert(session, key=link)
 
     return entries
 

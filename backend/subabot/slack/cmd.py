@@ -15,8 +15,8 @@ router = APIRouter()
 
 @router.post("/configure")
 async def handle_cmd_configure(command: Annotated[CommandForm, Depends()], session: SessionDep):
-    feeds = list(Feed.list())
-    keywords = list(Keyword.list())
+    feeds = list(Feed.list(session))
+    keywords = list(Keyword.list(session))
 
     return {
         "response_type": "ephemeral",

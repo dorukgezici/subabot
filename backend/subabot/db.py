@@ -24,43 +24,39 @@ class DBMixin:
     key: str
 
     @classmethod
-    def get(cls, key: str, session: Session | None = None) -> Self:
-        with session or Session(engine) as session:
-            if obj := session.exec(select(cls).where(cls.key == key)).first():
-                return obj
-
-            raise ValueError(f"{cls.__name__} with key '{key}' not found.")
-
-    @classmethod
-    def delete(cls, key: str, session: Session | None = None) -> None:
-        with session or Session(engine) as session:
-            if obj := session.exec(select(cls).where(cls.key == key)).first():
-                session.delete(obj)
-                session.commit()
-                return
-
-            raise ValueError(f"{cls.__name__} with key '{key}' not found.")
-
-    @classmethod
-    def list(cls, session: Session | None = None) -> Sequence[Self]:
-        with session or Session(engine) as session:
-            return session.exec(select(cls)).all()
-
-    @classmethod
-    def upsert(cls, session: Session | None = None, **fields) -> Self:
-        with session or Session(engine) as session:
-            if obj := session.exec(select(cls).where(cls.key == fields.get("key"))).first():
-                for field_key, value in fields.items():
-                    setattr(obj, field_key, value)
-            else:
-                obj = cls(**fields)
-
-            if "updated_at" in getattr(cls, "model_fields"):
-                setattr(obj, "updated_at", now_timestamp())
-
-            session.add(obj)
-            session.commit()
+    def get(cls, key: str, session: Session) -> Self:
+        if obj := session.exec(select(cls).where(cls.key == key)).first():
             return obj
+
+        raise ValueError(f"{cls.__name__} with key '{key}' not found.")
+
+    @classmethod
+    def delete(cls, key: str, session: Session) -> None:
+        if obj := session.exec(select(cls).where(cls.key == key)).first():
+            session.delete(obj)
+            session.commit()
+            return
+
+        raise ValueError(f"{cls.__name__} with key '{key}' not found.")
+
+    @classmethod
+    def list(cls, session: Session) -> Sequence[Self]:
+        return session.exec(select(cls)).all()
+
+    @classmethod
+    def upsert(cls, session: Session, **fields) -> Self:
+        if obj := session.exec(select(cls).where(cls.key == fields.get("key"))).first():
+            for field_key, value in fields.items():
+                setattr(obj, field_key, value)
+        else:
+            obj = cls(**fields)
+
+        if "updated_at" in getattr(cls, "model_fields"):
+            setattr(obj, "updated_at", now_timestamp())
+
+        session.add(obj)
+        session.commit()
+        return obj
 
 
 __all__ = ["engine", "Session", "SessionDep", "DBMixin"]
