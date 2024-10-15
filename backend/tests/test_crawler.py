@@ -1,9 +1,13 @@
+import asyncio
+
+from sqlmodel import SQLModel, select
+
+from subabot.db import Session, engine
 from subabot.rss.crawler import crawl_feed, run_crawler
 from subabot.rss.models import Feed, Keyword
 from subabot.utils import now_timestamp
-from subabot.db import Session, engine
-from sqlmodel import select
-import asyncio
+
+SQLModel.metadata.create_all(engine)
 
 
 def test_crawl_feed() -> None:

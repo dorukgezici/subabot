@@ -13,7 +13,7 @@ def find_matches(
 ) -> Generator[tuple, Any, Any]:
     """Generates tuples of paths to the keyword found in the data."""
 
-    if isinstance(data, list) or isinstance(data, Sequence):
+    if isinstance(data, (list, Sequence)):
         for index, item in enumerate(data):
             path = pre_path + (str(index),)
             yield from find_matches(item, keyword, path)
