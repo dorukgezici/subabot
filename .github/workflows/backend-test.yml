@@ -27,6 +27,13 @@ jobs:
           source backend/.venv/bin/activate
           uv run --directory backend task lint
 
+      - name: Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
       - name: Run tests
         env:
           PREFECT_API_URL: ${{ secrets.PREFECT_API_URL }}
