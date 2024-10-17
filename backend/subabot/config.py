@@ -12,8 +12,6 @@ STAGE = os.environ.get("SUBABOT_ENVIRONMENT", "development")
 BACKEND_URL = os.environ.get("SUBABOT_BACKEND_URL", "http://localhost:8000")
 FRONTEND_URL = os.environ.get("SUBABOT_FRONTEND_URL", "http://localhost:4321")
 
-DETA_PROJECT_KEY = os.environ["DETA_PROJECT_KEY"]
-
 SLACK_CLIENT_ID = os.environ["SLACK_CLIENT_ID"]
 SLACK_CLIENT_SECRET = os.environ["SLACK_CLIENT_SECRET"]
 SLACK_SIGNING_SECRET = os.environ["SLACK_SIGNING_SECRET"]
