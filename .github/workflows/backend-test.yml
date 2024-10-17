@@ -39,7 +39,6 @@ jobs:
           PREFECT_API_URL: ${{ secrets.PREFECT_API_URL }}
           SUBABOT_BACKEND_URL: ${{ secrets.SUBABOT_BACKEND_URL }}
           SUBABOT_FRONTEND_URL: ${{ secrets.SUBABOT_FRONTEND_URL }}
-          DETA_PROJECT_KEY: ${{ secrets.DETA_PROJECT_KEY }}
           SLACK_CLIENT_ID: ${{ secrets.SLACK_CLIENT_ID }}
           SLACK_CLIENT_SECRET: ${{ secrets.SLACK_CLIENT_SECRET }}
           SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}
