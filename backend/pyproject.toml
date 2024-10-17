@@ -15,7 +15,7 @@ dependencies = [
     "python-multipart>=0.0.12",
     "python-slugify>=8.0.4",
     "slack_sdk>=3.33.1",
-    "prefect[docker]==3.0.10",
+    "prefect[docker]==3.0.9",
     "supabase>=2.9.0",
     "sqlmodel>=0.0.22",
     "python-dotenv>=1.0.1",

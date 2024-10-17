@@ -8,6 +8,7 @@ from sqlmodel import SQLModel
 from subabot.config import FRONTEND_URL
 from subabot.db import engine
 from subabot.rss.router import router as rss_router
+from subabot.slack.app import app as slack_app
 
 app = FastAPI(title="Subabot", version="0.1.0")
 app.add_middleware(
@@ -19,7 +20,7 @@ app.add_middleware(
 )
 
 app.include_router(rss_router)
-# app.mount("/slack", slack_app)
+app.mount("/slack", slack_app)
 
 
 @app.on_event("startup")

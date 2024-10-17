@@ -1,5 +1,5 @@
 name: subabot
-prefect-version: 3.0.10
+prefect-version: 3.0.9
 
 build:
   - prefect.deployments.steps.run_shell_script:
