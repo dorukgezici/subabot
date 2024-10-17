@@ -12,6 +12,12 @@
     "reveal": "always"
   },
   {
+    "label": "prefect-server",
+    "cwd": "$ZED_WORKTREE_ROOT/backend",
+    "command": "uv run prefect server start",
+    "reveal": "always"
+  },
+  {
     "label": "frontend-dev",
     "cwd": "$ZED_WORKTREE_ROOT/frontend",
     "command": "pnpm run dev",

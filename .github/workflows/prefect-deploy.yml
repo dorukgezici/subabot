@@ -29,11 +29,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v3
-
-      - name: "Set up Python"
-        uses: actions/setup-python@v5
         with:
-          python-version-file: "backend/.python-version"
+          enable-cache: true
 
       - name: Prefect Deploy
         env:
@@ -49,5 +46,5 @@ jobs:
           SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
         run: |
           cd backend
-          uv sync --all-extras --dev
+          uv sync --frozen
           uv run prefect

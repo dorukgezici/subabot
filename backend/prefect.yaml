@@ -1,55 +1,46 @@
-# Welcome to your prefect.yaml file! You can use this file for storing and managing
-# configuration for deploying your flows. We recommend committing this file to source
-# control along with your flow code.
-
-# Generic metadata about this project
 name: subabot
-prefect-version: 3.0.8
+prefect-version: 3.0.10
 
-# build section allows you to manage and build docker images
 build:
   - prefect.deployments.steps.run_shell_script:
       id: get-commit-hash
       script: git rev-parse --short HEAD
       stream_output: false
   - prefect_docker.deployments.steps.build_docker_image:
-      requires: prefect-docker
+      id: build-image
+      requires: prefect-docker>=0.6.1
       image_name: dorukgezici/subabot
-      tag: "prefect-{{ get-commit-hash.stdout }}"
+      tag: prefect-{{ get-commit-hash.stdout }}
       dockerfile: Dockerfile.prefect
-      push: true
+      platform: "linux/amd64"
 
-# push section allows you to manage if and how this project is uploaded to remote locations
 push:
+  - prefect_docker.deployments.steps.push_docker_image:
+      requires: prefect-docker>=0.6.1
+      image_name: "{{ build-image.image_name }}"
+      tag: "{{ build-image.tag }}"
 
-# pull section allows you to provide instructions for cloning this project in remote locations
-pull:
-  # - prefect.deployments.steps.git_clone:
-  #     id: clone-step
-  #     repository: https://github.com/dorukgezici/subabot.git
-  #     branch: main
-  #     access_token: "{{ prefect.blocks.secret.deployment-crawler-run-crawler-repo-token }}"
-  # - prefect.deployments.steps.pip_install_requirements:
-  #     directory: "{{ clone-step.directory }}"
-  #     requirements_file: backend/requirements.txt
-
-# the deployments section allows you to provide configuration for deploying flows
 deployments:
   - name: subabot
-    version:
+    version: "{{ build-image.tag }}"
     tags: []
     description:
-    entrypoint: backend/subabot/flows.py:rss_crawler
+    entrypoint: subabot/flows.py:rss_crawler
     parameters: {}
     work_pool:
       name: workers
-      work_queue_name:
-      job_variables: {}
+      work_queue_name: default
+      job_variables:
+        image: "{{ build-image.image }}"
     enforce_parameter_schema: true
     schedules:
       - cron: 0 0 * * *
         timezone: UTC
         day_or: true
         active: true
-        max_active_runs:
+        max_active_runs: 1
         catchup: false
+    concurrency_limit: 1
+    pull:
+      - prefect.deployments.steps.set_working_directory:
+          directory: /app

@@ -15,7 +15,7 @@ dependencies = [
     "python-multipart>=0.0.12",
     "python-slugify>=8.0.4",
     "slack_sdk>=3.33.1",
-    "prefect==3.0.8",
+    "prefect[docker]==3.0.10",
     "supabase>=2.9.0",
     "sqlmodel>=0.0.22",
     "python-dotenv>=1.0.1",
@@ -26,13 +26,13 @@ dev-dependencies = ["pytest>=8.3.3", "ruff>=0.6.9", "taskipy>=1.13.0"]
 
 [project.scripts]
 start = "subabot.api:start"
-prefect = "subabot.flows:deploy_sync"
 
 [tool.taskipy.tasks]
 dev = "uvicorn subabot.api:app --host 0.0.0.0 --port 8000 --reload"
 test = "pytest tests"
 lint = "ruff check"
 format = "ruff format"
+prefect = "prefect deploy --all"
 
 [build-system]
 requires = ["hatchling"]

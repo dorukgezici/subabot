@@ -4,6 +4,7 @@ from typing import Sequence
 from asyncer import asyncify
 from fastapi.logger import logger
 from feedparser import FeedParserDict, parse
+from prefect import task
 from sqlmodel import select
 
 from subabot.db import Session, engine
@@ -12,6 +13,7 @@ from subabot.rss.utils import find_matches, get_matching_entries
 from subabot.utils import now_timestamp
 
 
+@task
 async def crawl_feed(feed: Feed, keywords: Sequence[Keyword]) -> Sequence[dict]:
     """Runs the crawler for the given feed and keywords."""
 
@@ -48,6 +50,7 @@ async def crawl_feed(feed: Feed, keywords: Sequence[Keyword]) -> Sequence[dict]:
     return entries
 
 
+@task
 async def run_crawler() -> list[dict]:
     """Runs the crawler for all feeds and keywords."""
 

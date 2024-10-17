@@ -13,13 +13,13 @@ router = APIRouter()
 # Feeds
 @router.get("/feeds", response_model=list[Feed])
 def read_feeds(session: SessionDep):
-    return Feed.list()
+    return Feed.list(session)
 
 
 @router.post("/feeds", response_model=Feed)
 def create_feed(feed: Feed, session: SessionDep, background_tasks: BackgroundTasks):
     feed = Feed.upsert(session, **feed.model_fields)
-    keywords = list(Keyword.list())
+    keywords = Keyword.list(session)
     background_tasks.add_task(crawl_feed, feed, keywords)
 
     return feed
