@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+env:
+  PROJECT_NAME: subabot
+
 jobs:
   deploy:
     name: Deploy
@@ -20,10 +23,13 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Build, tag and push Docker image
+        uses: docker/build-push-action@v5
         with:
-          platforms: linux/amd64,linux/arm64
+          context: ./backend
+          push: true
+          tags: ${{ github.repository_owner }}/${{ env.PROJECT_NAME }}:latest,${{ github.repository_owner }}/${{ env.PROJECT_NAME }}:prefect-${{ github.sha }}
+          platforms: linux/arm64
 
       - name: Tailscale
         uses: tailscale/github-action@v2
@@ -42,7 +48,6 @@ jobs:
           PREFECT_API_URL: ${{ secrets.PREFECT_API_URL }}
           SUBABOT_BACKEND_URL: ${{ secrets.SUBABOT_BACKEND_URL }}
           SUBABOT_FRONTEND_URL: ${{ secrets.SUBABOT_FRONTEND_URL }}
-          DETA_PROJECT_KEY: ${{ secrets.DETA_PROJECT_KEY }}
           SLACK_CLIENT_ID: ${{ secrets.SLACK_CLIENT_ID }}
           SLACK_CLIENT_SECRET: ${{ secrets.SLACK_CLIENT_SECRET }}
           SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}

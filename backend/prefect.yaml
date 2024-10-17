@@ -12,7 +12,6 @@ build:
       image_name: dorukgezici/subabot
       tag: prefect-{{ get-commit-hash.stdout }}
       dockerfile: Dockerfile.prefect
-      platform: "linux/arm64"
 
 push:
   - prefect_docker.deployments.steps.push_docker_image:
