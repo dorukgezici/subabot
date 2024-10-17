@@ -47,4 +47,4 @@ jobs:
         run: |
           cd backend
           uv sync --frozen
-          uv run prefect
+          uv run task deploy
