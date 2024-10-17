@@ -32,8 +32,8 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile.prefect
           push: true
-          tags: ${{ github.repository_owner }}/${{ env.PROJECT_NAME }}:prefect-${{ github.sha }}
-          platforms: linux/arm64
+          tags: ${{ github.repository_owner }}/${{ env.PROJECT_NAME }}:prefect-latest,${{ github.repository_owner }}/${{ env.PROJECT_NAME }}:prefect-${{ github.sha }}
+          platforms: linux/arm64,linux/amd64
 
       - name: Tailscale
         uses: tailscale/github-action@v2

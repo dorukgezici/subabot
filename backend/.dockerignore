@@ -1,1 +1,10 @@
+.gitignore
+.env
+.envrc
 helm/
+
+.venv/
+.pytest_cache/
+.ruff_cache/
+dist/
+database.db

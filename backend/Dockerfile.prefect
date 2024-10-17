@@ -6,4 +6,4 @@ RUN uv sync --frozen
 
 FROM base AS runtime
 ENV PYTHONUNBUFFERED=1
-COPY subabot/ ./subabot/
+COPY . ./
