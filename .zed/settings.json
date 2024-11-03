@@ -1,20 +1,38 @@
 {
   "preferred_line_length": 120,
-  "languages": {
-    "TypeScript": {
-      "code_actions_on_format": {
-        "source.fixAll.eslint": true
+  "lsp": {
+    "pyright": {
+      "settings": {
+        "python.analysis": {
+          "diagnosticMode": "workspace"
+        },
+        "python": {
+          "pythonPath": "backend/.venv/bin/python"
+        }
       }
     }
   },
-  "language_overrides": {
+  "languages": {
     "Python": {
+      "language_servers": ["pyright", "ruff"],
       "format_on_save": "on",
-      "formatter": {
-        "external": {
-          "command": "ruff",
-          "arguments": ["format", "--stdin-filename", "{buffer_path}"]
+      "formatter": [
+        {
+          "code_actions": {
+            "source.fixAll.ruff": true,
+            "source.organizeImports.ruff": true
+          }
+        },
+        {
+          "language_server": {
+            "name": "ruff"
+          }
         }
+      ]
+    },
+    "TypeScript": {
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true
       }
     }
   }
