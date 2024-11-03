@@ -18,11 +18,11 @@ dependencies = [
     "prefect[docker]==3.0.9",
     "supabase>=2.9.0",
     "sqlmodel>=0.0.22",
-    "python-dotenv>=1.0.1",
+    "pydantic-settings>=2.5.2",
 ]
 
 [tool.uv]
-dev-dependencies = ["pytest>=8.3.3", "ruff>=0.6.9", "taskipy>=1.13.0"]
+dev-dependencies = ["ruff>=0.6.9", "pytest>=8.3.3", "taskipy>=1.13.0"]
 
 [project.scripts]
 start = "subabot.api:start"

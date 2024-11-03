@@ -9,7 +9,7 @@ from slack_sdk.web.async_client import AsyncWebClient
 from slack_sdk.webhook.async_client import AsyncWebhookClient
 from starlette.status import HTTP_307_TEMPORARY_REDIRECT
 
-from subabot.config import BACKEND_URL, FRONTEND_URL, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
+from subabot.config import settings
 from subabot.db import SessionDep
 from subabot.rss.crawler import crawl_feed
 from subabot.rss.models import Feed, Keyword
@@ -31,9 +31,9 @@ async def handle_oauth(code: str, error: Optional[str] = None):
         client = AsyncWebClient()  # no prepared token needed for this
         # Complete the installation by calling oauth.v2.access API method
         oauth_response = await client.oauth_v2_access(
-            client_id=SLACK_CLIENT_ID,
-            client_secret=SLACK_CLIENT_SECRET,
-            redirect_uri=f"{BACKEND_URL}/slack/oauth",
+            client_id=settings.slack_client_id,
+            client_secret=settings.slack_client_secret,
+            redirect_uri=f"{settings.subabot_backend_url}/slack/oauth",
             code=code,
         )  # type: ignore
 
@@ -78,7 +78,7 @@ async def handle_oauth(code: str, error: Optional[str] = None):
         # Store the installation
         installation_store.save(installation)
 
-        return RedirectResponse(FRONTEND_URL, status_code=HTTP_307_TEMPORARY_REDIRECT)
+        return RedirectResponse(settings.subabot_frontend_url, status_code=HTTP_307_TEMPORARY_REDIRECT)
 
     return f"Something is wrong with the installation (error: {html.escape(str(error or ''))})", 400
 

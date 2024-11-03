@@ -1,21 +1,26 @@
-import os
 from pathlib import Path
 
-from dotenv import load_dotenv
-
-load_dotenv()
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Build paths inside the project like this: APP_DIR / 'subdir'.
 APP_DIR = Path(__file__).resolve().parent
 
-STAGE = os.environ.get("SUBABOT_ENVIRONMENT", "development")
-BACKEND_URL = os.environ.get("SUBABOT_BACKEND_URL", "http://localhost:8000")
-FRONTEND_URL = os.environ.get("SUBABOT_FRONTEND_URL", "http://localhost:4321")
 
-SLACK_CLIENT_ID = os.environ["SLACK_CLIENT_ID"]
-SLACK_CLIENT_SECRET = os.environ["SLACK_CLIENT_SECRET"]
-SLACK_SIGNING_SECRET = os.environ["SLACK_SIGNING_SECRET"]
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env")
 
-SLACK_APP_ID = os.environ["SLACK_APP_ID"]
-SLACK_TEAM_ID = os.environ["SLACK_TEAM_ID"]
-SLACK_CHANNEL_ID = os.environ["SLACK_CHANNEL_ID"]
+    subabot_environment: str = Field("development")
+    subabot_backend_url: str = Field("http://localhost:8000")
+    subabot_frontend_url: str = Field("http://localhost:4321")
+
+    slack_client_id: str = Field(...)
+    slack_client_secret: str = Field(...)
+    slack_signing_secret: str = Field(...)
+
+    slack_app_id: str = Field(...)
+    slack_team_id: str = Field(...)
+    slack_channel_id: str = Field(...)
+
+
+settings = Settings()  # type: ignore

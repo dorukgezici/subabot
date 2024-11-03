@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel
 
-from subabot.config import FRONTEND_URL
+from subabot.config import settings
 from subabot.db import engine
 from subabot.rss.router import router as rss_router
 from subabot.slack.app import app as slack_app
@@ -13,7 +13,7 @@ from subabot.slack.app import app as slack_app
 app = FastAPI(title="Subabot", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL],
+    allow_origins=[settings.subabot_frontend_url],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

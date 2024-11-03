@@ -1,6 +1,6 @@
 from typing import Dict, List, Literal, Optional
 
-from subabot.config import SLACK_APP_ID
+from subabot.config import settings
 from subabot.rss.models import Feed, Keyword
 
 Feedback = Dict[Literal["feed", "keyword", "channel"], str]
@@ -29,7 +29,7 @@ def generate_configuration_blocks(
                 {
                     "type": "mrkdwn",
                     "text": f"Current Usage: {len(feeds)} feeds, {len(keywords)} keywords"
-                    f" | <https://slack.com/apps/{SLACK_APP_ID}|More Configuration Settings>",
+                    f" | <https://slack.com/apps/{settings.slack_app_id}|More Configuration Settings>",
                 },
             ],
         },

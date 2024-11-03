@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { actions, getActionProps } from "astro:actions";
+    import { actions } from "astro:actions";
     import { Alert, Header, RemoveButton } from "@/components";
     import { importFeeds, triggerCrawl } from "@/lib/api";
     import type { Feed, Keyword } from "@/types/rss";
@@ -41,14 +41,8 @@
                         <form
                             method="POST"
                             class="inline"
-                            on:submit={async (e) => {
-                                e.preventDefault();
-                                const formData = new FormData(e.target);
-                                await actions.removeFeed(formData);
-                                window.location.reload();
-                            }}
+                            action={actions.removeFeed}
                         >
-                            <input {...getActionProps(actions.removeFeed)} />
                             <input type="hidden" name="key" value={feed.key} />
                             <button type="submit" class="btn btn-xs">x</button>
                         </form>
@@ -64,14 +58,8 @@
             </ul>
             <form
                 method="POST"
-                on:submit={async (e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.target);
-                    await actions.addFeed(formData);
-                    window.location.reload();
-                }}
+                action={actions.addFeed}
             >
-                <input {...getActionProps(actions.addFeed)} />
                 <input
                     name="feed"
                     type="url"
@@ -95,14 +83,8 @@
                         <form
                             method="POST"
                             class="inline ml-2"
-                            on:submit={async (e) => {
-                                e.preventDefault();
-                                const formData = new FormData(e.target);
-                                await actions.removeKeyword(formData);
-                                window.location.reload();
-                            }}
+                            action={actions.removeKeyword}
                         >
-                            <input {...getActionProps(actions.removeKeyword)} />
                             <input
                                 type="hidden"
                                 name="key"
@@ -122,14 +104,8 @@
             </ul>
             <form
                 method="POST"
-                on:submit={async (e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.target);
-                    await actions.addKeyword(formData);
-                    window.location.reload();
-                }}
+                action={actions.addKeyword}
             >
-                <input {...getActionProps(actions.addKeyword)} />
                 <input
                     name="keyword"
                     type="text"

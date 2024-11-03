@@ -18,6 +18,12 @@
     "reveal": "always"
   },
   {
+    "label": "prefect-worker",
+    "cwd": "$ZED_WORKTREE_ROOT/backend",
+    "command": "uv run prefect worker start --pool work-pool",
+    "reveal": "always"
+  },
+  {
     "label": "frontend-dev",
     "cwd": "$ZED_WORKTREE_ROOT/frontend",
     "command": "pnpm run dev",

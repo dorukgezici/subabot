@@ -3,13 +3,13 @@ from typing import Optional
 from fastapi import HTTPException
 from slack_sdk.web.async_client import AsyncWebClient
 
-from subabot.config import SLACK_CHANNEL_ID, SLACK_TEAM_ID
+from subabot.config import settings
 from subabot.rss.crawler import run_crawler
 from subabot.slack.store import installation_store
 
 
 async def get_client(
-    team_id: Optional[str] = SLACK_TEAM_ID,
+    team_id: Optional[str] = settings.slack_team_id,
     enterprise_id: Optional[str] = None,
     is_enterprise_install: Optional[bool] = False,
 ):
@@ -46,7 +46,7 @@ async def crawl_and_alert():
 
     if len(blocks) > 0:
         await client.chat_postMessage(
-            channel=SLACK_CHANNEL_ID,
+            channel=settings.slack_channel_id,
             text="New entries found!",
             blocks=blocks,
         )
