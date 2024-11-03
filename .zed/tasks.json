@@ -14,25 +14,25 @@
   {
     "label": "prefect-server",
     "cwd": "$ZED_WORKTREE_ROOT/backend",
-    "command": "uv run prefect server start",
+    "command": "uv run task server",
     "reveal": "always"
   },
   {
     "label": "prefect-worker",
     "cwd": "$ZED_WORKTREE_ROOT/backend",
-    "command": "uv run prefect worker start --pool work-pool",
+    "command": "uv run task create-work-pool && uv run task worker",
+    "reveal": "always"
+  },
+  {
+    "label": "prefect-deploy",
+    "cwd": "$ZED_WORKTREE_ROOT/backend",
+    "command": "uv run task deploy",
     "reveal": "always"
   },
   {
     "label": "frontend-dev",
     "cwd": "$ZED_WORKTREE_ROOT/frontend",
     "command": "pnpm run dev",
-    "reveal": "always"
-  },
-  {
-    "label": "frontend-typegen",
-    "cwd": "$ZED_WORKTREE_ROOT/frontend",
-    "command": "pnpm run typegen",
     "reveal": "always"
   }
 ]

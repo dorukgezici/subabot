@@ -2,40 +2,33 @@ name: subabot
 prefect-version: 3.0.9
 
 build:
-  null
+  - prefect.deployments.steps.run_shell_script:
+      id: get-commit-hash
+      script: git rev-parse --short HEAD
+      stream_output: false
+  - prefect_docker.deployments.steps.build_docker_image:
+      id: build-image
+      requires: prefect-docker
+      image_name: dorukgezici/subabot
+      dockerfile: Dockerfile.prefect
+      tag: prefect-{{ get-commit-hash.stdout }}
 
-  # - prefect.deployments.steps.run_shell_script:
-  #     id: get-commit-hash
-  #     script: git rev-parse --short HEAD
-  #     stream_output: false
-  # - prefect_docker.deployments.steps.build_docker_image:
-  #     id: build-image
-  #     requires: prefect-docker>=0.6.1
-  #     image_name: dorukgezici/subabot
-  #     tag: prefect-{{ get-commit-hash.stdout }}
-  #     dockerfile: Dockerfile.prefect
-
-push:
-  null
-  # - prefect_docker.deployments.steps.push_docker_image:
-  #     requires: prefect-docker>=0.6.1
-  #     image_name: "{{ build-image.image_name }}"
-  #     tag: "{{ build-image.tag }}"
+pull:
+  - prefect.deployments.steps.set_working_directory:
+      directory: .
 
 deployments:
   - name: subabot
-    # version: "{{ build-image.tag }}"
-    version: "latest"
+    version: "prefect-latest"
     tags: []
     description:
     entrypoint: subabot/flows.py:rss_crawler
     parameters: {}
     work_pool:
-      name: workers
+      name: work-pool
       work_queue_name: default
       job_variables:
-        # image: "{{ build-image.image }}"
-        image: "dorukgezici/subabot:prefect-latest"
+        image: "{{ build-image.image }}"
     enforce_parameter_schema: true
     schedules:
       - cron: 0 0 * * *
@@ -45,6 +38,3 @@ deployments:
         max_active_runs: 1
         catchup: false
     concurrency_limit: 1
-    pull:
-      - prefect.deployments.steps.set_working_directory:
-          directory: /app

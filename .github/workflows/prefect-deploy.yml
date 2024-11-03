@@ -48,17 +48,7 @@ jobs:
           enable-cache: true
 
       - name: Prefect Deploy
-        env:
-          PREFECT_API_URL: ${{ secrets.PREFECT_API_URL }}
-          SUBABOT_BACKEND_URL: ${{ secrets.SUBABOT_BACKEND_URL }}
-          SUBABOT_FRONTEND_URL: ${{ secrets.SUBABOT_FRONTEND_URL }}
-          SLACK_CLIENT_ID: ${{ secrets.SLACK_CLIENT_ID }}
-          SLACK_CLIENT_SECRET: ${{ secrets.SLACK_CLIENT_SECRET }}
-          SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}
-          SLACK_APP_ID: ${{ secrets.SLACK_APP_ID }}
-          SLACK_TEAM_ID: ${{ secrets.SLACK_TEAM_ID }}
-          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
         run: |
           cd backend
           uv sync --frozen
-          uv run task deploy
+          uv run prefect deploy --all --param build=null
