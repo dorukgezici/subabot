@@ -22,7 +22,12 @@ dependencies = [
 ]
 
 [tool.uv]
-dev-dependencies = ["ruff>=0.6.9", "pytest>=8.3.3", "taskipy>=1.13.0"]
+dev-dependencies = [
+    "ruff>=0.6.9",
+    "pytest>=8.3.3",
+    "pytest-asyncio>=0.24.0",
+    "taskipy>=1.13.0",
+]
 
 [project.scripts]
 start = "subabot.api:start"

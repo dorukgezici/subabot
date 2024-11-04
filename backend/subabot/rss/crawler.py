@@ -2,9 +2,8 @@ import asyncio
 from typing import Sequence
 
 from asyncer import asyncify
-from fastapi.logger import logger
 from feedparser import FeedParserDict, parse
-from prefect import task
+from prefect import get_run_logger, task
 from sqlmodel import select
 
 from subabot.db import Session, engine
@@ -16,6 +15,7 @@ from subabot.utils import now_timestamp
 @task
 async def crawl_feed(feed: Feed, keywords: Sequence[Keyword]) -> Sequence[dict]:
     """Runs the crawler for the given feed and keywords."""
+    logger = get_run_logger()
 
     url = feed.key
     data = FeedParserDict(await asyncify(parse)(url))  # type: ignore
@@ -41,7 +41,7 @@ async def crawl_feed(feed: Feed, keywords: Sequence[Keyword]) -> Sequence[dict]:
             )
 
         entries = get_matching_entries(entries, matches)
-        logger.debug(f"Found {len(entries)} new entries for {url}.")
+        logger.info(f"Found {len(entries)} new entries for {url}.")
 
         for entry in entries:
             if link := entry.get("link"):
@@ -53,6 +53,7 @@ async def crawl_feed(feed: Feed, keywords: Sequence[Keyword]) -> Sequence[dict]:
 @task
 async def run_crawler() -> list[dict]:
     """Runs the crawler for all feeds and keywords."""
+    logger = get_run_logger()
 
     # Query feeds that were refreshed more than a minute ago or never at all
     with Session(engine) as session:
@@ -60,7 +61,7 @@ async def run_crawler() -> list[dict]:
         feeds = session.exec(select(Feed).where((Feed.refreshed_at is None))).all()
         keywords = session.exec(select(Keyword)).all()
 
-    logger.debug(f"Crawling {len(feeds)} feeds for {len(keywords)} keywords...")
+    logger.info(f"Crawling {len(feeds)} feeds for {len(keywords)} keywords...")
 
     crawlers = [crawl_feed(feed, keywords) for feed in feeds]
     # swallow exceptions to keep the loop running

@@ -1,5 +1,5 @@
-import asyncio
-
+import pytest
+from prefect.logging.loggers import disable_run_logger
 from sqlmodel import SQLModel, select
 
 from subabot.db import Session, engine
@@ -10,18 +10,20 @@ from subabot.utils import now_timestamp
 SQLModel.metadata.create_all(engine)
 
 
-def test_crawl_feed() -> None:
-    feed = Feed(key="https://www.haberturk.com/rss", title="Haberturk")
-    keyword = Keyword(key="haber", value="haber", checked_at=now_timestamp())
+@pytest.mark.asyncio
+async def test_crawl_feed() -> None:
+    with disable_run_logger():
+        feed = Feed(key="https://www.haberturk.com/rss", title="Haberturk")
+        keyword = Keyword(key="haber", value="haber", checked_at=now_timestamp())
 
-    with Session(engine) as session:
-        feed = session.exec(select(Feed).where(Feed.key == feed.key)).first() or feed
-        keyword = session.exec(select(Keyword).where(Keyword.key == keyword.key)).first() or keyword
+        with Session(engine) as session:
+            feed = session.exec(select(Feed).where(Feed.key == feed.key)).first() or feed
+            keyword = session.exec(select(Keyword).where(Keyword.key == keyword.key)).first() or keyword
 
-    data = asyncio.run(crawl_feed(feed=feed, keywords=[keyword]))
-    print(data)
+        await crawl_feed.fn(feed=feed, keywords=[keyword])
 
 
-def test_run_crawler() -> None:
-    data = asyncio.run(run_crawler())
-    print(data)
+@pytest.mark.asyncio
+async def test_run_crawler() -> None:
+    with disable_run_logger():
+        await run_crawler.fn()

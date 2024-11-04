@@ -6,29 +6,23 @@ build:
       id: get-commit-hash
       script: git rev-parse --short HEAD
       stream_output: false
-  - prefect_docker.deployments.steps.build_docker_image:
-      id: build-image
-      requires: prefect-docker
-      image_name: dorukgezici/subabot
-      dockerfile: Dockerfile.prefect
-      tag: prefect-{{ get-commit-hash.stdout }}
 
 pull:
   - prefect.deployments.steps.set_working_directory:
-      directory: .
+      directory: "{{ $PWD }}"
 
 deployments:
   - name: subabot
-    version: "prefect-latest"
+    version: "{{ get-commit-hash.stdout }}"
     tags: []
-    description:
+    description: Subabot RSS Crawler
     entrypoint: subabot/flows.py:rss_crawler
     parameters: {}
     work_pool:
       name: work-pool
       work_queue_name: default
       job_variables:
-        image: "{{ build-image.image }}"
+        image: "dorukgezici/subabot:{{ get-commit-hash.stdout }}"
     enforce_parameter_schema: true
     schedules:
       - cron: 0 0 * * *

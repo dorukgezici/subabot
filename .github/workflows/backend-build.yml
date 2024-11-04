@@ -1,4 +1,4 @@
-name: "Backend: Build & Push"
+name: "Backend: Build & Deploy"
 
 on:
   workflow_dispatch:
@@ -32,3 +32,30 @@ jobs:
           push: true
           tags: ${{ github.repository_owner }}/${{ env.PROJECT_NAME }}:latest,${{ github.repository_owner }}/${{ env.PROJECT_NAME }}:${{ github.sha }}
           platforms: linux/arm64,linux/amd64
+
+  prefect_deploy:
+    name: Prefect Deploy
+    runs-on: ubuntu-latest
+    needs: build_and_push
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Prefect Deploy
+        env:
+          PREFECT_API_URL: ${{ secrets.PREFECT_API_URL }}
+        run: |
+          cd backend
+          uv sync --frozen
+          uv run deploy
