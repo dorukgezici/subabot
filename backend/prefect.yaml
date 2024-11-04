@@ -3,8 +3,8 @@ prefect-version: 3.0.9
 
 build:
   - prefect.deployments.steps.run_shell_script:
-      id: get-commit-hash
-      script: git rev-parse --short HEAD
+      id: get-commit-sha
+      script: git rev-parse HEAD
       stream_output: false
 
 pull:
@@ -13,7 +13,7 @@ pull:
 
 deployments:
   - name: subabot
-    version: "{{ get-commit-hash.stdout }}"
+    version: "{{ get-commit-sha.stdout }}"
     tags: []
     description: Subabot RSS Crawler
     entrypoint: subabot/flows.py:rss_crawler
@@ -22,7 +22,7 @@ deployments:
       name: work-pool
       work_queue_name: default
       job_variables:
-        image: "dorukgezici/subabot:{{ get-commit-hash.stdout }}"
+        image: "dorukgezici/subabot:{{ get-commit-sha.stdout }}"
     enforce_parameter_schema: true
     schedules:
       - cron: 0 0 * * *
