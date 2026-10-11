@@ -1,0 +1,349 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { backendHeaders } from "@/lib/backend.server";
+import Logo from "../../components/Logo";
+import {
+  ArrowUpRight,
+  ArrowRight,
+  Rss,
+  Radio,
+  Copy,
+  Check,
+  Code2 as Github,
+  LockKeyhole,
+  ExternalLink,
+} from "lucide-react";
+import "../../styles/public.css";
+
+interface PublicSignal {
+  id: string;
+  title: string;
+  url: string;
+  summary: string;
+  source: string;
+  published_at: string;
+  matched_keywords: string[];
+}
+interface PublicWatchlist {
+  monitor: {
+    id: string;
+    name: string;
+    description: string;
+    keywords: string[];
+    color: string;
+    share_slug: string;
+    feed_urls?: string[];
+  };
+  signals: PublicSignal[];
+}
+let data: PublicWatchlist | null = null;
+let unavailable = false;
+const slug = Astro.params.slug || "";
+try {
+  const response = await fetch(
+    `${process.env.BACKEND_URL || "http://127.0.0.1:8000"}/api/public/${encodeURIComponent(slug)}`,
+    { headers: backendHeaders(), signal: AbortSignal.timeout(8000) },
+  );
+  if (response.status !== 404 && !response.ok)
+    throw new Error("Watchlist unavailable");
+  if (response.ok) data = await response.json();
+} catch {
+  unavailable = true;
+}
+if (!data) Astro.response.status = unavailable ? 503 : 404;
+if (unavailable) Astro.response.headers.set("Retry-After", "30");
+Astro.response.headers.set("Cache-Control", "no-store");
+const monitor = data?.monitor;
+const color = /^#[\da-f]{6}$/i.test(monitor?.color || "")
+  ? monitor!.color
+  : "#357a57";
+const safeUrl = (value: string) => {
+  try {
+    const url = new URL(value);
+    return ["https:", "http:"].includes(url.protocol) ? url.href : null;
+  } catch {
+    return null;
+  }
+};
+const signals = (data?.signals || []).filter((signal) => safeUrl(signal.url));
+const dateLabel = (value: string) => {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? null
+    : date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        timeZone: "UTC",
+      });
+};
+const fullDate = (value: string) => {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+};
+const title = monitor
+  ? `${monitor.name} | A Subabot watchlist`
+  : unavailable
+    ? "Watchlist unavailable | Subabot"
+    : "Watchlist not found | Subabot";
+const description =
+  monitor?.description ||
+  (monitor
+    ? `Follow ${monitor.keywords.slice(0, 4).join(", ")} with this public Subabot watchlist. Discover useful signals and make your own copy.`
+    : "Discover public watchlists and follow the ideas that matter to you with Subabot.");
+---
+
+<Layout
+  title={title}
+  description={description}
+  image={monitor ? `/s/${encodeURIComponent(slug)}/og.png` : undefined}
+  noindex={!monitor}
+>
+  <div class="public-shell" style={`--watchlist-accent: ${color}`}>
+    <header class="public-nav">
+      <Logo />
+      <nav aria-label="Main navigation">
+        <a href="/explore">Explore watchlists</a>
+        <a class="public-nav-cta" href="/dashboard">
+          Your workspace <ArrowUpRight size={15} />
+        </a>
+      </nav>
+    </header>
+    <main id="main">
+      {monitor ? (
+        <>
+          <a class="public-back" href="/explore">
+            <ArrowRight size={13} /> Explore watchlists
+          </a>
+          <section class="public-hero">
+            <div class="public-hero-icon">
+              <Radio size={29} strokeWidth={1.5} />
+            </div>
+            <div class="public-hero-copy">
+              <div class="public-eyebrow">
+                <span></span> A PUBLIC WATCHLIST
+              </div>
+              <h1>{monitor.name}</h1>
+              <p>{description}</p>
+              <div class="public-hero-meta">
+                <span>
+                  <Rss size={13} /> {monitor.feed_urls?.length ?? 0}{" "}
+                  {(monitor.feed_urls?.length ?? 0) === 1
+                    ? "source"
+                    : "sources"}
+                </span>
+                <i></i>
+                <span>
+                  {monitor.keywords.length}{" "}
+                  {monitor.keywords.length === 1 ? "keyword" : "keywords"}
+                </span>
+                <i></i>
+                <span>Powered by Subabot</span>
+              </div>
+            </div>
+            <div class="public-hero-actions">
+              <a
+                class="public-clone-button"
+                href={`/dashboard?clone=${encodeURIComponent(slug)}`}
+              >
+                Make this watchlist yours <ArrowUpRight size={16} />
+              </a>
+              <button type="button" id="copy-watchlist-link">
+                <Copy size={14} />
+                <span>Copy share link</span>
+                <Check size={14} className="public-copy-check" />
+              </button>
+              <span class="public-clone-note">
+                Your own copy. Your own discoveries.
+              </span>
+              <span class="sr-only" id="copy-status" aria-live="polite"></span>
+            </div>
+          </section>
+          <section class="public-keywords" aria-label="Monitored keywords">
+            <span>LISTENING FOR</span>
+            <div>
+              {monitor.keywords.map((keyword) => (
+                <span>{keyword}</span>
+              ))}
+            </div>
+          </section>
+          <div class="public-content">
+            <section class="public-signals" aria-labelledby="signals-title">
+              <div class="public-signals-heading">
+                <h2 id="signals-title">
+                  On the radar <span>{signals.length}</span>
+                </h2>
+                <span>
+                  <i></i> Latest matches
+                </span>
+              </div>
+              {signals.length ? (
+                <div class="public-signal-list">
+                  {signals.map((signal) => (
+                    <article class="public-signal">
+                      <div class="public-signal-meta">
+                        <span>{signal.source}</span>
+                        <i></i>
+                        {dateLabel(signal.published_at) && (
+                          <time datetime={fullDate(signal.published_at)}>
+                            {dateLabel(signal.published_at)}
+                          </time>
+                        )}
+                      </div>
+                      <h3>
+                        <a
+                          href={safeUrl(signal.url)!}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {signal.title}
+                          <ArrowUpRight size={17} />
+                        </a>
+                      </h3>
+                      {signal.summary && <p>{signal.summary}</p>}
+                      <div class="public-signal-tags">
+                        {signal.matched_keywords.map((keyword) => (
+                          <span>{keyword}</span>
+                        ))}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div class="public-empty">
+                  <div>
+                    <Radio size={30} strokeWidth={1.4} />
+                  </div>
+                  <h3>Listening for the good stuff.</h3>
+                  <p>
+                    This watchlist is ready. New matches will appear here after
+                    its next feed scan.
+                  </p>
+                  <span>
+                    Matches depend on what the connected sources publish.
+                  </span>
+                </div>
+              )}
+              <p class="public-source-note">
+                <Rss size={13} /> Signals come from public RSS and Atom feeds.
+                Read the full story at its original source.
+              </p>
+            </section>
+            <aside class="public-aside">
+              <div class="public-aside-orbit" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <Rss size={28} strokeWidth={1.5} />
+              </div>
+              <div class="public-aside-label">YOUR CURIOSITY, ON AUTOPILOT</div>
+              <h2>
+                A quieter way
+                <br />
+                to stay ahead.
+              </h2>
+              <p>
+                Tell Subabot what matters. Get the matching stories in one calm
+                place.
+              </p>
+              <a href={`/dashboard?clone=${encodeURIComponent(slug)}`}>
+                Start with this watchlist <ArrowRight size={15} />
+              </a>
+              <div class="public-aside-detail">
+                <LockKeyhole size={12} /> Your new workspace starts private.
+              </div>
+              <div class="public-aside-divider"></div>
+              <a
+                class="public-build-link"
+                href="https://github.com/dorukgezici/subabot"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Github size={14} /> Open source. Made for the curious.{" "}
+                <ExternalLink size={11} />
+              </a>
+            </aside>
+          </div>
+          <section class="public-bottom-cta">
+            <div>
+              <span>FOUND SOMETHING INTERESTING?</span>
+              <h2>Good signals are better shared.</h2>
+              <p>
+                Make a watchlist for your community, your team, or your next big
+                idea.
+              </p>
+            </div>
+            <a href="/dashboard">
+              Create a watchlist <ArrowUpRight size={17} />
+            </a>
+          </section>
+        </>
+      ) : (
+        <section class="public-not-found">
+          <div class="public-hero-icon">
+            <Radio size={29} strokeWidth={1.5} />
+          </div>
+          <span class="public-eyebrow">
+            {unavailable ? "A SMALL INTERRUPTION" : "THIS SIGNAL WENT QUIET"}
+          </span>
+          <h1>
+            {unavailable
+              ? "Taking a moment to reconnect."
+              : "This watchlist isn’t available."}
+          </h1>
+          <p>
+            {unavailable
+              ? "The server is temporarily unavailable. Try again in a moment."
+              : "It may have been made private, deleted, or the link may be incorrect."}
+          </p>
+          <a href={unavailable ? Astro.url.pathname : "/explore"}>
+            {unavailable ? "Try again" : "Explore other watchlists"}
+            <ArrowRight size={16} />
+          </a>
+        </section>
+      )}
+    </main>
+    <footer class="public-footer">
+      <span>Less noise. More signal.</span>
+      <div>
+        <a href="/privacy">Privacy</a>
+        <span>
+          Built by{" "}
+          <a
+            href="https://github.com/dorukgezici"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Doruk Gezici <ArrowUpRight size={12} />
+          </a>
+        </span>
+      </div>
+    </footer>
+  </div>
+</Layout>
+
+<script>
+  const copyButton = document.querySelector<HTMLButtonElement>(
+    "#copy-watchlist-link",
+  );
+  const status = document.querySelector<HTMLElement>("#copy-status");
+  copyButton?.addEventListener("click", async () => {
+    const label = copyButton.querySelector("span");
+    try {
+      const url = new URL(window.location.href);
+      url.search = "";
+      url.hash = "";
+      await navigator.clipboard.writeText(url.href);
+      copyButton.classList.add("is-copied");
+      if (label) label.textContent = "Link copied";
+      if (status) status.textContent = "Watchlist link copied to clipboard.";
+      window.setTimeout(() => {
+        copyButton.classList.remove("is-copied");
+        if (label) label.textContent = "Copy share link";
+      }, 2500);
+    } catch {
+      if (label) label.textContent = "Copy the address above";
+      if (status)
+        status.textContent =
+          "Copy the watchlist URL from your browser address bar.";
+    }
+  });
+</script>

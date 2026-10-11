@@ -1,26 +1,18 @@
-from pathlib import Path
-
-from pydantic import Field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-# Build paths inside the project like this: APP_DIR / 'subdir'.
-APP_DIR = Path(__file__).resolve().parent
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env")
+    # Old project secrets are never loaded implicitly. Environment variables use a new prefix.
+    model_config = SettingsConfigDict(env_prefix="SUBABOT_", extra="ignore")
 
-    subabot_environment: str = Field("development")
-    subabot_backend_url: str = Field("http://localhost:8000")
-    subabot_frontend_url: str = Field("http://localhost:4321")
-
-    slack_client_id: str = Field(...)
-    slack_client_secret: str = Field(...)
-    slack_signing_secret: str = Field(...)
-
-    slack_app_id: str = Field(...)
-    slack_team_id: str = Field(...)
-    slack_channel_id: str = Field(...)
-
-
-settings = Settings()  # type: ignore
+    database_url: str = "sqlite:///./subabot.db"
+    frontend_url: str = "http://localhost:4321"
+    trust_proxy_client_ip: bool = False
+    proxy_shared_secret: SecretStr = Field(default=SecretStr(""), repr=False)
+    scheduler_enabled: bool = True
+    scan_interval_seconds: int = Field(default=900, ge=60)
+    scan_cooldown_seconds: int = Field(default=15, ge=0)
+    feed_timeout_seconds: int = Field(default=12, ge=1, le=60)
+    max_feed_bytes: int = Field(default=2_000_000, ge=1000, le=10_000_000)
+    max_monitors: int = Field(default=25, ge=1, le=100)

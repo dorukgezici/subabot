@@ -1,60 +1,54 @@
-name: "Backend: Build & Deploy"
+name: Container builds
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_backend:
+        description: Publish an immutable backend image for deployment
+        type: boolean
+        default: false
+  pull_request:
   push:
-    branches:
-      - main
+    branches: [main]
 
-env:
-  PROJECT_NAME: subabot
+permissions:
+  contents: read
+
+concurrency:
+  group: container-builds-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build_and_push:
-    name: Build & Push Docker image
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Validate Compose configuration
+        run: docker compose config --quiet
+      - name: Build both services
+        run: docker compose build
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
+  publish-backend:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build, tag and push Docker image
-        uses: docker/build-push-action@v5
+      - name: Publish backend for both server architectures
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: ./backend
           push: true
-          tags: ${{ github.repository_owner }}/${{ env.PROJECT_NAME }}:latest,${{ github.repository_owner }}/${{ env.PROJECT_NAME }}:${{ github.sha }}
-          platforms: linux/arm64,linux/amd64
-
-  prefect_deploy:
-    name: Prefect Deploy
-    runs-on: ubuntu-latest
-    needs: build_and_push
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-        with:
-          enable-cache: true
-
-      - name: Tailscale
-        uses: tailscale/github-action@v2
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:ci
-
-      - name: Prefect Deploy
-        env:
-          PREFECT_API_URL: ${{ secrets.PREFECT_API_URL }}
-        run: |
-          cd backend
-          uv run task deploy
+          platforms: linux/amd64,linux/arm64
+          tags: dorukgezici/subabot:v2-${{ github.sha }}
+          cache-from: type=gha,scope=subabot-backend
+          cache-to: type=gha,mode=max,scope=subabot-backend

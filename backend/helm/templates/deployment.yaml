@@ -1,76 +1,103 @@
+{{- if not (regexMatch "^sha256:[a-f0-9]{64}$" .Values.image.digest) }}
+{{- fail "image.digest must be an immutable sha256 digest" }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "subabot.fullname" . }}
+  name: subabot
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "subabot.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: Recreate
+    rollingUpdate: null
   selector:
     matchLabels:
       {{- include "subabot.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
         {{- include "subabot.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "subabot.serviceAccountName" . }}
+      serviceAccountName: default
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 150
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
       containers:
-        - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        - name: subabot
+          image: {{ printf "%s@%s" .Values.image.repository .Values.image.digest | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- with .Values.envFrom }}
-          envFrom:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: 8000
               protocol: TCP
-          livenessProbe:
+          env:
+            - name: PYTHONDONTWRITEBYTECODE
+              value: "1"
+            - name: SUBABOT_DATABASE_URL
+              value: sqlite:////data/subabot.db
+            - name: SUBABOT_FRONTEND_URL
+              value: {{ .Values.frontendUrl | quote }}
+            - name: SUBABOT_SCHEDULER_ENABLED
+              value: "true"
+            - name: SUBABOT_SCAN_INTERVAL_SECONDS
+              value: {{ .Values.scanIntervalSeconds | quote }}
+            - name: SUBABOT_SCAN_COOLDOWN_SECONDS
+              value: {{ .Values.scanCooldownSeconds | quote }}
+            - name: SUBABOT_TRUST_PROXY_CLIENT_IP
+              value: "true"
+            - name: SUBABOT_PROXY_SHARED_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "gatewaySecret.name is required" .Values.gatewaySecret.name | quote }}
+                  key: {{ required "gatewaySecret.key is required" .Values.gatewaySecret.key | quote }}
+          startupProbe:
             httpGet:
-              path: /
+              path: /api/health
               port: http
+            periodSeconds: 2
+            timeoutSeconds: 5
+            failureThreshold: 60
           readinessProbe:
             httpGet:
-              path: /
+              path: /api/health
               port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- with .Values.volumeMounts }}
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
+            - name: data
+              mountPath: /data
+            - name: temporary
+              mountPath: /tmp
       volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: subabot-data
+        - name: temporary
+          emptyDir:
+            sizeLimit: 64Mi

@@ -1,73 +1,400 @@
 ---
-import Layout from "@/layouts/Layout.astro";
-import { RobotTile, SlackButton } from "@/components";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import Fa from "svelte-fa";
+import Layout from "../layouts/Layout.astro";
+import LandingHeader from "../components/LandingHeader.astro";
+import LandingFooter from "../components/LandingFooter.astro";
+import LandingDemo from "../components/LandingDemo";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Check,
+  Code2,
+  Radio,
+  Rss,
+  Search,
+  SlidersHorizontal,
+  Terminal,
+  Zap,
+} from "lucide-react";
+import "../styles/landing.css";
+
+export const prerender = true;
+
+const faqs = [
+  {
+    question: "What can I monitor?",
+    answer:
+      "Any public RSS or Atom feed that Subabot can access. Think blogs, news sites, project changelogs, and communities with feeds. It does not search the entire web or bypass a site’s login. Coverage depends on what each publisher includes in its feed.",
+  },
+  {
+    question: "How do the keywords work?",
+    answer:
+      "Subabot checks feed item titles and available content for your keywords. You can match any or all of your keywords, and add exclusions to remove unwanted results. Matches are case-insensitive. You choose the sources and the rules.",
+  },
+  {
+    question: "Do I need a Slack account?",
+    answer:
+      "No. You can read matches in your Subabot inbox. To receive Slack alerts, add an incoming webhook for a channel you control. Your workspace needs a running Subabot backend to check feeds and send alerts.",
+  },
+  {
+    question: "Does Subabot use AI?",
+    answer:
+      "No. This version uses predictable keyword matching. No AI provider receives your feeds or rules, and you do not need an AI API key. You can see exactly why an item matched.",
+  },
+  {
+    question: "What does it cost?",
+    answer:
+      "Subabot is open-source software. There is no paid plan or checkout in this version. If you run your own instance, you cover your hosting costs. Public instances may have usage limits.",
+  },
+  {
+    question: "Can other people see my monitors?",
+    answer:
+      "Your monitors are private to your workspace unless you explicitly publish a shareable configuration. Shared pages expose the monitor description, source URLs, keywords, and matching stories, never your Slack webhook. Workspace access is saved in this browser, so download a private recovery file before clearing browser storage.",
+  },
+];
+const structuredData = [
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Subabot",
+    applicationCategory: "ProductivityApplication",
+    operatingSystem: "Web",
+    description:
+      "Open-source RSS keyword monitoring with a focused inbox and optional Slack alerts.",
+    creator: {
+      "@type": "Person",
+      name: "Doruk Gezici",
+      url: "https://github.com/dorukgezici",
+    },
+    sameAs: "https://github.com/dorukgezici/subabot",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map(({ question, answer }) => ({
+      "@type": "Question",
+      name: question,
+      acceptedAnswer: { "@type": "Answer", text: answer },
+    })),
+  },
+];
 ---
 
-<Layout title="Subabot">
-    <main>
-        <section
-            class="h-screen flex flex-wrap items-center justify-center overflow-hidden space-y-12 bg-gradient-to-tl from-neutral via-primary to-secondary"
-        >
-            <RobotTile client:load />
-
-            <div
-                class="bg-primary opacity-95 absolute p-8 sm:p-16 md:p-24 shadow-2xl rounded-3xl w-full lg:w-2/3 max-w-[900px] border-solid border-2 border-primary"
+<Layout
+  image="/og-image.png"
+  title="Subabot | RSS monitoring without the noise"
+  description="Follow what matters. Subabot monitors RSS feeds for your keywords and brings matching updates to a focused inbox and Slack. Open source and easy to start."
+>
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify(structuredData)}
+  />
+  <div class="landing-page">
+    <LandingHeader />
+    <main id="main">
+      <section class="landing-hero" aria-labelledby="hero-heading">
+        <div class="landing-hero-copy">
+          <div class="landing-eyebrow">
+            <span class="landing-live-dot" /> A little bot. A lot less noise.
+          </div>
+          <h1 id="hero-heading">
+            The internet is loud.
+            <br />
+            <span>Find your signal.</span>
+          </h1>
+          <p class="landing-hero-description">
+            Follow the topics you care about, without following everything.
+            <br class="landing-desktop-break" /> Subabot turns your RSS feeds
+            into useful updates, in your inbox and Slack.
+          </p>
+          <div class="landing-hero-actions">
+            <a class="landing-button landing-button-primary" href="/dashboard">
+              Create your first monitor{" "}
+              <ArrowRight size={18} aria-hidden="true" />
+            </a>
+            <a
+              class="landing-button landing-button-secondary"
+              href="/dashboard?demo=1"
             >
-                <div class="my-10">
-                    <h1
-                        class="text-7xl font-extrabold text-slate-300 sm:text-8xl md:text-9xl"
-                    >
-                        Subabot
-                    </h1>
-                    <p
-                        class="text-xl text-slate-400 sm:text-2xl md:text-3xl my-4 md:my-6"
-                    >
-                        An AI-powered Slack alert bot to{" "}
-                        <span class="underline">subscribe</span>,{" "}
-                        <span class="underline">classify</span> and{" "}
-                        <span class="underline">notify</span> for keywords on RSS
-                        feeds.
-                    </p>
-                </div>
-
-                <div class="flex flex-wrap gap-4">
-                    <SlackButton
-                        client:load
-                        text="Add to Slack"
-                        url={`https://slack.com/oauth/v2/authorize?scope=chat:write,chat:write.public,links:read,links:write,commands,team:read&client_id=${import.meta.env.PUBLIC_SLACK_CLIENT_ID}&redirect_uri=${import.meta.env.PUBLIC_BACKEND_URL}/slack/oauth`}
-                    />
-                    <a href="/dashboard" class="btn">Dashboard</a>
-                </div>
+              Explore the demo <ArrowUpRight size={17} aria-hidden="true" />
+            </a>
+          </div>
+          <div class="landing-hero-note">
+            <span>
+              <Check size={13} aria-hidden="true" /> Open source
+            </span>
+            <span class="landing-note-divider" />
+            <span>No account needed to get started</span>
+          </div>
+        </div>
+        <div class="landing-demo-frame">
+          <LandingDemo client:load />
+        </div>
+      </section>
+      <section class="landing-sources" aria-label="Supported source types">
+        <p>If it has a public feed, it can be a source.</p>
+        <div>
+          <span>
+            <Rss size={19} aria-hidden="true" /> Blogs
+          </span>
+          <span>
+            <Radio size={19} aria-hidden="true" /> News
+          </span>
+          <span>
+            <Terminal size={19} aria-hidden="true" /> Changelogs
+          </span>
+          <span>
+            <Code2 size={19} aria-hidden="true" /> Communities
+          </span>
+        </div>
+      </section>
+      <section
+        class="landing-how landing-section"
+        id="how-it-works"
+        aria-labelledby="how-heading"
+      >
+        <div class="landing-section-heading">
+          <span class="landing-kicker">SET IT UP. LET IT LISTEN.</span>
+          <h2 id="how-heading">
+            A small setup.
+            <br />A quieter day.
+          </h2>
+          <p>
+            No complex workflows. Just a few sources,
+            <br class="landing-desktop-break" /> the right words, and a little
+            bot on your side.
+          </p>
+        </div>
+        <div class="landing-steps">
+          <article>
+            <div class="landing-step-top">
+              <span class="landing-step-icon">
+                <Rss size={23} aria-hidden="true" />
+              </span>
+              <span class="landing-step-number">01</span>
             </div>
-        </section>
-
-        <section class="flex items-center justify-center p-8 sm:p-16">
-            <div class="w-3/5 max-w-4xl">
-                <h1
-                    class="text-5xl sm:text-6xl md:text-7xl font-extrabold my-10 mr-4"
-                >
-                    Never Miss an Update!
-                </h1>
-                <p class="text-xl">
-                    Subabot is the ultimate AI-powered Slack bot designed to
-                    monitor the web and alert you whenever there’s an update
-                    about your favorite keywords. Stay ahead of the competition
-                    and never miss a beat, while cutting through the noise with
-                    AI classification and filtering.
-                </p>
+            <h3>Pick your sources.</h3>
+            <p>
+              Add the RSS feeds you trust. Your favorite blogs, industry news,
+              or the projects you follow.
+            </p>
+            <div class="landing-step-detail">
+              <span class="landing-small-source">↗</span>
+              <span>your-favorite-blog.com/feed</span>
+              <Check size={14} aria-hidden="true" />
             </div>
-            <div class="w-2/5 hidden md:flex max-w-sm">
-                <Fa
-                    icon={faMagnifyingGlass}
-                    style="width: %100; height: auto"
-                />
+          </article>
+          <article>
+            <div class="landing-step-top">
+              <span class="landing-step-icon">
+                <SlidersHorizontal size={23} aria-hidden="true" />
+              </span>
+              <span class="landing-step-number">02</span>
             </div>
-        </section>
-
-        <section class="flex items-center justify-center p-8 sm:p-16">
-            <!-- pricing -->
-        </section>
+            <h3>Tell it what matters.</h3>
+            <p>
+              Add a few keywords. Include what interests you, exclude what
+              doesn’t. Keep the rules simple.
+            </p>
+            <div class="landing-step-detail landing-step-tags">
+              <span>open source</span>
+              <span>design</span>
+              <span class="is-excluded">− sponsored</span>
+            </div>
+          </article>
+          <article>
+            <div class="landing-step-top">
+              <span class="landing-step-icon">
+                <Zap size={23} aria-hidden="true" />
+              </span>
+              <span class="landing-step-number">03</span>
+            </div>
+            <h3>Catch the useful things.</h3>
+            <p>
+              Read your matches in one calm inbox, or send them to a Slack
+              channel. Get back to your day.
+            </p>
+            <div class="landing-step-detail">
+              <span class="landing-live-dot" />
+              <span>A new signal, just for you.</span>
+              <ArrowUpRight size={14} aria-hidden="true" />
+            </div>
+          </article>
+        </div>
+      </section>
+      <section
+        class="landing-templates-section"
+        aria-labelledby="templates-heading"
+      >
+        <div class="landing-templates-inner">
+          <div class="landing-template-copy">
+            <span class="landing-kicker">DON’T START FROM A BLANK PAGE</span>
+            <h2 id="templates-heading">
+              Good monitors
+              <br />
+              are worth sharing.
+            </h2>
+            <p>
+              Start with a focused template. Make it yours. Share the setup when
+              it could help someone else.
+            </p>
+            <a class="landing-text-link" href="/explore">
+              Find your first template{" "}
+              <ArrowRight size={17} aria-hidden="true" />
+            </a>
+            <span class="landing-template-note">
+              Your sources. Your keywords. Your head start.
+            </span>
+          </div>
+          <div class="landing-template-stack">
+            <a href="/explore" class="landing-template-card">
+              <div class="landing-template-card-icon is-orange">
+                <Terminal size={22} aria-hidden="true" />
+              </div>
+              <div>
+                <span class="landing-template-category">FOR BUILDERS</span>
+                <h3>Keep up with your stack</h3>
+                <p>Framework releases &amp; developer tools</p>
+              </div>
+              <ArrowUpRight size={20} aria-hidden="true" />
+            </a>
+            <a href="/explore" class="landing-template-card">
+              <div class="landing-template-card-icon is-green">
+                <Search size={22} aria-hidden="true" />
+              </div>
+              <div>
+                <span class="landing-template-category">FOR THE CURIOUS</span>
+                <h3>Follow the next good idea</h3>
+                <p>Engineering news &amp; open source projects</p>
+              </div>
+              <ArrowUpRight size={20} aria-hidden="true" />
+            </a>
+            <a href="/explore" class="landing-template-card">
+              <div class="landing-template-card-icon is-blue">
+                <Radio size={22} aria-hidden="true" />
+              </div>
+              <div>
+                <span class="landing-template-category">
+                  FOR YOUR NEXT IDEA
+                </span>
+                <h3>Discover thoughtful design</h3>
+                <p>Interfaces, new tools &amp; creative ideas</p>
+              </div>
+              <ArrowUpRight size={20} aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+      </section>
+      <section class="landing-maker" aria-labelledby="maker-heading">
+        <div class="landing-maker-inner">
+          <div class="landing-maker-mark" aria-hidden="true">
+            <i />
+            <i />
+          </div>
+          <div>
+            <span class="landing-kicker">
+              INDEPENDENTLY BUILT. OPEN SOURCE.
+            </span>
+            <h2 id="maker-heading">
+              Small by design.
+              <br />
+              Open by default.
+            </h2>
+            <p>
+              An independent project by{" "}
+              <a href="https://github.com/dorukgezici">Doruk Gezici</a>, built
+              around a simple idea: your attention is worth protecting.
+            </p>
+          </div>
+          <div class="landing-maker-action">
+            <p>
+              Inspect the code.
+              <br />
+              Suggest an idea.
+              <br />
+              Make it your own.
+            </p>
+            <a href="https://github.com/dorukgezici/subabot">
+              <Code2 size={18} aria-hidden="true" /> Find us on GitHub{" "}
+              <ArrowUpRight size={16} aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+      </section>
+      <section
+        class="landing-faq landing-section"
+        id="faq"
+        aria-labelledby="faq-heading"
+      >
+        <div>
+          <span class="landing-kicker">A FEW THINGS TO KNOW</span>
+          <h2 id="faq-heading">
+            Small questions.
+            <br />
+            Straight answers.
+          </h2>
+          <p>
+            Something else on your mind?
+            <br />
+            <a href="https://github.com/dorukgezici/subabot/issues">
+              Start a conversation on GitHub{" "}
+              <ArrowUpRight size={13} aria-hidden="true" />
+            </a>
+          </p>
+        </div>
+        <div class="landing-faq-list">
+          {faqs.map(({ question, answer }) => (
+            <details>
+              <summary>
+                {question}
+                <span aria-hidden="true">+</span>
+              </summary>
+              <p>{answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+      <section
+        class="landing-closing landing-section"
+        aria-labelledby="closing-heading"
+      >
+        <div class="landing-closing-primary">
+          <span class="landing-eyebrow">
+            <span class="landing-live-dot" /> Less scrolling. More living.
+          </span>
+          <h2 id="closing-heading">
+            Make room for the
+            <br />
+            things that matter.
+          </h2>
+          <p>
+            Start with one feed and one keyword.
+            <br />
+            Your next good find is out there.
+          </p>
+          <a class="landing-button landing-button-primary" href="/dashboard">
+            Create your first monitor{" "}
+            <ArrowRight size={18} aria-hidden="true" />
+          </a>
+        </div>
+        <div class="landing-closing-secondary">
+          <span class="landing-closing-demo-icon">
+            <Search size={24} aria-hidden="true" />
+          </span>
+          <h3>Just looking around?</h3>
+          <p>
+            Take a sample workspace for a spin.
+            <br />
+            See how a quieter inbox feels.
+          </p>
+          <a class="landing-text-link" href="/dashboard?demo=1">
+            Explore the demo <ArrowUpRight size={17} aria-hidden="true" />
+          </a>
+          <span class="landing-closing-sample-note">
+            Sample data. Nothing to connect.
+          </span>
+        </div>
+      </section>
     </main>
+    <LandingFooter />
+  </div>
 </Layout>

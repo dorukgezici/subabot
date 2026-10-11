@@ -1,22 +1,26 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import { DashboardPage } from "@/components";
-import { getFeeds, getKeywords } from "@/lib/api";
-
-const feeds = await getFeeds();
-const keywords = await getKeywords();
-
-const form = {
-    feed: undefined,
-    keyword: undefined,
-    error: undefined,
-};
+import Dashboard from "@/components/Dashboard";
 ---
 
-<Layout title="Subabot">
-    <DashboardPage
-        client:only="svelte"
-        data={{ feeds, keywords }}
-        form={form}
-    />
+<Layout title="Your signal inbox | Subabot" noindex={true}>
+  <Dashboard client:only="react">
+    <div slot="fallback" class="app-loading" role="status">
+      <span class="brand-icon" aria-hidden="true">
+        <i></i>
+        <i></i>
+      </span>
+      <p>Opening your signal inbox...</p>
+      <a href="/">Back to Subabot</a>
+    </div>
+  </Dashboard>
+  <noscript>
+    <main id="main" style="max-width:600px;margin:100px auto;padding:24px">
+      <h1>Your signal inbox</h1>
+      <p>
+        Enable JavaScript to manage your monitors and read your private inbox.
+      </p>
+      <a href="/">Back to Subabot</a>
+    </main>
+  </noscript>
 </Layout>

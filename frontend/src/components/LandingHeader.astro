@@ -1,0 +1,37 @@
+---
+import Logo from "./Logo";
+import { ArrowUpRight, Menu } from "lucide-react";
+---
+
+<header class="landing-header">
+  <div class="landing-nav-wrap">
+    <Logo />
+    <nav class="landing-desktop-nav" aria-label="Main navigation">
+      <a href="/#how-it-works">How it works</a>
+      <a href="/explore">Templates</a>
+      <a href="https://github.com/dorukgezici/subabot">
+        GitHub <ArrowUpRight size={14} aria-hidden="true" />
+      </a>
+    </nav>
+    <div class="landing-nav-actions">
+      <a class="landing-nav-cta" href="/dashboard">
+        Open app <ArrowUpRight size={16} aria-hidden="true" />
+      </a>
+      <details class="landing-mobile-nav">
+        <summary aria-label="Navigation menu">
+          <Menu size={21} aria-hidden="true" />
+        </summary>
+        <nav aria-label="Mobile navigation">
+          <a href="/#how-it-works">How it works</a>
+          <a href="/explore">Templates</a>
+          <a href="https://github.com/dorukgezici/subabot">
+            GitHub <ArrowUpRight size={14} aria-hidden="true" />
+          </a>
+          <a href="/dashboard">
+            Open app <ArrowUpRight size={14} aria-hidden="true" />
+          </a>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>

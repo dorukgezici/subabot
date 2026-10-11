@@ -1,104 +1,42 @@
-# Default values for subabot.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
-replicaCount: 1
-
 image:
   repository: dorukgezici/subabot
-  pullPolicy: Always
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  digest: sha256:15a3bc34f63b2c0b2dda963f76c664e7516f15d67f507f1a9a402824962bef21
+  pullPolicy: IfNotPresent
 
-imagePullSecrets: []
+frontendUrl: https://subabot.gezici.me
+scanIntervalSeconds: 900
+scanCooldownSeconds: 15
 
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Automatically mount a ServiceAccount's API credentials?
-  automount: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: "service-account"
+gatewaySecret:
+  name: subabot-proxy
+  key: shared-secret
 
-podAnnotations: {}
-podLabels: {}
-
-podSecurityContext:
-  {}
-  # fsGroup: 2000
-
-securityContext:
-  {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
-
-service:
-  type: ClusterIP
-  port: 8000
-
-envFrom:
-  - secretRef:
-      name: subabot
+persistence:
+  storageClass: longhorn
+  size: 1Gi
 
 ingress:
   enabled: true
   className: traefik
-  annotations:
-    cert-manager.io/cluster-issuer: cloudflare
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-  hosts:
-    - host: subabot.pub.gezici.me
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls:
-    - secretName: subabot-tls
-      hosts:
-        - subabot.pub.gezici.me
+  host: subabot.pub.gezici.me
+  tlsSecretName: subabot-tls
+  clusterIssuer: cloudflare
+
+traefik:
+  responseHeaderTimeout: 150s
+  buffering:
+    enabled: true
+    maxRequestBodyBytes: 32768
+  rateLimit:
+    enabled: true
+    average: 60
+    burst: 120
+    period: 1s
 
 resources:
-  {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
-# Additional volumes on the output Deployment definition.
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
-
-# Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi
