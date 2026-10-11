@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+<title id="title">Subabot. The internet is loud. Find your signal.</title><desc id="description">Open-source RSS keyword monitoring, with a focused inbox and optional Slack alerts. Built by Doruk Gezici.</desc>
+<rect width="1200" height="630" fill="#f7f8fa"/>
+<path d="M0 550H1200" stroke="#e0e7db"/>
+<rect x="76" y="62" width="44" height="44" rx="12" fill="#357a57"/>
+<rect x="89" y="78" width="5" height="11" rx="2.5" fill="white"/><rect x="102" y="78" width="5" height="11" rx="2.5" fill="white"/>
+<text x="132" y="95" fill="#17211e" font-family="Arial,sans-serif" font-weight="600" font-size="33" letter-spacing="-1.2">subabot</text>
+<rect x="907" y="69" width="212" height="34" rx="17" fill="#edf2e9" stroke="#dce5d5"/><circle cx="927" cy="86" r="4" fill="#357a57"/><text x="940" y="92" fill="#64865b" font-family="Arial,sans-serif" font-size="15">A little bot. Less noise.</text>
+<text x="76" y="232" fill="#17211e" font-family="Arial,sans-serif" font-size="71" font-weight="600" letter-spacing="-3.7">The internet is loud.</text>
+<text x="76" y="317" fill="#357a57" font-family="Arial,sans-serif" font-size="80" font-weight="600" letter-spacing="-4.2">Find your signal.</text>
+<text x="79" y="384" fill="#7b8872" font-family="Arial,sans-serif" font-size="24" letter-spacing="-.5">Your RSS feeds. Your keywords. Just the useful updates.</text>
+<rect x="79" y="430" width="224" height="46" rx="7" fill="#357a57"/><text x="102" y="459" fill="white" font-family="Arial,sans-serif" font-size="17">Create your first monitor</text>
+<g transform="translate(894 241) rotate(8)"><rect width="164" height="164" rx="42" fill="#e7efdf"/><rect x="18" y="18" width="128" height="128" rx="33" fill="#357a57"/><rect x="53" y="65" width="14" height="28" rx="7" fill="#fff"/><rect x="94" y="65" width="14" height="28" rx="7" fill="#fff"/></g>
+<text x="79" y="595" fill="#7b8872" font-family="Arial,sans-serif" font-size="17">Open-source RSS monitoring + Slack alerts</text><text x="912" y="595" fill="#7b8872" font-family="Arial,sans-serif" font-size="17">Built by Doruk Gezici</text>
+</svg>

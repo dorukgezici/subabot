@@ -1,51 +1,35 @@
-name: "Backend: Lint & Test"
+name: Backend checks
 
 on:
   workflow_dispatch:
   pull_request:
   push:
-    branches:
-      - main
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-checks-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  lint_and_test:
-    name: Lint & Test
+  check:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v10
         with:
           enable-cache: true
-
-      - name: Install the project
-        run: uv sync --frozen --directory backend
-
-      - name: Lint the project
-        run: |
-          source backend/.venv/bin/activate
-          uv run --directory backend task lint
-
-      - name: Tailscale
-        uses: tailscale/github-action@v2
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:ci
-
-      - name: Run tests
+          python-version: "3.14"
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest
         env:
-          PREFECT_API_URL: ${{ secrets.PREFECT_API_URL }}
-          SUBABOT_BACKEND_URL: ${{ secrets.SUBABOT_BACKEND_URL }}
-          SUBABOT_FRONTEND_URL: ${{ secrets.SUBABOT_FRONTEND_URL }}
-          SLACK_CLIENT_ID: ${{ secrets.SLACK_CLIENT_ID }}
-          SLACK_CLIENT_SECRET: ${{ secrets.SLACK_CLIENT_SECRET }}
-          SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}
-          SLACK_APP_ID: ${{ secrets.SLACK_APP_ID }}
-          SLACK_TEAM_ID: ${{ secrets.SLACK_TEAM_ID }}
-          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
-        run: |
-          source backend/.venv/bin/activate
-          uv run --directory backend task test
+          SUBABOT_SCHEDULER_ENABLED: "false"

@@ -1,0 +1,28 @@
+---
+import Logo from "./Logo";
+import { ArrowUpRight } from "lucide-react";
+---
+
+<footer class="landing-footer">
+  <div class="landing-footer-top">
+    <div>
+      <Logo />
+      <p>A little bot for the things that matter.</p>
+    </div>
+    <nav aria-label="Footer navigation">
+      <a href="/explore">Templates</a>
+      <a href="https://github.com/dorukgezici/subabot">
+        Source code <ArrowUpRight size={13} aria-hidden="true" />
+      </a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+  </div>
+  <div class="landing-footer-bottom">
+    <span>Less noise. More signal.</span>
+    <a href="https://github.com/dorukgezici">
+      Built by <span>Doruk Gezici</span>{" "}
+      <ArrowUpRight size={13} aria-hidden="true" />
+    </a>
+  </div>
+</footer>

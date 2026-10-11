@@ -1,0 +1,57 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-http://localhost:4321}
+    restart: unless-stopped
+    ports:
+      - "${SUBABOT_BIND_ADDRESS:-127.0.0.1}:${SUBABOT_PORT:-4321}:4321"
+    environment:
+      HOST: 0.0.0.0
+      PORT: "4321"
+      BACKEND_URL: http://backend:8000
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-http://localhost:4321}
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4321/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      SUBABOT_DATABASE_URL: sqlite:////data/subabot.db
+      SUBABOT_FRONTEND_URL: ${PUBLIC_SITE_URL:-http://localhost:4321}
+      SUBABOT_SCHEDULER_ENABLED: "true"
+      SUBABOT_TRUST_PROXY_CLIENT_IP: "true"
+      SUBABOT_SCAN_INTERVAL_SECONDS: ${SUBABOT_SCAN_INTERVAL_SECONDS:-900}
+      SUBABOT_SCAN_COOLDOWN_SECONDS: ${SUBABOT_SCAN_COOLDOWN_SECONDS:-15}
+    volumes:
+      - subabot-data:/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "/app/.venv/bin/python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=5)",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  subabot-data:

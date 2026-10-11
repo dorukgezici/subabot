@@ -1,36 +1,51 @@
 ---
+import "@fontsource-variable/dm-sans";
+import "@fontsource-variable/manrope";
 import "@/styles/globals.css";
-import { Footer } from "@/components";
-import { config } from "@fortawesome/fontawesome-svg-core";
-import "@fortawesome/fontawesome-svg-core/styles.css";
-
-config.autoAddCss = false;
-
 interface Props {
-    title: string;
+  title: string;
+  description?: string;
+  image?: string;
+  noindex?: boolean;
 }
-
-const { title } = Astro.props;
+const {
+  title,
+  description = "Follow the topics that matter. Subabot turns RSS feeds into a focused signal inbox and delivers keyword matches to Slack.",
+  image = "/og-image.png",
+  noindex = false,
+} = Astro.props;
+const site =
+  import.meta.env.PUBLIC_SITE_URL ||
+  process.env.PUBLIC_SITE_URL ||
+  Astro.site?.origin ||
+  Astro.url.origin;
+const canonical = new URL(Astro.url.pathname, site).href;
 ---
 
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width" />
-        <meta name="generator" content={Astro.generator} />
-        <title>{title}</title>
-        <meta
-            name="description"
-            content="An AI-powered Slack alert bot to subscribe, classify and notify for keywords on RSS feeds."
-        />
-        <meta
-            name="slack-app-id"
-            content={import.meta.env.PUBLIC_SLACK_APP_ID}
-        />
-    </head>
-    <body>
-        <slot />
-        <Footer />
-    </body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#357a57" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Subabot" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL(image, site).href} />
+    <meta name="twitter:card" content="summary_large_image" />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">
+      Skip to content
+    </a>
+    <slot />
+  </body>
 </html>

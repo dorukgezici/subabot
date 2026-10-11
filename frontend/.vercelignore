@@ -1,0 +1,10 @@
+node_modules
+.astro
+dist
+.env
+.env.*
+!.env.template
+playwright-report
+test-results
+tests
+Dockerfile

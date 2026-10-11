@@ -1,0 +1,299 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { backendHeaders } from "@/lib/backend.server";
+import Logo from "../components/Logo";
+import {
+  ArrowUpRight,
+  ArrowRight,
+  Rss,
+  Search,
+  Sparkles,
+  Code2 as Github,
+} from "lucide-react";
+import "../styles/explore.css";
+
+interface Template {
+  id: string;
+  name: string;
+  description: string;
+  keywords: string[];
+  feed_urls: string[];
+  color: string;
+  category: string;
+}
+
+let templates: Template[] = [];
+let unavailable = false;
+try {
+  const response = await fetch(
+    `${process.env.BACKEND_URL || "http://127.0.0.1:8000"}/api/templates`,
+    {
+      headers: backendHeaders(),
+      signal: AbortSignal.timeout(8000),
+    },
+  );
+  if (!response.ok) throw new Error("Templates unavailable");
+  templates = await response.json();
+} catch {
+  unavailable = true;
+  Astro.response.status = 503;
+  Astro.response.headers.set("Retry-After", "30");
+}
+const categories = [...new Set(templates.map((template) => template.category))];
+const safeColor = (color: string) =>
+  /^#[\da-f]{6}$/i.test(color) ? color : "#357a57";
+---
+
+<Layout
+  title="Explore watchlists | Subabot"
+  description="Skip the setup. Start with a curated Subabot watchlist for AI, startups, open source, and the ideas you care about."
+  noindex={unavailable}
+>
+  <div class="explore-shell">
+    <header class="explore-nav">
+      <Logo />
+      <nav aria-label="Main navigation">
+        <a href="/explore" aria-current="page">
+          Explore
+        </a>
+        <a class="explore-nav-cta" href="/dashboard">
+          Open workspace <ArrowUpRight size={15} />
+        </a>
+      </nav>
+    </header>
+    <main id="main">
+      <section class="explore-intro">
+        <div class="explore-eyebrow">
+          <span></span> LESS SETUP. MORE DISCOVERY.
+        </div>
+        <h1>
+          Find your next
+          <br />
+          <span>rabbit hole.</span>
+        </h1>
+        <p>
+          Good signals start with good sources. Pick a watchlist,
+          <br class="explore-desktop-break" /> make it yours, and let the
+          interesting things find you.
+        </p>
+        <div class="explore-intro-note">
+          <Sparkles size={15} /> Free to start. Every watchlist is yours to
+          edit.
+        </div>
+        <div class="explore-art" aria-hidden="true">
+          <div class="explore-orbit explore-orbit-outer"></div>
+          <div class="explore-orbit explore-orbit-inner"></div>
+          <div class="explore-orbit-core">
+            <Rss size={38} strokeWidth={1.5} />
+          </div>
+          <span class="explore-art-tag explore-art-tag-one">
+            <i></i> the next big thing
+          </span>
+          <span class="explore-art-tag explore-art-tag-two">
+            <i></i> your unfair advantage
+          </span>
+          <span class="explore-art-tag explore-art-tag-three">
+            <i></i> a little curiosity
+          </span>
+          <span class="explore-art-dot explore-art-dot-one"></span>
+          <span class="explore-art-dot explore-art-dot-two"></span>
+        </div>
+      </section>
+
+      <section class="explore-collection" aria-labelledby="collection-title">
+        <div class="explore-collection-heading">
+          <div>
+            <span class="explore-small-label">THE STARTER PACKS</span>
+            <h2 id="collection-title">A head start for your curiosity.</h2>
+          </div>
+          <label class="explore-search">
+            <Search size={17} />
+            <span class="sr-only">Search watchlists</span>
+            <input
+              type="search"
+              id="template-search"
+              placeholder="Find your thing..."
+              autocomplete="off"
+            />
+          </label>
+        </div>
+        {categories.length > 0 && (
+          <div class="explore-filters" aria-label="Filter by category">
+            <button
+              type="button"
+              class="is-active"
+              data-category="all"
+              aria-pressed="true"
+            >
+              All watchlists <span>{templates.length}</span>
+            </button>
+            {categories.map((category) => (
+              <button
+                type="button"
+                data-category={category}
+                aria-pressed="false"
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        )}
+        {unavailable ? (
+          <div class="explore-service-state" role="status">
+            <Rss size={28} />
+            <h3>The watchlists are taking a moment.</h3>
+            <p>
+              We couldn't reach the server. Your curiosity can wait a few
+              seconds.
+            </p>
+            <a href="/explore">
+              Try again <ArrowRight size={16} />
+            </a>
+          </div>
+        ) : (
+          <>
+            <div class="explore-grid" id="template-grid">
+              {templates.map((template, index) => (
+                <article
+                  class:list={[
+                    "explore-card",
+                    { "explore-card-featured": index === 0 },
+                  ]}
+                  data-template-card
+                  data-category={template.category}
+                  data-search={`${template.name} ${template.description} ${template.keywords.join(" ")}`.toLowerCase()}
+                  style={`--card-accent: ${safeColor(template.color)}`}
+                >
+                  <div class="explore-card-top">
+                    <div class="explore-card-icon">
+                      <Rss size={22} strokeWidth={1.7} />
+                    </div>
+                    <span>{template.category}</span>
+                    {index === 0 && (
+                      <span class="explore-editors-pick">
+                        <Sparkles size={12} /> START HERE
+                      </span>
+                    )}
+                  </div>
+                  <h3>{template.name}</h3>
+                  <p>{template.description}</p>
+                  <div class="explore-card-keywords" aria-label="Keywords">
+                    {template.keywords.slice(0, 4).map((keyword) => (
+                      <span>{keyword}</span>
+                    ))}
+                    {template.keywords.length > 4 && (
+                      <span>+{template.keywords.length - 4}</span>
+                    )}
+                  </div>
+                  <div class="explore-card-bottom">
+                    <span>
+                      <Rss size={13} /> {template.feed_urls.length} curated{" "}
+                      {template.feed_urls.length === 1 ? "source" : "sources"}
+                    </span>
+                    <a
+                      href={`/dashboard?template=${encodeURIComponent(template.id)}`}
+                      aria-label={`Use ${template.name} watchlist`}
+                    >
+                      Use watchlist <ArrowUpRight size={17} />
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <div class="explore-empty" id="template-empty" hidden>
+              <Search size={26} />
+              <h3>No watchlists found.</h3>
+              <p>Try another topic, or start with your own sources.</p>
+              <a href="/dashboard">
+                Create a watchlist <ArrowRight size={16} />
+              </a>
+            </div>
+            <p
+              class="explore-result-count sr-only"
+              id="template-count"
+              aria-live="polite"
+            >
+              {templates.length} watchlists
+            </p>
+          </>
+        )}
+      </section>
+
+      <section class="explore-custom">
+        <div class="explore-custom-symbol" aria-hidden="true">
+          ✳
+        </div>
+        <div>
+          <h2>Into something a little more niche?</h2>
+          <p>Your corner of the internet deserves a watchlist, too.</p>
+        </div>
+        <a href="/dashboard">
+          Build your own <ArrowUpRight size={17} />
+        </a>
+      </section>
+      <p class="explore-fine-print">
+        Subabot follows public RSS and Atom feeds. Coverage depends on each
+        source's feed and publishing schedule.
+      </p>
+    </main>
+    <footer class="explore-footer">
+      <span>A little less noise. A lot more signal.</span>
+      <div>
+        <a
+          href="https://github.com/dorukgezici/subabot"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Github size={15} /> Open source
+        </a>
+        <span>
+          Made by{" "}
+          <a
+            href="https://github.com/dorukgezici"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Doruk Gezici <ArrowUpRight size={12} />
+          </a>
+        </span>
+      </div>
+    </footer>
+  </div>
+</Layout>
+
+<script>
+  const input = document.querySelector<HTMLInputElement>("#template-search");
+  const filters = document.querySelectorAll<HTMLButtonElement>(
+    ".explore-filters button",
+  );
+  const cards = document.querySelectorAll<HTMLElement>("[data-template-card]");
+  const empty = document.querySelector<HTMLElement>("#template-empty");
+  const count = document.querySelector<HTMLElement>("#template-count");
+  let category = "all";
+  function filterTemplates() {
+    const query = input?.value.toLowerCase().trim() || "";
+    let visible = 0;
+    cards.forEach((card) => {
+      const matches =
+        (category === "all" || card.dataset.category === category) &&
+        (card.dataset.search || "").includes(query);
+      card.hidden = !matches;
+      if (matches) visible++;
+    });
+    if (empty) empty.hidden = visible > 0;
+    if (count)
+      count.textContent = `${visible} ${visible === 1 ? "watchlist" : "watchlists"} found`;
+  }
+  input?.addEventListener("input", filterTemplates);
+  filters.forEach((button) =>
+    button.addEventListener("click", () => {
+      category = button.dataset.category || "all";
+      filters.forEach((filter) => {
+        const active = filter === button;
+        filter.classList.toggle("is-active", active);
+        filter.setAttribute("aria-pressed", String(active));
+      });
+      filterTemplates();
+    }),
+  );
+</script>
