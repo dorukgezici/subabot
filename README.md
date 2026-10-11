@@ -33,7 +33,7 @@ docker compose down
 
 `docker compose down` keeps the database volume. Adding `--volumes` deletes it.
 
-For a public deployment, put an HTTPS reverse proxy in front of port 4321 and set the canonical site URL:
+For a separate self-hosted Compose deployment, put an HTTPS reverse proxy in front of port 4321 and set the canonical site URL before building:
 
 ```sh
 PUBLIC_SITE_URL=https://subabot.example.com docker compose up --build -d
@@ -43,7 +43,7 @@ The published port binds to `127.0.0.1` by default. Set `SUBABOT_BIND_ADDRESS=0.
 
 ## Local development
 
-Requirements: Node.js 22.12 or newer, Python 3.14, and [uv](https://docs.astral.sh/uv/).
+Requirements: Node.js 24, Python 3.14, and [uv](https://docs.astral.sh/uv/).
 
 Backend:
 
@@ -67,15 +67,21 @@ The frontend runs on port 4321 and connects to `http://127.0.0.1:8000` by defaul
 
 | Layer                 | Implementation                                                              |
 | --------------------- | --------------------------------------------------------------------------- |
-| Pages and SEO         | Astro with the Node standalone adapter                                      |
+| Pages and SEO         | Astro with Vercel Functions in production; Node standalone locally           |
 | Interactive workspace | React and TypeScript                                                        |
 | API                   | FastAPI and Pydantic                                                        |
 | Data                  | SQLModel with SQLite                                                        |
 | Feed ingestion        | Bounded HTTP fetching, RSS/Atom parsing, keyword rules, deduplication       |
 | Notifications         | Optional Slack incoming webhooks                                            |
-| Operations            | Docker Compose, a persistent database volume, health checks, GitHub Actions |
+| Operations            | Vercel frontend; k3s, Argo CD and Longhorn backend; Compose for local use      |
 
-The frontend is a server application because public watchlists, public social images, and the API proxy are dynamic. Deploy it as a Node service, not as a static file export. No Supabase, Prefect, Tailscale, Slack OAuth app, or paid AI provider is required.
+The frontend is a server application because public watchlists, public social images, and the API proxy are dynamic. The Vercel adapter is selected by `VERCEL=1`; other builds retain the standalone Node adapter. The backend needs persistent storage and one always-running scheduler process. No Supabase, Prefect, Slack OAuth app, or paid AI provider is required. The existing cluster uses Tailscale for operator access, while application users connect through HTTPS.
+
+## Public hosting
+
+The prepared deployment targets are `https://subabot.gezici.me` for the Vercel frontend and `https://subabot.pub.gezici.me` for the persistent backend. The backend's Helm chart preserves its existing ingress and pins an immutable image digest. A server-only shared gateway key protects API access between the two hosts.
+
+Read the [deployment runbook](docs/deployment.md) for the current rollout checkpoint, required secret configuration, backup boundary, staged release, smoke checks, and rollback procedure. Preparation is not a declaration that the rebuilt production service is live.
 
 ## Workspace privacy
 
@@ -102,7 +108,7 @@ uv run ruff format --check .
 uv run pytest
 ```
 
-GitHub Actions runs frontend checks, backend linting and tests, and Docker builds on pull requests and changes to `main`. It does not publish images or deploy automatically.
+GitHub Actions runs frontend checks, backend linting and tests, and Docker builds on pull requests and changes to `main`. The container workflow can publish commit-tagged backend images through its explicit `publish_backend` dispatch input. Vercel Git integration and the existing Argo CD application provide deployment automation separately, so merging the tracked branch can trigger a release. Follow the deployment runbook before merging infrastructure changes.
 
 ## Build in public
 

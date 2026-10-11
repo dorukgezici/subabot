@@ -1,11 +1,11 @@
 # Rebuild verification
 
-Verified locally on 11 October 2026.
+Rebuild checks were performed locally on 11 October 2026. Hosted rollout preparation is recorded separately below; this document does not mark the production cutover complete.
 
 | Check | Result |
 | --- | --- |
-| Backend suite | 66 passed, including authorization, workspace isolation, persistence, RSS parsing, deduplication, source failure recovery, SSRF controls, Slack retries, scheduler lifecycle and scan concurrency |
-| Python lint and formatting | Ruff check passes; 19 Python files pass format check |
+| Backend suite | Initial rebuild: 66 passed. Gateway extension: 73 passed, including proxy authentication in addition to authorization, workspace isolation, persistence, RSS parsing, deduplication, source failure recovery, SSRF controls, Slack retries, scheduler lifecycle and scan concurrency |
+| Python lint and formatting | Ruff check and format checks pass |
 | Frontend | Astro type checking and production build pass |
 | Production browser suite | 5 passed against freshly started built Node server and isolated FastAPI database |
 | Browser flows | Monitor create/edit/pause/delete and reload persistence; sample inbox search/save/read; publish/clone/revoke with owner isolation; recovery export/restore; mobile template discovery |
@@ -20,11 +20,22 @@ Verified locally on 11 October 2026.
 
 ## Useful distinctions
 
-Slack delivery is covered with mocked network responses. No real Slack messages were sent, and no production webhook has been configured. Public deployment and social posting were not performed. The local production preview is isolated from other projects.
+Slack delivery is covered with mocked network responses. No real Slack messages were sent, and no production webhook has been configured. A hosted frontend preview was deployed for runtime verification; the rebuilt production cutover is still pending at this checkpoint. Social posting was not performed. The local production preview is isolated from other projects.
 
 A single production image request initially returned a temporary 503. The exact full live RSS flow passed on repeat, including image rendering. Safe fetch/render-stage diagnostics are included for future failures without logging watchlist contents, tokens or credentials.
 
 The browser suite runs against the built server instead of a second Vite process. This avoids development dependency-cache interference and exercises the production code path. Each test creates its own disposable workspace and removes it afterward.
+
+## Hosted preparation checkpoint
+
+- Both standalone Node and Vercel builds pass Astro checks with zero diagnostics.
+- The first cloud preview exposed an adapter 11.0.13 startup failure caused by a missing Rolldown native binding. The exact 11.0.12 pin removes that runtime import. A copied, isolated function bundle passes dashboard GET/HEAD, all backend fetch paths, gateway header protection, canonical metadata, and bundled-font PNG rendering.
+- The backend image was published for Linux AMD64 and ARM64 with the immutable digest recorded in `backend/helm/values.yaml`.
+- The restored Helm chart passes strict lint, normal rendering, rendering with optional ingress/middleware disabled, and a complete live server dry-run against the installed schemas. These checks do not establish runtime health or persistent-volume readiness, and dry-run did not apply the chart.
+- Cluster operator connectivity has been restored with approval. The temporary cluster-local legacy backup Job/RBAC is a separate pending approval gate. No production release is claimed before that backup and the staged rollout are verified.
+- The reusable deployment smoke script passes against the isolated Docker preview using Hacker News' first-party RSS feed: 20 real stories, saved state and search, workspace isolation, public HTML and 1200 by 630 PNG, cloning, revocation, and deletion of both disposable workspaces with invalidated keys. Public production verification remains pending.
+
+Use [deployment.md](deployment.md) for release order and the public smoke command. Record the final deployed commit, image digest, smoke results, and rollout health after completion.
 
 ## Local preview
 

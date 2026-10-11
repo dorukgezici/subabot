@@ -1,0 +1,40 @@
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: subabot
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "subabot.labels" . | nindent 4 }}
+spec:
+  forwardingTimeouts:
+    responseHeaderTimeout: {{ .Values.traefik.responseHeaderTimeout | quote }}
+{{- if .Values.traefik.buffering.enabled }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: subabot-buffering
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "subabot.labels" . | nindent 4 }}
+spec:
+  buffering:
+    maxRequestBodyBytes: {{ .Values.traefik.buffering.maxRequestBodyBytes }}
+    memRequestBodyBytes: {{ .Values.traefik.buffering.maxRequestBodyBytes }}
+{{- end }}
+{{- if .Values.traefik.rateLimit.enabled }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: subabot-ratelimit
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "subabot.labels" . | nindent 4 }}
+spec:
+  rateLimit:
+    average: {{ .Values.traefik.rateLimit.average }}
+    burst: {{ .Values.traefik.rateLimit.burst }}
+    period: {{ .Values.traefik.rateLimit.period | quote }}
+    # No sourceCriterion: Traefik uses RemoteAddr, never a user-supplied header.
+{{- end }}

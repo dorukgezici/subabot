@@ -1,0 +1,42 @@
+image:
+  repository: dorukgezici/subabot
+  digest: sha256:15a3bc34f63b2c0b2dda963f76c664e7516f15d67f507f1a9a402824962bef21
+  pullPolicy: IfNotPresent
+
+frontendUrl: https://subabot.gezici.me
+scanIntervalSeconds: 900
+scanCooldownSeconds: 15
+
+gatewaySecret:
+  name: subabot-proxy
+  key: shared-secret
+
+persistence:
+  storageClass: longhorn
+  size: 1Gi
+
+ingress:
+  enabled: true
+  className: traefik
+  host: subabot.pub.gezici.me
+  tlsSecretName: subabot-tls
+  clusterIssuer: cloudflare
+
+traefik:
+  responseHeaderTimeout: 150s
+  buffering:
+    enabled: true
+    maxRequestBodyBytes: 32768
+  rateLimit:
+    enabled: true
+    average: 60
+    burst: 120
+    period: 1s
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi

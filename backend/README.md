@@ -90,4 +90,4 @@ docker build -t subabot-api .
 docker run --rm -p 8000:8000 -v subabot-data:/data subabot-api
 ```
 
-The container runs as a non-root user and keeps data under `/data`. For the complete frontend plus backend deployment, use the repository's Compose file. See [MIGRATION.md](MIGRATION.md) for the dependency and architecture upgrade decisions.
+The container runs as a non-root user and keeps data under `/data`. Use Compose for the complete local stack. The existing hosted setup uses the [Helm chart](helm/README.md), with one k3s replica, an immutable image digest, a retained Longhorn PVC, and a secret-authenticated Vercel gateway. Follow the [deployment runbook](../docs/deployment.md) for the staged Argo CD rollout and rollback. See [MIGRATION.md](MIGRATION.md) for dependency and architecture upgrade decisions.

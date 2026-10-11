@@ -1,0 +1,40 @@
+{{- if .Values.ingress.enabled }}
+{{- $middlewares := list }}
+{{- if .Values.traefik.rateLimit.enabled }}
+{{- $middlewares = append $middlewares (printf "%s-subabot-ratelimit@kubernetescrd" .Release.Namespace) }}
+{{- end }}
+{{- if .Values.traefik.buffering.enabled }}
+{{- $middlewares = append $middlewares (printf "%s-subabot-buffering@kubernetescrd" .Release.Namespace) }}
+{{- end }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: subabot
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "subabot.labels" . | nindent 4 }}
+  annotations:
+    cert-manager.io/cluster-issuer: {{ .Values.ingress.clusterIssuer | quote }}
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    {{- if $middlewares }}
+    traefik.ingress.kubernetes.io/router.middlewares: {{ join "," $middlewares | quote }}
+    {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.className | quote }}
+  tls:
+    - secretName: {{ .Values.ingress.tlsSecretName | quote }}
+      hosts:
+        - {{ .Values.ingress.host | quote }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: subabot
+                port:
+                  number: 8000
+{{- end }}

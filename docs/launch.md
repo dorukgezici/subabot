@@ -57,9 +57,12 @@ These events are a measurement plan, not an assertion that instrumentation alrea
 
 ## Production launch checklist
 
-- [ ] Configure the production domain, HTTPS, and `PUBLIC_SITE_URL` consistently on frontend and backend.
-- [ ] Put the frontend behind a reverse proxy. Keep the backend port private and use one scheduler process. Only enable `SUBABOT_TRUST_PROXY_CLIENT_IP` behind the trusted frontend proxy, as Compose does.
-- [ ] Persist the SQLite database on a durable volume and test a restore from backup.
+Use the [deployment runbook](deployment.md) for the existing Vercel plus k3s/Argo CD release. These boxes describe release acceptance, not completed production work.
+
+- [ ] Build Vercel with the canonical HTTPS `PUBLIC_SITE_URL` and verify both public hostnames.
+- [ ] Configure matching server-only gateway keys in Vercel and Kubernetes before enabling public backend proxy trust. Keep one backend replica and one scheduler worker.
+- [ ] Preserve and integrity-check the legacy SQLite backup inside the cluster before replacing the old Pod. Start the new schema on the retained Longhorn PVC and validate its permissions.
+- [ ] Record the previous image digest and manifests, and confirm the rollback procedure without mixing legacy and new schemas.
 - [ ] Confirm the hosting environment can resolve and fetch the chosen public feeds.
 - [ ] Set request rate limits at the public ingress, including workspace creation and public image generation. Application limits do not replace a shared ingress limit at scale.
 - [ ] Check application logs for errors without logging recovery tokens, authorization headers, or webhook URLs.
@@ -78,7 +81,9 @@ These events are a measurement plan, not an assertion that instrumentation alrea
 
 ## Backups and recovery
 
-The default Compose deployment keeps the SQLite database in the `subabot-data` named volume. Prefer a SQLite-aware backup or stop the backend briefly before copying the database files. Store backups outside the host and confirm restoration on a separate instance. Back up any SQLite journal files consistently with the database, rather than copying a live database file in isolation.
+The hosted deployment keeps the new database on the retained `subabot-data` Longhorn PVC. The current rollout keeps the legacy backup inside the cluster. A copy on the same volume protects against replacement mistakes but does not protect against volume loss. Operators should configure an appropriate separate disaster-recovery destination with restricted access and a tested restore procedure. Database contents do not belong in logs or source control.
+
+Use SQLite's backup API, which takes a consistent snapshot including committed WAL state, and validate the result with `integrity_check`. Validate restoration separately from the active application database. The local Compose alternative uses a Docker volume with the same name. Neither database is interchangeable with the old project's schema.
 
 Workspace recovery is capability based. There is no server-side password reset or email recovery. Operators should make the recovery-key UX clear and avoid suggesting that a lost token can be recovered automatically.
 
@@ -95,6 +100,6 @@ The rewrite removes the old Prefect deployment and Tailscale CI dependency. Work
 - [GitHub checkout releases](https://github.com/actions/checkout/releases): use v7, which includes safer pull-request checkout behavior and current dependency fixes.
 - [GitHub setup-node releases](https://github.com/actions/setup-node/releases): use v7 with Node.js 24 for the frontend.
 - [Astral setup-uv releases](https://github.com/astral-sh/setup-uv/releases): pin v10.3.0 to its immutable commit with Python 3.14 for backend checks. The v10 major-version alias is not published.
-- [resvg rendering API](https://github.com/thx/resvg-js/blob/main/index.d.ts): public social previews render PNG images on the server with system fonts available in the Docker image.
+- [resvg rendering API](https://github.com/thx/resvg-js/blob/main/index.d.ts): public social previews render PNG images using the bundled OFL-licensed DM Sans font in both Docker and Vercel.
 
 Application dependency upgrade details and API behavior are documented in the backend and frontend source and their lockfiles.
