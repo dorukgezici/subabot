@@ -12,7 +12,11 @@ from subabot.config import Settings
 
 def test_lifespan_scheduler_collects_signals(tmp_path, monitor_data, feed, monkeypatch):
     monkeypatch.setattr("subabot.crawler.fetch_feed", AsyncMock(return_value=feed))
-    settings = Settings(database_url=f"sqlite:///{tmp_path / 'scheduled.db'}", scan_cooldown_seconds=0)
+    settings = Settings(
+        database_url=f"sqlite:///{tmp_path / 'scheduled.db'}",
+        scan_cooldown_seconds=0,
+        scheduler_enabled=True,
+    )
     # Shorten only the test clock; production validation requires at least 60 seconds.
     settings.scan_interval_seconds = 0.02
     with TestClient(create_app(settings)) as client:
