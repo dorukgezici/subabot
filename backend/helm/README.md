@@ -8,7 +8,7 @@ not create an Argo application or change shared Traefik configuration.
 The initial staged rollout temporarily targets an exact reviewed release-branch
 commit, verifies the backend and Vercel preview, then restores `HEAD` after the
 reviewed merge. See the [deployment runbook](../../docs/deployment.md) for current
-status and the required backup approval gate.
+status and backup/rollback records.
 
 The Deployment, Service and Ingress retain the name `subabot` and the existing
 `app.kubernetes.io/name=subabot`, `app.kubernetes.io/instance=subabot` selectors.
@@ -37,8 +37,9 @@ The new 1 GiB `subabot-data` PVC stores `/data/subabot.db`. The backend creates 
 fresh database; this chart does not import or alter the old application's data.
 Back up the existing application database before replacing its Pod.
 The initial legacy snapshot remains inside the cluster at
-`/data/legacy/database-before-rebuild.sqlite`; it must pass SQLite integrity
-verification before rollout. It is not an input migration for the new schema.
+`/data/legacy/database-before-rebuild.sqlite`. The 45,056-byte backup passed
+integrity and restore verification before the initial rollout. It is not an
+input migration for the new schema.
 The PVC has Argo `Prune=false,Delete=false` and Helm `keep` annotations. Those
 protect it from ordinary application cleanup, not manual PVC deletion or disk
 failure. Configure database-consistent backups and monitor disk use separately.
@@ -49,7 +50,9 @@ Git revision. Legacy restoration requires its separate schema and storage path.
 
 The Pod runs as UID/GID/fsGroup 10001 with a read-only root filesystem, all
 capabilities dropped, no privilege escalation, no service-account token, and a
-64 MiB writable `/tmp`. SQLite writes only under `/data`.
+64 MiB writable `/tmp`. It explicitly uses ServiceAccount `default` with token
+automount disabled, preventing inheritance of the removed legacy account.
+SQLite writes only under `/data`.
 Startup, readiness and liveness probes use unauthenticated `/api/health`.
 The health endpoint confirms the API is running, not that any RSS source or
 Slack webhook is reachable.
@@ -83,9 +86,12 @@ Rendering and linting validate chart structure without connecting to the cluster
 They do not confirm StorageClass provisioning, installed CRD schema compatibility,
 filesystem permissions, image startup, certificate readiness, or external feeds.
 Validate those during the controlled rollout before routing public frontend use.
-At the 11 October 2026 preparation checkpoint, the complete chart also passed a
-live server dry-run against the installed schemas. That check did not apply the
-resources or replace runtime verification.
+On 11 October 2026, the complete chart passed a live server dry-run, then the
+staged deployment at `1d0c16841ef8870c5c791678023b6e77cd8393bf` reached Argo
+`Synced` and `Healthy`. The backend Pod was 1/1 Ready with zero restarts, and the
+hosted frontend preview passed real-feed and sharing smoke checks. The production
+frontend subsequently launched and passed the same smoke at
+`https://subabot.gezici.me`; exact release identifiers are in the deployment runbook.
 
 References: [Traefik Service annotations](https://doc.traefik.io/traefik/v2.11/routing/providers/kubernetes-ingress/#on-service),
 [ServersTransport](https://doc.traefik.io/traefik/v2.11/routing/services/#serverstransport_1),

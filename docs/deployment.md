@@ -1,16 +1,26 @@
 # Public deployment
 
-## Current rollout checkpoint
+## Verified initial production release
 
-As of the 11 October 2026 preparation checkpoint, the rebuilt production release
-has not been cut over. Work is on `codex/public-launch`. Frontend previews and the
-immutable backend image are prepared. Operator access through Tailscale has been
-restored with approval. A separate approval for the temporary cluster-local legacy
-backup Job and its restricted RBAC is pending. Complete that backup before
-replacing the old Pod; preparation may be committed without claiming release.
-The complete Helm chart has passed a live server dry-run, including the installed
-resource schemas. This validation did not apply the chart or establish runtime
-readiness.
+On 11 October 2026, Subabot launched at [subabot.gezici.me](https://subabot.gezici.me).
+Vercel production deployment `dpl_45ktWJ4nTn6d9hTcardZ3FjsJ2DB` is ready from
+source commit `1d0c16841ef8870c5c791678023b6e77cd8393bf`, with aliases
+`subabot.gezici.me` and `subabot.vercel.app` assigned.
+
+The backend reached Argo `Synced` and `Healthy` at staged
+commit `1d0c16841ef8870c5c791678023b6e77cd8393bf`. Its Pod is 1/1 Ready with
+zero restarts. Public `/api/health` returns 200 with version 1.0.0 and scheduling
+enabled; API requests without the gateway key return 401.
+
+The [refreshed Vercel preview](https://subabot-fj4wuceac-dgtech.vercel.app),
+deployment `dpl_2Tpw9qPhnpTavWFhvBa6Dwi9TKoG`, uses the same source commit and
+passed the full public smoke before release. The same smoke then passed on the
+canonical production domain: one RSS source, 19 real stories, saved state/search,
+workspace isolation, public HTML/PNG, cloning, revocation, and complete cleanup.
+The production homepage was verified in the browser. Preview desktop search and
+the 390px mobile drawer/template flow were also checked. The latest 69 backend
+log lines contained no `ERROR`, `Traceback`, or `CRITICAL`; preview Vercel logs
+returned no error/fatal records. These are bounded checks, not a monitoring guarantee.
 
 ## Hosting architecture
 
@@ -91,14 +101,12 @@ The running legacy Pod's resolved image was
 Keep that immutable reference for restoration on the existing cluster rather
 than relying on the mutable `latest` tag.
 
-The prepared backup design keeps legacy database bytes inside the cluster. Its
-temporary Job uses tightly scoped access to exec only into the exact old Subabot
-Pod, takes a SQLite-aware snapshot, and writes
-`/data/legacy/database-before-rebuild.sqlite` on the retained PVC. Require a
-successful source command and `PRAGMA integrity_check` before accepting the
-backup. Use restrictive file permissions and log only status, size, and path.
-Remove the temporary Job, ConfigMap, Role, RoleBinding, and ServiceAccount after completion.
-Do not run this step before its specific approval is granted.
+The approved cluster-local legacy backup completed before backend replacement.
+The 45,056-byte SQLite snapshot is preserved at
+`/data/legacy/database-before-rebuild.sqlite` on the retained PVC. Integrity and
+restoration were verified inside the cluster. The temporary Job, ConfigMap, Role,
+RoleBinding, and ServiceAccount have all been deleted. No database bytes were
+exported to the Mac or emitted in logs.
 
 Do not export the legacy database to the Mac, logs, Git, or another storage
 destination under the current rollout boundary. A backup on the same PVC is a

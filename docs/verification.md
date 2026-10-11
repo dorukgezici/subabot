@@ -1,6 +1,6 @@
 # Rebuild verification
 
-Rebuild checks were performed locally on 11 October 2026. Hosted rollout preparation is recorded separately below; this document does not mark the production cutover complete.
+Local rebuild checks and the public production launch were verified on 11 October 2026. The canonical live application is [subabot.gezici.me](https://subabot.gezici.me).
 
 | Check | Result |
 | --- | --- |
@@ -20,22 +20,27 @@ Rebuild checks were performed locally on 11 October 2026. Hosted rollout prepara
 
 ## Useful distinctions
 
-Slack delivery is covered with mocked network responses. No real Slack messages were sent, and no production webhook has been configured. A hosted frontend preview was deployed for runtime verification; the rebuilt production cutover is still pending at this checkpoint. Social posting was not performed. The local production preview is isolated from other projects.
+Slack delivery is covered with mocked network responses. No real Slack messages were sent, and no production webhook has been configured. The rebuilt backend is healthy and the canonical production frontend passed the public smoke. Social posting was not performed. The local production preview is isolated from other projects.
 
 A single production image request initially returned a temporary 503. The exact full live RSS flow passed on repeat, including image rendering. Safe fetch/render-stage diagnostics are included for future failures without logging watchlist contents, tokens or credentials.
 
 The browser suite runs against the built server instead of a second Vite process. This avoids development dependency-cache interference and exercises the production code path. Each test creates its own disposable workspace and removes it afterward.
 
-## Hosted preparation checkpoint
+## Verified initial hosted release
 
 - Both standalone Node and Vercel builds pass Astro checks with zero diagnostics.
 - The first cloud preview exposed an adapter 11.0.13 startup failure caused by a missing Rolldown native binding. The exact 11.0.12 pin removes that runtime import. A copied, isolated function bundle passes dashboard GET/HEAD, all backend fetch paths, gateway header protection, canonical metadata, and bundled-font PNG rendering.
 - The backend image was published for Linux AMD64 and ARM64 with the immutable digest recorded in `backend/helm/values.yaml`.
 - The restored Helm chart passes strict lint, normal rendering, rendering with optional ingress/middleware disabled, and a complete live server dry-run against the installed schemas. These checks do not establish runtime health or persistent-volume readiness, and dry-run did not apply the chart.
-- Cluster operator connectivity has been restored with approval. The temporary cluster-local legacy backup Job/RBAC is a separate pending approval gate. No production release is claimed before that backup and the staged rollout are verified.
-- The reusable deployment smoke script passes against the isolated Docker preview using Hacker News' first-party RSS feed: 20 real stories, saved state and search, workspace isolation, public HTML and 1200 by 630 PNG, cloning, revocation, and deletion of both disposable workspaces with invalidated keys. Public production verification remains pending.
+- The approved legacy backup completed entirely inside the cluster: 45,056 bytes at `/data/legacy/database-before-rebuild.sqlite`, with integrity and restore verification. Temporary Job, ConfigMap, ServiceAccount, Role and RoleBinding resources were deleted.
+- Argo is `Synced` and `Healthy` at `1d0c16841ef8870c5c791678023b6e77cd8393bf`. The backend Pod is 1/1 Ready with zero restarts. Public health returns 200, version 1.0.0, scheduler enabled; missing gateway authentication returns 401. The chart explicitly selects ServiceAccount `default` with token automount disabled, fixing inheritance of the pruned legacy account.
+- [Hosted preview](https://subabot-fj4wuceac-dgtech.vercel.app), deployment `dpl_2Tpw9qPhnpTavWFhvBa6Dwi9TKoG`, passes the complete public smoke against that backend: one source and 19 real stories, saved state/search, isolation, public HTML and 1200 by 630 PNG, cloning, revocation, and deletion of both disposable workspaces with invalidated keys.
+- Production deployment `dpl_45ktWJ4nTn6d9hTcardZ3FjsJ2DB` is ready from source `1d0c16841ef8870c5c791678023b6e77cd8393bf`, with `subabot.gezici.me` and `subabot.vercel.app` aliases assigned. The complete smoke passed again at the canonical production domain with 19 real stories and all disposable data cleaned up.
+- The production homepage displays the new design. Preview browser checks verified desktop search plus the drawer and template flow at 390px width.
+- The latest 69 backend log lines contained no `ERROR`, `Traceback`, or `CRITICAL`. The preview deployment's queried Vercel error/fatal logs were empty. These observations are limited to the checked windows.
+- The same reusable smoke script also passed against the isolated Docker preview with 20 real stories.
 
-Use [deployment.md](deployment.md) for release order and the public smoke command. Record the final deployed commit, image digest, smoke results, and rollout health after completion.
+Use [deployment.md](deployment.md) for the initial release identifiers, image digest, future release order, rollback, and public smoke command.
 
 ## Local preview
 

@@ -2,6 +2,8 @@
 
 **Less noise. More signal.** An open-source RSS radar for the things you care about, built by [Doruk Gezici](https://github.com/dorukgezici).
 
+[Open Subabot](https://subabot.gezici.me) · [Try the demo](https://subabot.gezici.me/dashboard?demo=1) · [Explore watchlists](https://subabot.gezici.me/explore)
+
 Follow keywords across your favorite feeds, read the matches in a calm inbox, and send new discoveries to Slack. Start with a curated watchlist, or build one for your corner of the internet. Make a watchlist public when it is useful to others, and let anyone create their own copy.
 
 ## What you can do
@@ -79,9 +81,9 @@ The frontend is a server application because public watchlists, public social im
 
 ## Public hosting
 
-The prepared deployment targets are `https://subabot.gezici.me` for the Vercel frontend and `https://subabot.pub.gezici.me` for the persistent backend. The backend's Helm chart preserves its existing ingress and pins an immutable image digest. A server-only shared gateway key protects API access between the two hosts.
+Subabot is live at [subabot.gezici.me](https://subabot.gezici.me), with a Vercel frontend and persistent backend at `https://subabot.pub.gezici.me`. The canonical production domain passes the full public smoke check, including real RSS ingestion, saved state, isolation, sharing, cloning, and revocation. The Helm chart pins an immutable backend image, and a server-only shared gateway key protects backend API access.
 
-Read the [deployment runbook](docs/deployment.md) for the current rollout checkpoint, required secret configuration, backup boundary, staged release, smoke checks, and rollback procedure. Preparation is not a declaration that the rebuilt production service is live.
+Read the [deployment runbook](docs/deployment.md) for the verified initial release, required secret configuration, in-cluster legacy backup, future release checks, and rollback procedure.
 
 ## Workspace privacy
 

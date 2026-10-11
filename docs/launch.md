@@ -57,7 +57,7 @@ These events are a measurement plan, not an assertion that instrumentation alrea
 
 ## Production launch checklist
 
-Use the [deployment runbook](deployment.md) for the existing Vercel plus k3s/Argo CD release. These boxes describe release acceptance, not completed production work.
+Use this checklist for future releases on the existing Vercel plus k3s/Argo CD setup. The completed initial production launch and its observed results are recorded in the [deployment runbook](deployment.md) and [verification record](verification.md).
 
 - [ ] Build Vercel with the canonical HTTPS `PUBLIC_SITE_URL` and verify both public hostnames.
 - [ ] Configure matching server-only gateway keys in Vercel and Kubernetes before enabling public backend proxy trust. Keep one backend replica and one scheduler worker.
