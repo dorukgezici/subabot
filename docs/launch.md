@@ -94,7 +94,7 @@ The rewrite removes the old Prefect deployment and Tailscale CI dependency. Work
 
 - [GitHub checkout releases](https://github.com/actions/checkout/releases): use v7, which includes safer pull-request checkout behavior and current dependency fixes.
 - [GitHub setup-node releases](https://github.com/actions/setup-node/releases): use v7 with Node.js 24 for the frontend.
-- [Astral setup-uv releases](https://github.com/astral-sh/setup-uv/releases): use v10 with Python 3.14 for backend checks.
+- [Astral setup-uv releases](https://github.com/astral-sh/setup-uv/releases): pin v10.3.0 to its immutable commit with Python 3.14 for backend checks. The v10 major-version alias is not published.
 - [resvg rendering API](https://github.com/thx/resvg-js/blob/main/index.d.ts): public social previews render PNG images on the server with system fonts available in the Docker image.
 
 Application dependency upgrade details and API behavior are documented in the backend and frontend source and their lockfiles.
